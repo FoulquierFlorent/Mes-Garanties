@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { itemsQuery, householdQuery, CATEGORIES, todayISO, fmt } from "@/lib/items";
+import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALERT_OPTIONS, alertDate, daysLeft, status, warrantyEnd, type AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
@@ -132,7 +132,8 @@ function AppPage() {
             return (
               <li key={i.id} className="flex items-center gap-4 p-4">
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</p>
+                  <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
+                  {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
                   <p className="text-xs uppercase tracking-wider text-accent">{i.category}</p>
                   <p className="text-sm text-muted-foreground">Fin de garantie : {fmt(end)}</p>
                 </div>

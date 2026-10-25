@@ -29,3 +29,13 @@ export const householdQuery = queryOptions({
     return { ...(m.households as { id: string; name: string; invite_code: string }), members: members ?? [] };
   },
 });
+
+export const RETURN_LABELS: Record<string, string> = {
+  none: "Aucun retour",
+  preparing: "En préparation",
+  sent: "Envoyé",
+  repair: "En réparation",
+  replaced: "Remplacé",
+  refunded: "Remboursé",
+  refused: "Refusé",
+};

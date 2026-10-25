@@ -23,12 +23,12 @@ function FoyerPage() {
 
   async function create() {
     const { error } = await supabase.rpc("create_household", { _name: name });
-    if (error) return toast.error("Création impossible");
+    if (error) { toast.error("Création impossible"); return; }
     toast.success("Foyer créé"); refresh();
   }
   async function join() {
     const { error } = await supabase.rpc("join_household", { _code: code });
-    if (error) return toast.error("Code invalide");
+    if (error) { toast.error("Code invalide"); return; }
     toast.success("Vous avez rejoint le foyer"); refresh();
   }
   async function leave() {

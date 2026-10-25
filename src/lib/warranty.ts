@@ -7,7 +7,7 @@ export const ALERT_OPTIONS: { key: AlertKey; label: string }[] = [
 ];
 
 function parse(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
+  const [y = 0, m = 1, day = 1] = d.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, day));
 }
 

@@ -33,20 +33,20 @@ function AuthPage() {
     if (mode === "in") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
-      if (error) return toast.error("Identifiants incorrects");
+      if (error) { toast.error("Identifiants incorrects"); return; }
       navigate({ to: "/app" });
     } else {
       const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/app" } });
       setLoading(false);
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
       toast.success("Vérifiez votre e-mail pour confirmer votre compte.");
     }
   }
 
   async function oauth(p: "google" | "lovable") {
     const r = await lovable.auth.signInWithOAuth(p, { redirect_uri: window.location.origin });
-    if (r.error) return toast.error("Connexion impossible");
-    if (r.redirected) return;
+    if (r.error) { toast.error("Connexion impossible"); return; }
+    if (r.redirected) { return; }
     navigate({ to: "/app" });
   }
 
