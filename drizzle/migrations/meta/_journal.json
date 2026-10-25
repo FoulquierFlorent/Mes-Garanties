@@ -8,6 +8,13 @@
       "when": 1792946150253,
       "tag": "0000_create_items",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792946289986,
+      "tag": "0001_households_categories",
+      "breakpoints": true
     }
   ]
 }

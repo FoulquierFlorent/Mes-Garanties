@@ -14,11 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      household_members: {
+        Row: {
+          email: string | null
+          household_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          email?: string | null
+          household_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          email?: string | null
+          household_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      households: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          invite_code: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          invite_code?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          invite_code?: string
+          name?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           alerts: string[]
           brand: string | null
+          category: string
           created_at: string
+          household_id: string | null
           id: string
           name: string
           notes: string | null
@@ -30,7 +85,9 @@ export type Database = {
         Insert: {
           alerts?: string[]
           brand?: string | null
+          category?: string
           created_at?: string
+          household_id?: string | null
           id?: string
           name: string
           notes?: string | null
@@ -42,7 +99,9 @@ export type Database = {
         Update: {
           alerts?: string[]
           brand?: string | null
+          category?: string
           created_at?: string
+          household_id?: string | null
           id?: string
           name?: string
           notes?: string | null
@@ -51,14 +110,27 @@ export type Database = {
           user_id?: string
           warranty_months?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "items_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_household: { Args: { _name: string }; Returns: string }
+      is_household_member: {
+        Args: { _hid: string; _uid: string }
+        Returns: boolean
+      }
+      join_household: { Args: { _code: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
