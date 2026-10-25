@@ -78,6 +78,10 @@ export type Database = {
           name: string
           notes: string | null
           purchase_date: string
+          return_notes: string | null
+          return_sent_date: string | null
+          return_status: string
+          return_tracking: string | null
           store: string | null
           user_id: string
           warranty_months: number
@@ -92,6 +96,10 @@ export type Database = {
           name: string
           notes?: string | null
           purchase_date: string
+          return_notes?: string | null
+          return_sent_date?: string | null
+          return_status?: string
+          return_tracking?: string | null
           store?: string | null
           user_id?: string
           warranty_months?: number
@@ -106,6 +114,10 @@ export type Database = {
           name?: string
           notes?: string | null
           purchase_date?: string
+          return_notes?: string | null
+          return_sent_date?: string | null
+          return_status?: string
+          return_tracking?: string | null
           store?: string | null
           user_id?: string
           warranty_months?: number

@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedCalendrierRouteImport } from './routes/_authenticated/calendrier'
+import { Route as AuthenticatedFoyerRouteImport } from './routes/_authenticated/foyer'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +46,11 @@ const AuthenticatedCalendrierRoute = AuthenticatedCalendrierRouteImport.update({
   path: '/calendrier',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFoyerRoute = AuthenticatedFoyerRouteImport.update({
+  id: '/foyer',
+  path: '/foyer',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/tarifs': typeof TarifsRoute
   '/app': typeof AuthenticatedAppRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
+  '/foyer': typeof AuthenticatedFoyerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/tarifs': typeof TarifsRoute
   '/app': typeof AuthenticatedAppRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
+  '/foyer': typeof AuthenticatedFoyerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +76,13 @@ export interface FileRoutesById {
   '/tarifs': typeof TarifsRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/calendrier': typeof AuthenticatedCalendrierRoute
+  '/_authenticated/foyer': typeof AuthenticatedFoyerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/tarifs' | '/app' | '/calendrier'
+  fullPaths: '/' | '/auth' | '/tarifs' | '/app' | '/calendrier' | '/foyer'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/tarifs' | '/app' | '/calendrier'
+  to: '/' | '/auth' | '/tarifs' | '/app' | '/calendrier' | '/foyer'
   id:
     | '__root__'
     | '/'
@@ -82,6 +91,7 @@ export interface FileRouteTypes {
     | '/tarifs'
     | '/_authenticated/app'
     | '/_authenticated/calendrier'
+    | '/_authenticated/foyer'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -135,17 +145,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalendrierRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/foyer': {
+      id: '/_authenticated/foyer'
+      path: '/foyer'
+      fullPath: '/foyer'
+      preLoaderRoute: typeof AuthenticatedFoyerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedCalendrierRoute: typeof AuthenticatedCalendrierRoute
+  AuthenticatedFoyerRoute: typeof AuthenticatedFoyerRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedCalendrierRoute: AuthenticatedCalendrierRoute,
+  AuthenticatedFoyerRoute: AuthenticatedFoyerRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
