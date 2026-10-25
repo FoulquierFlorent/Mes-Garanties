@@ -137,12 +137,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_item: {
+        Args: { _item: string; _uid: string }
+        Returns: boolean
+      }
       create_household: { Args: { _name: string }; Returns: string }
       is_household_member: {
         Args: { _hid: string; _uid: string }
         Returns: boolean
       }
       join_household: { Args: { _code: string }; Returns: string }
+      safe_uuid: { Args: { _t: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

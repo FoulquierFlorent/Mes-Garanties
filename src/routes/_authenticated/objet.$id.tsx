@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
 import { warrantyEnd } from "@/lib/warranty";
 import { buildLetter, type LetterInput } from "@/lib/letter";
+import { Receipts } from "@/components/Receipts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,7 +58,9 @@ function ItemPage() {
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""} · garantie jusqu'au {fmt(end)}</p>
 
-      <section className="mt-10 rounded-lg border bg-card p-6">
+      <Receipts itemId={item.id} />
+
+      <section className="mt-8 rounded-lg border bg-card p-6">
         <h2 className="text-2xl">Suivi du retour</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5"><Label>Statut</Label>
