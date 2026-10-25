@@ -4,7 +4,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { itemsQuery, todayISO, fmt } from "@/lib/items";
+import { itemsQuery, householdQuery, CATEGORIES, todayISO, fmt } from "@/lib/items";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALERT_OPTIONS, alertDate, daysLeft, status, warrantyEnd, type AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,18 +16,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({ meta: [{ title: "Mes objets — Garantia" }, { name: "description", content: "Vos objets et leurs garanties." }] }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(itemsQuery),
+  loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(itemsQuery), context.queryClient.ensureQueryData(householdQuery)]),
   component: AppPage,
 });
 
-function AddItem() {
+function AddItem({ householdId }: { householdId: string | null }) {
   const qc = useQueryClient();
+  const [category, setCategory] = useState("Électronique");
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
   const m = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("items").insert({ ...f, alerts });
+      const { error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -44,6 +46,12 @@ function AddItem() {
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
           <div className="space-y-1.5"><Label>Nom</Label><Input required placeholder="Lave-linge" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label>Catégorie</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label>Marque</Label><Input value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>Magasin</Label><Input value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>
@@ -69,7 +77,11 @@ function AddItem() {
 }
 
 function AppPage() {
-  const { data: items } = useSuspenseQuery(itemsQuery);
+  const { data: allItems } = useSuspenseQuery(itemsQuery);
+  const { data: household } = useSuspenseQuery(householdQuery);
+  const [cat, setCat] = useState<string | null>(null);
+  const items = cat ? allItems.filter((i) => i.category === cat) : allItems;
+  const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
   const qc = useQueryClient();
   const today = todayISO();
   const del = async (id: string) => {
@@ -85,9 +97,19 @@ function AppPage() {
   return (
     <main className="mx-auto max-w-4xl px-5 py-12">
       <div className="flex items-end justify-between gap-4">
-        <h1 className="text-4xl sm:text-5xl">Mes objets</h1>
-        <AddItem />
+        <div>
+          <h1 className="text-4xl sm:text-5xl">{household ? household.name : "Mes objets"}</h1>
+          {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
+        </div>
+        <AddItem householdId={household?.id ?? null} />
       </div>
+      {usedCats.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2">
+          {[null, ...usedCats].map((c) => (
+            <Button key={c ?? "all"} size="sm" variant={cat === c ? "default" : "outline"} className="rounded-full" onClick={() => setCat(c)}>{c ?? "Toutes"}</Button>
+          ))}
+        </div>
+      )}
 
       {upcoming.length > 0 && (
         <div className="mt-8 rounded-lg border border-accent/40 bg-accent/10 p-4">
@@ -111,6 +133,7 @@ function AppPage() {
               <li key={i.id} className="flex items-center gap-4 p-4">
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</p>
+                  <p className="text-xs uppercase tracking-wider text-accent">{i.category}</p>
                   <p className="text-sm text-muted-foreground">Fin de garantie : {fmt(end)}</p>
                 </div>
                 <Badge variant="outline" className={s === "expired" ? "text-destructive border-destructive/40" : s === "soon" ? "text-warning border-warning/50" : "text-success border-success/40"}>

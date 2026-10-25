@@ -23,7 +23,8 @@ export function SiteHeader() {
             <>
               <Link to="/app" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Objets</Link>
               <Link to="/calendrier" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Calendrier</Link>
-              <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}>
+              <Link to="/foyer" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Foyer</Link>
+              <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}>
                 Déconnexion
               </Button>
             </>

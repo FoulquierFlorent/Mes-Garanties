@@ -16,3 +16,16 @@ export const itemsQuery = queryOptions({
 export const todayISO = () => new Date().toISOString().slice(0, 10);
 export const fmt = (d: string) =>
   new Date(d + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+export const CATEGORIES = ["Électronique", "Électroménager", "Meuble", "Sport", "Enfant", "Jeux", "Accessoires", "Vêtements", "Bricolage", "Autre"];
+
+export const householdQuery = queryOptions({
+  queryKey: ["household"],
+  queryFn: async () => {
+    const { data: m, error } = await supabase.from("household_members").select("household_id, households(id, name, invite_code)").limit(1).maybeSingle();
+    if (error) throw error;
+    if (!m) return null;
+    const { data: members } = await supabase.from("household_members").select("user_id, email").eq("household_id", m.household_id);
+    return { ...(m.households as { id: string; name: string; invite_code: string }), members: members ?? [] };
+  },
+});
