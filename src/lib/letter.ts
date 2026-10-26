@@ -13,7 +13,7 @@ export type LetterInput = {
 
 const PROBLEMS = {
   panne: "présente un dysfonctionnement",
-  casse: "est cassé dans des conditions normales d'utilisation",
+  casse: "est détérioré ou cassé",
   hs: "ne fonctionne plus",
 };
 
@@ -31,11 +31,13 @@ Objet : demande de remplacement ou de réparation au titre de la garantie
 
 Madame, Monsieur,
 
-Le ${i.purchaseDate}, j'ai acheté dans votre enseigne le produit suivant : ${product}. Ce produit est couvert par une garantie valable jusqu'au ${i.warrantyEnd}.
+Le ${i.purchaseDate}, j'ai acheté dans votre enseigne le produit suivant : ${product}. La date de fin de garantie renseignée dans mon dossier est le ${i.warrantyEnd}.
 
 Or, ce produit ${PROBLEMS[i.problem]}.${i.details ? `\n\n${i.details}` : ""}
 
-Conformément à la garantie légale de conformité (articles L.217-3 et suivants du Code de la consommation) et à la garantie commerciale dont il bénéficie, je vous demande de bien vouloir procéder à son remplacement ou, à défaut, à sa réparation, sans frais.
+Je vous demande la mise en conformité du bien par son remplacement, au titre de la garantie légale de conformité (articles L.217-3 et suivants, notamment L.217-9, du Code de la consommation), sous réserve que ce défaut relève de cette garantie. Si le remplacement est impossible ou entraîne un coût disproportionné au sens de la loi, je vous remercie de motiver votre décision et de me proposer une réparation.
+
+La mise en conformité doit être effectuée sans frais, dans un délai raisonnable ne dépassant pas trente jours suivant ma demande et sans inconvénient majeur, conformément aux articles L.217-10 et L.217-11. Merci de m'indiquer les modalités de prise en charge.
 
 Vous trouverez ci-joint une copie de ma preuve d'achat.
 
