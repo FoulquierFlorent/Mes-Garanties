@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ComponentType } from "react";
 
 const { letterSpy } = vi.hoisted(() => ({ letterSpy: vi.fn(() => "") }));
 vi.mock("@tanstack/react-query", () => ({
+  queryOptions: (options: unknown) => options,
   useSuspenseQuery: () => ({ data: [{ id: "shared-item", name: "Lave-linge", category: "Électroménager", purchase_date: "2025-01-15", warranty_months: 24, return_status: "none" }] }),
   useQueryClient: () => ({ invalidateQueries: vi.fn() }),
 }));
@@ -16,6 +17,7 @@ vi.mock("@/lib/letter", () => ({ buildLetter: letterSpy }));
 import { Route } from "@/routes/_authenticated/objet.$id";
 
 describe("signalement depuis un objet", () => {
+  afterEach(cleanup);
   beforeEach(() => { letterSpy.mockClear(); });
   it.each([
     ["Dysfonctionnement", "panne"],
