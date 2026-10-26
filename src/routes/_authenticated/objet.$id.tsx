@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Copy, Printer } from "lucide-react";
+import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
 import { warrantyEnd } from "@/lib/warranty";
@@ -32,6 +32,14 @@ function ItemPage() {
     return_notes: item?.return_notes ?? "",
   });
   const [l, setL] = useState({ senderName: "", senderAddress: "", problem: "panne" as LetterInput["problem"], details: "" });
+  const [reportOpen, setReportOpen] = useState(false);
+  const [letterOpen, setLetterOpen] = useState(false);
+  const letterRef = useRef<HTMLElement>(null);
+  function reportProblem(problem: LetterInput["problem"]) {
+    setL((value) => ({ ...value, problem }));
+    setLetterOpen(true);
+    setTimeout(() => letterRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" }), 50);
+  }
 
   if (!item) return <main className="p-12 text-center">Objet introuvable.</main>;
   const end = warrantyEnd(item.purchase_date, item.warranty_months);
@@ -58,6 +66,16 @@ function ItemPage() {
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""} · garantie jusqu'au {fmt(end)}</p>
 
+      <Button className="mt-6" variant="outline" aria-expanded={reportOpen} onClick={() => setReportOpen(!reportOpen)}><TriangleAlert />Signaler un problème</Button>
+      {reportOpen && <section className="mt-4 border-y py-5">
+        <h2 className="text-2xl">Que se passe-t-il avec cet objet ?</h2>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => reportProblem("panne")}>Dysfonctionnement</Button>
+          <Button variant="outline" onClick={() => reportProblem("casse")}>Objet détérioré ou cassé</Button>
+          <Button variant="outline" onClick={() => reportProblem("hs")}>Ne fonctionne plus</Button>
+        </div>
+      </section>}
+
       <Receipts itemId={item.id} />
 
       <section className="mt-8 rounded-lg border bg-card p-6">
@@ -76,8 +94,11 @@ function ItemPage() {
         <Button className="mt-4" onClick={saveReturn}>Enregistrer</Button>
       </section>
 
-      <section className="mt-8 rounded-lg border bg-card p-6">
+      <section ref={letterRef} className="mt-8 scroll-mt-6 border-t py-6">
         <h2 className="text-2xl">Lettre de demande de remplacement</h2>
+        {!letterOpen && <Button className="mt-4" variant="outline" onClick={() => setLetterOpen(true)}>Rédiger une lettre</Button>}
+        {letterOpen && <>
+        <p className="mt-3 text-sm text-muted-foreground">La garantie légale de conformité concerne les défauts couverts par la loi lors d’un achat auprès d’un vendeur professionnel. Une casse accidentelle ou une mauvaise utilisation n’est pas automatiquement couverte ; la durée de garantie enregistrée ne suffit pas à établir vos droits.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5"><Label>Votre nom</Label><Input value={l.senderName} onChange={(e) => setL({ ...l, senderName: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Problème</Label>
@@ -98,6 +119,7 @@ function ItemPage() {
           <Button variant="outline" onClick={() => { navigator.clipboard.writeText(letter); toast.success("Lettre copiée"); }}><Copy className="h-4 w-4" />Copier</Button>
           <Button onClick={print}><Printer className="h-4 w-4" />Imprimer / PDF</Button>
         </div>
+        </>}
       </section>
     </main>
   );

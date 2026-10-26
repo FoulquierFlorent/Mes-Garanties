@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Calendar entries link to the existing item detail route and use the shared warranty date utilities, so all views calculate the same deadlines.
+- Problem reporting opens the letter editor on the item detail page; it does not assert eligibility or save a claim automatically.
