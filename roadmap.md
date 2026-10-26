@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Photo du ticket par objet avec lecture et classement
 - [ ] Calendrier interactif pour retrouver rapidement les fins de garantie
 - [ ] Accès aux objets partagés et signalement d'un problème ouvrant une lettre de conformité
 - [x] Site + compte + objets + calendrier + alertes (3 mois / 1 mois / 1 semaine)
