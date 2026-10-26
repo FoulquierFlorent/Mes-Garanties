@@ -9,6 +9,8 @@ export const Route = createFileRoute("/tarifs")({
       { name: "description", content: "Commencez gratuitement. Un abonnement annuel arrive bientôt." },
       { property: "og:title", content: "Tarifs — Garantia" },
       { property: "og:description", content: "Commencez gratuitement. Un abonnement annuel arrive bientôt." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Tarifs,

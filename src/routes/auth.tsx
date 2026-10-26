@@ -15,6 +15,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Connectez-vous ou créez votre compte Garantia." },
       { property: "og:title", content: "Connexion — Garantia" },
       { property: "og:description", content: "Connectez-vous ou créez votre compte Garantia." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
