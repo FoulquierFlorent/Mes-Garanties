@@ -29,6 +29,13 @@
       "when": 1792946390637,
       "tag": "0003_receipts_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793112872436,
+      "tag": "0004_item_store_brand_warranties",
+      "breakpoints": true
     }
   ]
 }
