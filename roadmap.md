@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Photos facultatives de l’objet lors de son ajout
 - [ ] Garanties magasin et marque distinctes avec choix de durée en années uniquement
 - [x] Photo du ticket par objet avec lecture et classement
 - [x] Calendrier interactif pour retrouver rapidement les fins de garantie
