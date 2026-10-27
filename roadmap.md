@@ -1,7 +1,8 @@
 # Roadmap
-- [ ] Photo du ticket par objet avec lecture et classement
-- [ ] Calendrier interactif pour retrouver rapidement les fins de garantie
-- [ ] Accès aux objets partagés et signalement d'un problème ouvrant une lettre de conformité
+- [x] Photo du ticket par objet avec lecture et classement
+- [x] Calendrier interactif pour retrouver rapidement les fins de garantie
+- [x] Accès aux objets partagés et signalement d'un problème ouvrant une lettre de conformité
+- [ ] Vérification complète du calendrier, des objets partagés et d'une vraie photo de ticket — en attente d'un premier compte créé et connecté
 - [x] Site + compte + objets + calendrier + alertes (3 mois / 1 mois / 1 semaine)
 - [x] Partage par foyer (plusieurs personnes, code d'invitation)
 - [x] Catégories d'achats (sport, enfant, jeux, électronique, meuble, accessoires…)
