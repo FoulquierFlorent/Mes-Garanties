@@ -10,5 +10,6 @@
 <!-- LOVABLE:END -->
 
 - Calendar entries link to the existing item detail route and use the shared warranty date utilities, so all views calculate the same deadlines.
+- Optional store and brand warranties use separate year-valued fields and the shared itemWarranties utility for deadlines; the existing primary warranty remains distinct to preserve saved durations and letter semantics.
 - Problem reporting opens the letter editor on the item detail page; it does not assert eligibility or save a claim automatically.
 - Receipt OCR is dynamically loaded in browser actions only; extracted text is stored as a text sidecar in the same private item folder to preserve household access restrictions.
