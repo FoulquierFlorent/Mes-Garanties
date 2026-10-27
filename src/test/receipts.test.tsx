@@ -1,10 +1,10 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  upload: vi.fn(async () => ({ error: null })),
-  download: vi.fn(async () => ({ data: null })),
-  recognize: vi.fn(async () => ({ data: { text: "Magasin Exemple\nTotal 42,50 EUR" } })),
+  upload: vi.fn(async (_path: string, _file: Blob) => ({ error: null })),
+  download: vi.fn(async (_path: string) => ({ data: null })),
+  recognize: vi.fn(async (_photo: Blob) => ({ data: { text: "Magasin Exemple\nTotal 42,50 EUR" } })),
   terminate: vi.fn(async () => {}),
 }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => ({ invalidateQueries: vi.fn() }), useQuery: () => ({ data: [] }) }));
