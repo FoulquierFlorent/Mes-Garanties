@@ -13,6 +13,7 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
 }));
 vi.mock("@/components/Receipts", () => ({ Receipts: () => null }));
+vi.mock("@/components/ItemPhotos", () => ({ ItemPhotos: () => null }));
 vi.mock("@/lib/letter", () => ({ buildLetter: letterSpy }));
 import { Route } from "@/routes/_authenticated/objet.$id";
 

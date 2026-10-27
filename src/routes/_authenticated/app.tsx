@@ -8,6 +8,8 @@ import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALERT_OPTIONS, alertDate, daysLeft, status, warrantyEnd, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
+import { PhotoPicker } from "@/components/ItemPhotos";
+import { uploadItemPhotos } from "@/lib/item-photos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,27 +31,43 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
   const [storeYears, setStoreYears] = useState<number | null>(null);
   const [brandYears, setBrandYears] = useState<number | null>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [savedItemId, setSavedItemId] = useState<string | null>(null);
   const m = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears });
-      if (error) throw error;
+      let itemId = savedItemId;
+      if (!itemId) {
+        const { data, error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears }).select("id").single();
+        if (error) throw error;
+        itemId = data.id;
+        setSavedItemId(itemId);
+      }
+      const failed = await uploadItemPhotos(itemId, photos);
+      setPhotos(failed);
+      if (failed.length) throw new Error("photos");
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
       setOpen(false);
       setStoreYears(null);
       setBrandYears(null);
+      setPhotos([]);
+      setSavedItemId(null);
       setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
       toast.success("Objet ajouté");
     },
-    onError: () => toast.error("Impossible d'ajouter l'objet"),
+    onError: (error) => {
+      qc.invalidateQueries({ queryKey: ["items"] });
+      toast.error(error.message === "photos" ? "Objet enregistré, mais certaines photos ont échoué. Réessayez l’envoi ou fermez pour les ajouter plus tard." : "Impossible d'ajouter l'objet");
+    },
   });
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
+          <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
           <div className="space-y-1.5"><Label>Nom</Label><Input required placeholder="Lave-linge" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Catégorie</Label>
             <Select value={category} onValueChange={setCategory}>
@@ -78,7 +96,9 @@ function AddItem({ householdId }: { householdId: string | null }) {
               </label>
             ))}
           </div>
-          <Button className="w-full" disabled={m.isPending}>Enregistrer</Button>
+          </fieldset>
+          <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
+          <Button className="w-full" disabled={m.isPending}>{m.isPending ? "Enregistrement…" : savedItemId ? "Réessayer l’envoi des photos" : "Enregistrer"}</Button>
         </form>
       </DialogContent>
     </Dialog>

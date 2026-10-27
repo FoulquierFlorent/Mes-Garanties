@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
 import { warrantyEnd, itemWarranties, yearsLabel } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
+import { ItemPhotos } from "@/components/ItemPhotos";
 import { buildLetter, type LetterInput } from "@/lib/letter";
 import { Receipts } from "@/components/Receipts";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,7 @@ function ItemPage() {
       </section>}
 
       <Receipts itemId={item.id} />
+      <ItemPhotos itemId={item.id} />
 
       <section className="mt-8 rounded-lg border bg-card p-6">
         <h2 className="text-2xl">Suivi du retour</h2>
