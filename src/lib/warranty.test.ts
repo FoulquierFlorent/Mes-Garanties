@@ -1,7 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { alertDate, warrantyEnd, status } from "./warranty";
+import { alertDate, warrantyEnd, status, itemWarranties, WARRANTY_YEARS } from "./warranty";
 
 describe("garantie", () => {
+  it("propose uniquement des durées en années entières", () => {
+    expect(WARRANTY_YEARS.slice(0, 3)).toEqual([1, 2, 3]);
+    expect(WARRANTY_YEARS.every((y) => Number.isInteger(y) && y >= 1)).toBe(true);
+  });
+  it("calcule séparément la garantie magasin et la garantie de marque", () => {
+    expect(itemWarranties({ purchase_date: "2025-03-15", warranty_months: 24, store_warranty_years: 1, brand_warranty_years: 3 })).toEqual([
+      { key: "base", label: "Garantie principale", end: "2027-03-15" },
+      { key: "store", label: "Garantie magasin", end: "2026-03-15" },
+      { key: "brand", label: "Garantie de marque", end: "2028-03-15" },
+    ]);
+  });
+  it("préserve la garantie existante sans en inventer d'autres", () => {
+    expect(itemWarranties({ purchase_date: "2024-01-31", warranty_months: 1, store_warranty_years: null, brand_warranty_years: null })).toEqual([{ key: "base", label: "Garantie principale", end: "2024-02-29" }]);
+  });
   it("fin de garantie = date d'achat + durée", () => {
     expect(warrantyEnd("2025-03-15", 24)).toBe("2027-03-15");
     expect(warrantyEnd("2024-01-31", 1)).toBe("2024-02-29");

@@ -1,0 +1,2 @@
+ALTER TABLE public.items ADD COLUMN store_warranty_years integer, ADD COLUMN brand_warranty_years integer;
+ALTER TABLE public.items ADD CONSTRAINT items_store_warranty_years_positive CHECK (store_warranty_years IS NULL OR store_warranty_years >= 1), ADD CONSTRAINT items_brand_warranty_years_positive CHECK (brand_warranty_years IS NULL OR brand_warranty_years >= 1);

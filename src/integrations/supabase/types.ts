@@ -71,6 +71,7 @@ export type Database = {
         Row: {
           alerts: string[]
           brand: string | null
+          brand_warranty_years: number | null
           category: string
           created_at: string
           household_id: string | null
@@ -83,12 +84,14 @@ export type Database = {
           return_status: string
           return_tracking: string | null
           store: string | null
+          store_warranty_years: number | null
           user_id: string
           warranty_months: number
         }
         Insert: {
           alerts?: string[]
           brand?: string | null
+          brand_warranty_years?: number | null
           category?: string
           created_at?: string
           household_id?: string | null
@@ -101,12 +104,14 @@ export type Database = {
           return_status?: string
           return_tracking?: string | null
           store?: string | null
+          store_warranty_years?: number | null
           user_id?: string
           warranty_months?: number
         }
         Update: {
           alerts?: string[]
           brand?: string | null
+          brand_warranty_years?: number | null
           category?: string
           created_at?: string
           household_id?: string | null
@@ -119,6 +124,7 @@ export type Database = {
           return_status?: string
           return_tracking?: string | null
           store?: string | null
+          store_warranty_years?: number | null
           user_id?: string
           warranty_months?: number
         }

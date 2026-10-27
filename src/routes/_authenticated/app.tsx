@@ -6,7 +6,10 @@ import { Plus, Trash2, Bell, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ALERT_OPTIONS, alertDate, daysLeft, status, warrantyEnd, type AlertKey } from "@/lib/warranty";
+import { ALERT_OPTIONS, alertDate, daysLeft, status, warrantyEnd, itemWarranties, type AlertKey } from "@/lib/warranty";
+import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
+import { PhotoPicker } from "@/components/ItemPhotos";
+import { uploadItemPhotos } from "@/lib/item-photos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,25 +29,45 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
+  const [storeYears, setStoreYears] = useState<number | null>(null);
+  const [brandYears, setBrandYears] = useState<number | null>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [savedItemId, setSavedItemId] = useState<string | null>(null);
   const m = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId });
-      if (error) throw error;
+      let itemId = savedItemId;
+      if (!itemId) {
+        const { data, error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears }).select("id").single();
+        if (error) throw error;
+        itemId = data.id;
+        setSavedItemId(itemId);
+      }
+      const failed = await uploadItemPhotos(itemId, photos);
+      setPhotos(failed);
+      if (failed.length) throw new Error("photos");
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
       setOpen(false);
+      setStoreYears(null);
+      setBrandYears(null);
+      setPhotos([]);
+      setSavedItemId(null);
       setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
       toast.success("Objet ajouté");
     },
-    onError: () => toast.error("Impossible d'ajouter l'objet"),
+    onError: (error) => {
+      qc.invalidateQueries({ queryKey: ["items"] });
+      toast.error(error.message === "photos" ? "Objet enregistré, mais certaines photos ont échoué. Réessayez l’envoi ou fermez pour les ajouter plus tard." : "Impossible d'ajouter l'objet");
+    },
   });
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
+          <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
           <div className="space-y-1.5"><Label>Nom</Label><Input required placeholder="Lave-linge" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Catégorie</Label>
             <Select value={category} onValueChange={setCategory}>
@@ -58,7 +81,11 @@ function AddItem({ householdId }: { householdId: string | null }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
-            <div className="space-y-1.5"><Label>Garantie (mois)</Label><Input type="number" min={1} required value={f.warranty_months} onChange={(e) => setF({ ...f, warranty_months: Number(e.target.value) })} /></div>
+            <WarrantyYearSelect id="primary-years" label="Garantie principale" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} />
+            <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} />
           </div>
           <div className="space-y-2">
             <Label>Alertes</Label>
@@ -69,7 +96,9 @@ function AddItem({ householdId }: { householdId: string | null }) {
               </label>
             ))}
           </div>
-          <Button className="w-full" disabled={m.isPending}>Enregistrer</Button>
+          </fieldset>
+          <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
+          <Button className="w-full" disabled={m.isPending}>{m.isPending ? "Enregistrement…" : savedItemId ? "Réessayer l’envoi des photos" : "Enregistrer"}</Button>
         </form>
       </DialogContent>
     </Dialog>
@@ -89,8 +118,7 @@ function AppPage() {
     qc.invalidateQueries({ queryKey: ["items"] });
   };
   const upcoming = items.flatMap((i) => {
-    const end = warrantyEnd(i.purchase_date, i.warranty_months);
-    return (i.alerts as AlertKey[]).map((a) => ({ item: i, date: alertDate(end, a), end }))
+    return itemWarranties(i).flatMap((w) => (i.alerts as AlertKey[]).map((a) => ({ item: i, label: w.label, date: alertDate(w.end, a), end: w.end })))
       .filter((x) => x.date <= today && x.end >= today);
   });
 
@@ -115,8 +143,8 @@ function AppPage() {
         <div className="mt-8 rounded-lg border border-accent/40 bg-accent/10 p-4">
           <p className="flex items-center gap-2 text-sm font-medium"><Bell className="h-4 w-4 text-accent" />Garanties bientôt terminées</p>
           <ul className="mt-2 space-y-1 text-sm">
-            {[...new Map(upcoming.map((u) => [u.item.id, u])).values()].map((u) => (
-              <li key={u.item.id}>{u.item.name} — fin le {fmt(u.end)} ({daysLeft(u.end, today)} j)</li>
+            {[...new Map(upcoming.map((u) => [u.item.id + u.label, u])).values()].map((u) => (
+              <li key={u.item.id + u.label}>{u.item.name} · {u.label} — fin le {fmt(u.end)} ({daysLeft(u.end, today)} j)</li>
             ))}
           </ul>
         </div>
@@ -138,6 +166,7 @@ function AppPage() {
                     {household && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.email?.split("@")[0] ?? "un membre"}</span>}
                   </p>
                   <p className="text-sm text-muted-foreground">Fin de garantie : {fmt(end)}</p>
+                  {itemWarranties(i).filter((w) => w.key !== "base").map((w) => <p key={w.key} className="text-xs text-muted-foreground">{w.label} : {fmt(w.end)}</p>)}
                 </div>
                 <Badge variant="outline" className={s === "expired" ? "text-destructive border-destructive/40" : s === "soon" ? "text-warning border-warning/50" : "text-success border-success/40"}>
                   {s === "expired" ? "Expirée" : s === "soon" ? `${daysLeft(end, today)} j` : "Active"}
