@@ -1,0 +1,3 @@
+CREATE POLICY "item photos read" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'item-photos' AND public.can_access_item(public.safe_uuid((storage.foldername(name))[1]), auth.uid()));
+CREATE POLICY "item photos insert" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'item-photos' AND public.can_access_item(public.safe_uuid((storage.foldername(name))[1]), auth.uid()));
+CREATE POLICY "item photos delete" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'item-photos' AND public.can_access_item(public.safe_uuid((storage.foldername(name))[1]), auth.uid()));

@@ -36,6 +36,13 @@
       "when": 1793112872436,
       "tag": "0004_item_store_brand_warranties",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793112962450,
+      "tag": "0005_private_item_photos",
+      "breakpoints": true
     }
   ]
 }
