@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
-import { warrantyEnd } from "@/lib/warranty";
+import { warrantyEnd, itemWarranties, yearsLabel } from "@/lib/warranty";
+import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { buildLetter, type LetterInput } from "@/lib/letter";
 import { Receipts } from "@/components/Receipts";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,9 @@ function ItemPage() {
   const [l, setL] = useState({ senderName: "", senderAddress: "", problem: "panne" as LetterInput["problem"], details: "" });
   const [reportOpen, setReportOpen] = useState(false);
   const [letterOpen, setLetterOpen] = useState(false);
+  const [storeYears, setStoreYears] = useState<number | null>(item?.store_warranty_years ?? null);
+  const [brandYears, setBrandYears] = useState<number | null>(item?.brand_warranty_years ?? null);
+  const [savingWarranties, setSavingWarranties] = useState(false);
   const letterRef = useRef<HTMLElement>(null);
   function reportProblem(problem: LetterInput["problem"]) {
     setL((value) => ({ ...value, problem }));
@@ -51,6 +55,16 @@ function ItemPage() {
     qc.invalidateQueries({ queryKey: ["items"] });
     toast.success("Suivi enregistré");
   }
+  async function saveWarranties() {
+    setSavingWarranties(true);
+    try {
+      const { error } = await supabase.from("items").update({ store_warranty_years: storeYears, brand_warranty_years: brandYears }).eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success("Garanties enregistrées");
+    } catch { toast.error("Impossible d’enregistrer les garanties"); }
+    finally { setSavingWarranties(false); }
+  }
   function print() {
     const w = window.open("", "_blank");
     if (!w) return;
@@ -65,6 +79,16 @@ function ItemPage() {
       <p className="mt-6 text-xs uppercase tracking-wider text-accent">{item.category}</p>
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""} · garantie jusqu'au {fmt(end)}</p>
+
+      <section className="mt-6 border-y py-6">
+        <h2 className="text-2xl">Garanties magasin et marque</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} />
+          <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} />
+        </div>
+        {itemWarranties(item).filter((w) => w.key !== "base").map((w) => <p key={w.key} className="mt-3 text-sm text-muted-foreground">{w.label} · {yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1)} · jusqu’au {fmt(w.end)}</p>)}
+        <Button className="mt-4" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
+      </section>
 
       <Button className="mt-6" variant="outline" aria-expanded={reportOpen} onClick={() => setReportOpen(!reportOpen)}><TriangleAlert />Signaler un problème</Button>
       {reportOpen && <section className="mt-4 border-y py-5">
