@@ -1,13 +1,14 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { FileText, Trash2, Upload, ScanText } from "lucide-react";
+import { FileText, Trash2, Camera, Image as ImageIcon, ScanText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
 export function Receipts({ itemId }: { itemId: string }) {
   const qc = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
+  const galleryInput = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [reading, setReading] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
@@ -35,6 +36,7 @@ export function Receipts({ itemId }: { itemId: string }) {
     setBusy(false);
     qc.invalidateQueries({ queryKey: key });
     if (input.current) input.current.value = "";
+    if (galleryInput.current) galleryInput.current.value = "";
   }
   async function readPhoto(name: string, photo?: Blob) {
     setReading(name);
@@ -75,11 +77,15 @@ export function Receipts({ itemId }: { itemId: string }) {
     <section className="mt-8 border-t py-6">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-2xl">Factures et tickets</h2>
-        <Button size="sm" disabled={busy || reading !== null} onClick={() => input.current?.click()}><Upload className="h-4 w-4" />{busy ? "Envoi…" : "Ajouter"}</Button>
-        <input ref={input} type="file" accept="image/*,application/pdf" capture="environment" multiple hidden onChange={(e) => upload(e.target.files)} />
+        <div className="flex items-center gap-2">
+          <Button size="sm" disabled={busy || reading !== null} onClick={() => input.current?.click()}><Camera className="h-4 w-4" />{busy ? "Envoi…" : "Photo"}</Button>
+          <Button size="sm" variant="outline" disabled={busy || reading !== null} onClick={() => galleryInput.current?.click()}><ImageIcon className="h-4 w-4" />Galerie</Button>
+        </div>
+        <input ref={input} type="file" accept="image/*,application/pdf" capture="environment" multiple hidden onChange={(e) => upload(e.target.files)} aria-label="Prendre une photo du ticket" />
+        <input ref={galleryInput} type="file" accept="image/*,application/pdf" multiple hidden onChange={(e) => upload(e.target.files)} aria-label="Choisir dans la galerie" />
       </div>
       {files.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">Prenez en photo votre ticket ou ajoutez une facture PDF.</p>
+        <p className="mt-4 text-sm text-muted-foreground">Prenez en photo votre ticket, ajoutez une facture PDF ou choisissez une capture d'écran dans votre galerie.</p>
       ) : (
         <ul className="mt-4 divide-y">
           {files.map((f) => (
