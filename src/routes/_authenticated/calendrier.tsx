@@ -63,7 +63,7 @@ function CalendarPage() {
         {cells.map((d, k) => {
           const ev = d ? events.get(d) ?? [] : [];
           return (
-            d ? <Button key={k} variant="ghost" aria-label={`${fmt(d)}, ${ev.length} événement(s)`} aria-pressed={selected === d} onClick={() => setSelected(selected === d ? null : d)} className={`h-16 min-w-0 flex-col items-start justify-start gap-0 rounded-none bg-card p-1.5 sm:h-20 ${selected === d ? "bg-secondary ring-2 ring-inset ring-primary" : d === today ? "ring-1 ring-inset ring-accent" : ""}`}>
+            d ? <Button key={k} variant="ghost" aria-label={`${fmt(d)}, ${ev.length} événement(s)`} aria-pressed={selected === d} onClick={() => setSelected(selected === d ? null : d)} className={`relative h-16 min-w-0 flex-col items-start justify-start gap-0 rounded-none bg-card p-1.5 sm:h-20 ${selected === d ? "bg-secondary ring-2 ring-inset ring-primary" : d === today ? "ring-1 ring-inset ring-accent" : ""}`}>
               <span className="text-xs text-muted-foreground">{Number(d.slice(8))}</span>
               <div className="mt-1 flex w-full flex-col gap-1">
                 {WARRANTY_LEGEND.map((w) => {
@@ -71,7 +71,7 @@ function CalendarPage() {
                   return ends.length > 0 ? <WarrantyMarker key={w.key} warrantyKey={w.key} className="w-full" title={ends.map((e) => `${e.name} · ${e.warranty}`).join("\n")} /> : null;
                 })}
               </div>
-              {ev.some((e) => e.kind !== "end") && <Bell aria-label="Alertes" className="mt-1 h-3 w-3 shrink-0 text-muted-foreground" />}
+              {ev.some((e) => e.kind !== "end") && <Bell aria-label="Alertes" className="absolute right-1 top-1.5 h-3 w-3 text-muted-foreground" />}
             </Button> : <div key={k} className="h-16 bg-card sm:h-20" />
           );
         })}

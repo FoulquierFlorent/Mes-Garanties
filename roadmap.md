@@ -1,6 +1,6 @@
 # Roadmap
-- [ ] Traits épais par type de garantie dans le calendrier et rappel des couleurs à l’ajout
-- [ ] Rappel à la fin de la première année après l’achat
+- [x] Traits épais par type de garantie dans le calendrier et rappel des couleurs à l’ajout
+- [x] Rappel dans l’application à la fin de la première année après l’achat
 - [x] Photos facultatives de l’objet lors de son ajout
 - [x] Garanties magasin et marque distinctes avec choix de durée en années uniquement
 - [x] Photo du ticket par objet avec lecture et classement
