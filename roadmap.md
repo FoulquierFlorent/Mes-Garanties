@@ -1,5 +1,7 @@
 # Roadmap
+- [x] Ordre des champs à l’ajout : date d’achat, puis garantie légale, puis garanties magasin et marque
 - [x] Traits épais par type de garantie dans le calendrier et rappel des couleurs à l’ajout
+
 - [x] Rappel dans l’application à la fin de la première année après l’achat
 - [x] Photos facultatives de l’objet lors de son ajout
 - [x] Garanties magasin et marque distinctes avec choix de durée en années uniquement

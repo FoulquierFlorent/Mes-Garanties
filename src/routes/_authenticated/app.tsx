@@ -79,10 +79,10 @@ function AddItem({ householdId }: { householdId: string | null }) {
             <div className="space-y-1.5"><Label>Marque</Label><Input value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>Magasin</Label><Input value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
-            <WarrantyYearSelect id="primary-years" label="Garantie légale" warrantyKey="base" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
-          </div>
+          <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
+          <WarrantyYearSelect id="primary-years" label="Garantie légale" warrantyKey="base" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
+
+
           <div className="grid gap-3 sm:grid-cols-2">
             <WarrantyYearSelect id="store-years" label="Garantie magasin" warrantyKey="store" value={storeYears} onChange={setStoreYears} />
             <WarrantyYearSelect id="brand-years" label="Garantie de marque" warrantyKey="brand" value={brandYears} onChange={setBrandYears} />
