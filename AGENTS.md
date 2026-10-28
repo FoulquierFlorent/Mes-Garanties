@@ -10,6 +10,8 @@
 <!-- LOVABLE:END -->
 
 - Calendar entries link to the existing item detail route and use the shared warranty date utilities, so all views calculate the same deadlines.
+- Warranty color markers and their legend share WarrantyMarker across the calendar and add-item selectors; colors use global semantic tokens to keep presentation consistent without changing saved durations.
+- First-year reminders are computed once per item from its purchase date with the shared firstYearReminder utility, independent of warranty durations and existing pre-expiry alert preferences.
 - Optional store and brand warranties use separate year-valued fields and the shared itemWarranties utility for deadlines; the existing primary warranty remains distinct to preserve saved durations and letter semantics.
 - Object photos live in a separate private item-photos bucket under item-ID folders with can_access_item policies, keeping photos separate from receipt OCR and enforcing the same household access.
 - Problem reporting opens the letter editor on the item detail page; it does not assert eligibility or save a claim automatically.

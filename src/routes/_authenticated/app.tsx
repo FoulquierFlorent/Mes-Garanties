@@ -6,7 +6,7 @@ import { Plus, Trash2, Bell, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ALERT_OPTIONS, alertDate, daysLeft, status, warrantyEnd, itemWarranties, type AlertKey } from "@/lib/warranty";
+import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, warrantyEnd, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { PhotoPicker } from "@/components/ItemPhotos";
 import { uploadItemPhotos } from "@/lib/item-photos";
@@ -81,14 +81,15 @@ function AddItem({ householdId }: { householdId: string | null }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
-            <WarrantyYearSelect id="primary-years" label="Garantie principale" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
+            <WarrantyYearSelect id="primary-years" label="Garantie légale" warrantyKey="base" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} />
-            <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} />
+            <WarrantyYearSelect id="store-years" label="Garantie magasin" warrantyKey="store" value={storeYears} onChange={setStoreYears} />
+            <WarrantyYearSelect id="brand-years" label="Garantie de marque" warrantyKey="brand" value={brandYears} onChange={setBrandYears} />
           </div>
           <div className="space-y-2">
             <Label>Alertes</Label>
+            <label className="flex items-center gap-2 text-sm"><Checkbox checked disabled />Fin de la première année</label>
             {ALERT_OPTIONS.map((o) => (
               <label key={o.key} className="flex items-center gap-2 text-sm">
                 <Checkbox checked={alerts.includes(o.key)} onCheckedChange={(c) => setAlerts(c ? [...alerts, o.key] : alerts.filter((a) => a !== o.key))} />
@@ -113,6 +114,7 @@ function AppPage() {
   const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
   const qc = useQueryClient();
   const today = todayISO();
+  const firstYearItems = items.filter((i) => firstYearReminder(i.purchase_date) === today);
   const del = async (id: string) => {
     await supabase.from("items").delete().eq("id", id);
     qc.invalidateQueries({ queryKey: ["items"] });
@@ -139,10 +141,11 @@ function AppPage() {
         </div>
       )}
 
-      {upcoming.length > 0 && (
+      {(upcoming.length > 0 || firstYearItems.length > 0) && (
         <div className="mt-8 rounded-lg border border-accent/40 bg-accent/10 p-4">
-          <p className="flex items-center gap-2 text-sm font-medium"><Bell className="h-4 w-4 text-accent" />Garanties bientôt terminées</p>
+          <p className="flex items-center gap-2 text-sm font-medium"><Bell className="h-4 w-4 text-accent" />Rappels de garantie</p>
           <ul className="mt-2 space-y-1 text-sm">
+            {firstYearItems.map((i) => <li key={`${i.id}-first-year`}><Link to="/objet/$id" params={{ id: i.id }} className="hover:underline">{i.name} · Fin de la première année aujourd’hui</Link></li>)}
             {[...new Map(upcoming.map((u) => [u.item.id + u.label, u])).values()].map((u) => (
               <li key={u.item.id + u.label}>{u.item.name} · {u.label} — fin le {fmt(u.end)} ({daysLeft(u.end, today)} j)</li>
             ))}

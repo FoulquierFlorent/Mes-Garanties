@@ -29,6 +29,10 @@ export function warrantyEnd(purchaseDate: string, months: number): string {
   return toISO(addMonths(parse(purchaseDate), months));
 }
 
+export function firstYearReminder(purchaseDate: string): string {
+  return warrantyEnd(purchaseDate, 12);
+}
+
 export const WARRANTY_YEARS = Array.from({ length: 100 }, (_, i) => i + 1);
 export const yearsLabel = (years: number) => `${years} ${years === 1 ? "an" : "ans"}`;
 

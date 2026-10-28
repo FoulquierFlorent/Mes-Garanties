@@ -29,6 +29,9 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-warranty-legal: var(--warranty-legal);
+  --color-warranty-store: var(--warranty-store);
+  --color-warranty-brand: var(--warranty-brand);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -63,6 +66,9 @@
   --destructive-foreground: oklch(0.98 0 0);
   --success: oklch(0.55 0.09 155);
   --warning: oklch(0.7 0.13 70);
+  --warranty-legal: oklch(0.57 0.23 27);
+  --warranty-store: oklch(0.53 0.23 305);
+  --warranty-brand: oklch(0.54 0.22 255);
   --border: oklch(0.89 0.012 85);
   --input: oklch(0.89 0.012 85);
   --ring: oklch(0.72 0.11 75);
