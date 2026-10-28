@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUpRight, Bell } from "lucide-react";
 import { itemsQuery, todayISO, fmt } from "@/lib/items";
-import { ALERT_OPTIONS, alertDate, itemWarranties, toISO, type AlertKey } from "@/lib/warranty";
+import { ALERT_OPTIONS, alertDate, firstYearReminder, itemWarranties, toISO, type AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
 import { WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
 
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/calendrier")({
   component: CalendarPage,
 });
 
-type Ev = { id: string; name: string; warranty: string; warrantyKey: string; kind: "end" | AlertKey };
+type Ev = { id: string; name: string; warranty: string; warrantyKey: string; kind: "end" | "first-year" | AlertKey };
 
 function CalendarPage() {
   const { data: items } = useSuspenseQuery(itemsQuery);
@@ -24,6 +24,7 @@ function CalendarPage() {
   const events = new Map<string, Ev[]>();
   const push = (d: string, e: Ev) => events.set(d, [...(events.get(d) ?? []), e]);
   items.forEach((i) => {
+    if (showAlerts) push(firstYearReminder(i.purchase_date), { id: i.id, name: i.name, warranty: "Rappel", warrantyKey: "base", kind: "first-year" });
     itemWarranties(i).forEach((w) => {
       const warranty = WARRANTY_LEGEND.find((entry) => entry.key === w.key)?.label ?? w.label;
       push(w.end, { id: i.id, name: i.name, warranty, warrantyKey: w.key, kind: "end" });
@@ -82,7 +83,7 @@ function CalendarPage() {
           <Link to="/objet/$id" params={{ id: e.id }} key={d + j} className="flex items-center gap-3 border-b py-3 text-sm hover:text-accent">
             <WarrantyMarker warrantyKey={e.warrantyKey} />
             <span className="w-16 shrink-0 text-muted-foreground">{new Date(d + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</span>
-            <span className="min-w-0 flex-1 break-words">{e.name}<span className="block text-xs text-muted-foreground">{e.warranty} · {e.kind === "end" ? "Fin de garantie" : `Alerte ${ALERT_OPTIONS.find((o) => o.key === e.kind)?.label}`}</span></span><ArrowUpRight className="h-4 w-4 shrink-0" />
+            <span className="min-w-0 flex-1 break-words">{e.name}<span className="block text-xs text-muted-foreground">{e.warranty} · {e.kind === "end" ? "Fin de garantie" : e.kind === "first-year" ? "Fin de la première année" : `Alerte ${ALERT_OPTIONS.find((o) => o.key === e.kind)?.label}`}</span></span><ArrowUpRight className="h-4 w-4 shrink-0" />
           </Link>
         )))}
       </div>

@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { alertDate, warrantyEnd, status, itemWarranties, WARRANTY_YEARS } from "./warranty";
+import { alertDate, warrantyEnd, status, itemWarranties, WARRANTY_YEARS, firstYearReminder } from "./warranty";
 
 describe("garantie", () => {
+  it("rappelle la fin de la première année à partir de la date d’achat", () => {
+    expect(firstYearReminder("2025-10-28")).toBe("2026-10-28");
+    expect(firstYearReminder("2024-02-29")).toBe("2025-02-28");
+  });
   it("propose uniquement des durées en années entières", () => {
     expect(WARRANTY_YEARS.slice(0, 3)).toEqual([1, 2, 3]);
     expect(WARRANTY_YEARS.every((y) => Number.isInteger(y) && y >= 1)).toBe(true);
