@@ -98,15 +98,18 @@ function ItemPage() {
       <Link to="/app" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Retour</Link>
       <p className="mt-6 text-xs uppercase tracking-wider text-accent">{item.category}</p>
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
-      <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""} · garantie jusqu'au {fmt(end)}</p>
+      <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
 
       <section className="mt-6 border-y py-6">
-        <h2 className="text-2xl">Garanties magasin et marque</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} />
-          <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} />
+        <h2 className="text-2xl">Garanties</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
+          <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
+          <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
         </div>
-        {itemWarranties(item).filter((w) => w.key !== "base").map((w) => <p key={w.key} className="mt-3 text-sm text-muted-foreground">{w.label} · {yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1)} · jusqu’au {fmt(w.end)}</p>)}
+        <div className="mt-4 space-y-1.5">
+          {warrantyRows.map((w) => <p key={w.key} className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"><WarrantyMarker warrantyKey={w.key} />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
+        </div>
         <Button className="mt-4" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
       </section>
 
