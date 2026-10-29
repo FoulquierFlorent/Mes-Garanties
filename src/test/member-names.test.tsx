@@ -22,6 +22,7 @@ vi.mock("@tanstack/react-query", () => ({
   queryOptions: (options: unknown) => options,
   useSuspenseQuery: (options: { queryKey: string[] }) => ({ data: options.queryKey[0] === "items" ? items : household }),
   useQueryClient: () => ({ invalidateQueries: vi.fn() }),
+  useMutation: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => (options: { component: ComponentType }) => ({ options }),
