@@ -37,7 +37,7 @@ export const WARRANTY_YEARS = Array.from({ length: 100 }, (_, i) => i + 1);
 export const yearsLabel = (years: number) => `${years} ${years === 1 ? "an" : "ans"}`;
 
 export function itemWarranties(item: { purchase_date: string; warranty_months: number; store_warranty_years?: number | null; brand_warranty_years?: number | null }) {
-  const warranties = [{ key: "base", label: "Garantie principale", end: warrantyEnd(item.purchase_date, item.warranty_months) }];
+  const warranties = [{ key: "base", label: "Garantie légale", end: warrantyEnd(item.purchase_date, item.warranty_months) }];
   if (item.store_warranty_years) warranties.push({ key: "store", label: "Garantie magasin", end: warrantyEnd(item.purchase_date, item.store_warranty_years * 12) });
   if (item.brand_warranty_years) warranties.push({ key: "brand", label: "Garantie de marque", end: warrantyEnd(item.purchase_date, item.brand_warranty_years * 12) });
   return warranties;

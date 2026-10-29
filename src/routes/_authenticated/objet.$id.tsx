@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
 import { warrantyEnd, itemWarranties, yearsLabel } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
+import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { ItemPhotos } from "@/components/ItemPhotos";
 import { buildLetter, type LetterInput } from "@/lib/letter";
 import { Receipts } from "@/components/Receipts";
@@ -38,6 +39,9 @@ function ItemPage() {
   const [letterOpen, setLetterOpen] = useState(false);
   const [storeYears, setStoreYears] = useState<number | null>(item?.store_warranty_years ?? null);
   const [brandYears, setBrandYears] = useState<number | null>(item?.brand_warranty_years ?? null);
+  const [baseYears, setBaseYears] = useState<number | null>(
+    item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
+  );
   const [savingWarranties, setSavingWarranties] = useState(false);
   const letterRef = useRef<HTMLElement>(null);
   function reportProblem(problem: LetterInput["problem"]) {
@@ -48,6 +52,17 @@ function ItemPage() {
 
   if (!item) return <main className="p-12 text-center">Objet introuvable.</main>;
   const end = warrantyEnd(item.purchase_date, item.warranty_months);
+  const baseYearsWhole = item.warranty_months % 12 === 0;
+  const originalMonths = item.warranty_months;
+  const warrantyRows = itemWarranties(item).map((w) => ({
+    ...w,
+    duration:
+      w.key === "base"
+        ? baseYearsWhole
+          ? yearsLabel(item.warranty_months / 12)
+          : `${item.warranty_months} mois`
+        : yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1),
+  }));
   const letter = buildLetter({ ...l, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: fmt(end), today: fmt(todayISO()) });
 
   async function saveReturn() {
@@ -59,7 +74,12 @@ function ItemPage() {
   async function saveWarranties() {
     setSavingWarranties(true);
     try {
-      const { error } = await supabase.from("items").update({ store_warranty_years: storeYears, brand_warranty_years: brandYears }).eq("id", id);
+      const patch: { store_warranty_years: number | null; brand_warranty_years: number | null; warranty_months?: number } = {
+        store_warranty_years: storeYears,
+        brand_warranty_years: brandYears,
+      };
+      if (baseYearsWhole && baseYears !== null && baseYears * 12 !== originalMonths) patch.warranty_months = baseYears * 12;
+      const { error } = await supabase.from("items").update(patch).eq("id", id);
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["items"] });
       toast.success("Garanties enregistrées");
@@ -79,15 +99,18 @@ function ItemPage() {
       <Link to="/app" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Retour</Link>
       <p className="mt-6 text-xs uppercase tracking-wider text-accent">{item.category}</p>
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
-      <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""} · garantie jusqu'au {fmt(end)}</p>
+      <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
 
       <section className="mt-6 border-y py-6">
-        <h2 className="text-2xl">Garanties magasin et marque</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} />
-          <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} />
+        <h2 className="text-2xl">Garanties</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
+          <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
+          <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
         </div>
-        {itemWarranties(item).filter((w) => w.key !== "base").map((w) => <p key={w.key} className="mt-3 text-sm text-muted-foreground">{w.label} · {yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1)} · jusqu’au {fmt(w.end)}</p>)}
+        <div className="mt-4 space-y-1.5">
+          {warrantyRows.map((w) => <p key={w.key} className="text-sm text-muted-foreground pl-8 -indent-8"><WarrantyMarker warrantyKey={w.key} className="mr-2" />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
+        </div>
         <Button className="mt-4" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
       </section>
 
