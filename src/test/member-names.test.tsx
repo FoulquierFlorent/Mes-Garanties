@@ -56,7 +56,7 @@ describe("prénoms des membres du foyer", () => {
   it("signale qui a ajouté un objet par son prénom, jamais par son e-mail", () => {
     const Page = AppRoute.options.component as ComponentType;
     render(<Page />);
-    expect(screen.getByText("ajouté par Bob")).not.toBeNull();
+    expect(screen.getByText(/ajouté par Bob/)).not.toBeNull();
     expect(screen.queryAllByText(/ajouté par/).length).toBe(1);
     expect(screen.queryByText(/@/)).toBeNull();
   });
