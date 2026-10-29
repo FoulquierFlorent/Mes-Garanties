@@ -8,3 +8,7 @@ export function WarrantyMarker({ warrantyKey, className = "", title }: { warrant
   const warranty = WARRANTY_LEGEND.find((w) => w.key === warrantyKey);
   return <span aria-hidden="true" title={title} className={`inline-block h-1.5 w-6 shrink-0 rounded-sm ${warranty?.className ?? "bg-warranty-legal"} ${className}`} />;
 }
+
+export function ReminderMarker({ className = "" }: { className?: string }) {
+  return <span aria-hidden="true" className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-accent ${className}`} />;
+}

@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, ArrowUpRight, Bell } from "lucide-react";
 import { itemsQuery, todayISO, fmt } from "@/lib/items";
 import { ALERT_OPTIONS, alertDate, firstYearReminder, itemWarranties, toISO, type AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
-import { WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
+import { ReminderMarker, WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
 
 export const Route = createFileRoute("/_authenticated/calendrier")({
   head: () => ({ meta: [{ title: "Calendrier des garanties — Garantia" }, { name: "description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:title", content: "Calendrier des garanties — Garantia" }, { property: "og:description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -54,6 +54,7 @@ function CalendarPage() {
       <div className="mt-4 flex flex-wrap items-center gap-3 text-xs">
         <Button variant="outline" size="sm" onClick={() => { setYm({ y: now.getFullYear(), m: now.getMonth() }); setSelected(null); }}>Aujourd’hui</Button>
         {WARRANTY_LEGEND.map((w) => <span key={w.key} className="flex items-center gap-1.5"><WarrantyMarker warrantyKey={w.key} />{w.label}</span>)}
+        <span className="flex items-center gap-1.5"><ReminderMarker />Rappel</span>
         <label className="flex items-center gap-1.5"><input type="checkbox" checked={showAlerts} onChange={(e) => setShowAlerts(e.target.checked)} className="accent-accent" /><Bell className="h-3 w-3 text-muted-foreground" />Alertes</label>
       </div>
       <div className="mt-8 grid grid-cols-7 gap-px overflow-hidden rounded-lg border bg-border text-sm">
@@ -71,7 +72,12 @@ function CalendarPage() {
                   return ends.length > 0 ? <WarrantyMarker key={w.key} warrantyKey={w.key} className="w-full" title={ends.map((e) => `${e.name} · ${e.warranty}`).join("\n")} /> : null;
                 })}
               </div>
-              {ev.some((e) => e.kind !== "end") && <Bell aria-label="Alertes" className="absolute right-1 top-1.5 h-3 w-3 text-muted-foreground" />}
+              {ev.some((e) => e.kind !== "end") && (
+                <span className="absolute right-1 top-1.5 flex items-center gap-1">
+                  <ReminderMarker />
+                  <Bell aria-label="Alertes" className="h-3 w-3 text-muted-foreground" />
+                </span>
+              )}
             </Button> : <div key={k} className="h-16 bg-card sm:h-20" />
           );
         })}
@@ -81,7 +87,7 @@ function CalendarPage() {
         {visibleEvents.length === 0 && <p className="text-sm text-muted-foreground">{selected ? "Aucune échéance ce jour." : "Aucune échéance ce mois-ci."}</p>}
         {visibleEvents.flatMap(([d, evs]) => evs.map((e, j) => (
           <Link to="/objet/$id" params={{ id: e.id }} key={d + j} className="flex items-center gap-3 border-b py-3 text-sm hover:text-accent">
-            <WarrantyMarker warrantyKey={e.warrantyKey} />
+            <span className="flex shrink-0 items-center gap-1">{e.kind !== "end" && <ReminderMarker />}<WarrantyMarker warrantyKey={e.warrantyKey} /></span>
             <span className="w-16 shrink-0 text-muted-foreground">{new Date(d + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</span>
             <span className="min-w-0 flex-1 break-words">{e.name}<span className="block text-xs text-muted-foreground">{e.warranty} · {e.kind === "end" ? "Fin de garantie" : e.kind === "first-year" ? "Fin de la première année" : `Alerte ${ALERT_OPTIONS.find((o) => o.key === e.kind)?.label}`}</span></span><ArrowUpRight className="h-4 w-4 shrink-0" />
           </Link>
