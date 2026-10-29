@@ -109,7 +109,7 @@ function ItemPage() {
           <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
         </div>
         <div className="mt-4 space-y-1.5">
-          {warrantyRows.map((w) => <p key={w.key} className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"><WarrantyMarker warrantyKey={w.key} />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
+          {warrantyRows.map((w) => <p key={w.key} className="text-sm text-muted-foreground"><WarrantyMarker warrantyKey={w.key} className="mr-2" />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
         </div>
         <Button className="mt-4" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
       </section>
