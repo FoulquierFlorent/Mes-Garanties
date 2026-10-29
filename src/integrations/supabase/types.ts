@@ -16,18 +16,21 @@ export type Database = {
     Tables: {
       household_members: {
         Row: {
+          display_name: string | null
           email: string | null
           household_id: string
           joined_at: string
           user_id: string
         }
         Insert: {
+          display_name?: string | null
           email?: string | null
           household_id: string
           joined_at?: string
           user_id: string
         }
         Update: {
+          display_name?: string | null
           email?: string | null
           household_id?: string
           joined_at?: string
