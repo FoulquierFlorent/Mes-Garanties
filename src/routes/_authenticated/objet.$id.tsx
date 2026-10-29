@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
 import { warrantyEnd, itemWarranties, yearsLabel } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
+import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { ItemPhotos } from "@/components/ItemPhotos";
 import { buildLetter, type LetterInput } from "@/lib/letter";
 import { Receipts } from "@/components/Receipts";
@@ -38,6 +39,9 @@ function ItemPage() {
   const [letterOpen, setLetterOpen] = useState(false);
   const [storeYears, setStoreYears] = useState<number | null>(item?.store_warranty_years ?? null);
   const [brandYears, setBrandYears] = useState<number | null>(item?.brand_warranty_years ?? null);
+  const [baseYears, setBaseYears] = useState<number | null>(
+    item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
+  );
   const [savingWarranties, setSavingWarranties] = useState(false);
   const letterRef = useRef<HTMLElement>(null);
   function reportProblem(problem: LetterInput["problem"]) {
@@ -48,6 +52,16 @@ function ItemPage() {
 
   if (!item) return <main className="p-12 text-center">Objet introuvable.</main>;
   const end = warrantyEnd(item.purchase_date, item.warranty_months);
+  const baseYearsWhole = item.warranty_months % 12 === 0;
+  const warrantyRows = itemWarranties(item).map((w) => ({
+    ...w,
+    duration:
+      w.key === "base"
+        ? baseYearsWhole
+          ? yearsLabel(item.warranty_months / 12)
+          : `${item.warranty_months} mois`
+        : yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1),
+  }));
   const letter = buildLetter({ ...l, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: fmt(end), today: fmt(todayISO()) });
 
   async function saveReturn() {
@@ -59,7 +73,12 @@ function ItemPage() {
   async function saveWarranties() {
     setSavingWarranties(true);
     try {
-      const { error } = await supabase.from("items").update({ store_warranty_years: storeYears, brand_warranty_years: brandYears }).eq("id", id);
+      const patch: { store_warranty_years: number | null; brand_warranty_years: number | null; warranty_months?: number } = {
+        store_warranty_years: storeYears,
+        brand_warranty_years: brandYears,
+      };
+      if (baseYearsWhole && baseYears !== null && baseYears * 12 !== item.warranty_months) patch.warranty_months = baseYears * 12;
+      const { error } = await supabase.from("items").update(patch).eq("id", id);
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["items"] });
       toast.success("Garanties enregistrées");
