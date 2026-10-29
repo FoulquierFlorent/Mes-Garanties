@@ -27,8 +27,10 @@ function FoyerPage() {
   const refresh = () => { qc.invalidateQueries({ queryKey: ["household"] }); qc.invalidateQueries({ queryKey: ["items"] }); };
 
   async function saveName() {
-    if (!h || !me) return;
-    const { error } = await supabase.from("household_members").update({ display_name: myName.trim() }).eq("household_id", h.id).eq("user_id", me);
+    if (!h) return;
+    const uid = me ?? (await supabase.auth.getUser()).data.user?.id;
+    if (!uid) return;
+    const { error } = await supabase.from("household_members").update({ display_name: myName.trim() }).eq("household_id", h.id).eq("user_id", uid);
     if (error) { toast.error("Enregistrement impossible"); return; }
     toast.success("Prénom enregistré");
     refresh();

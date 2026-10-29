@@ -168,7 +168,7 @@ function AppPage() {
                   <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
                   {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
                   <p className="text-xs uppercase tracking-wider text-accent">{i.category}
-                    {household && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
+                    {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
                   </p>
                   <p className="text-sm text-muted-foreground">Fin de garantie : {fmt(end)}</p>
                   {itemWarranties(i).filter((w) => w.key !== "base").map((w) => <p key={w.key} className="text-xs text-muted-foreground">{w.label} : {fmt(w.end)}</p>)}
