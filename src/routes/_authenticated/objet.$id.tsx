@@ -53,6 +53,7 @@ function ItemPage() {
   if (!item) return <main className="p-12 text-center">Objet introuvable.</main>;
   const end = warrantyEnd(item.purchase_date, item.warranty_months);
   const baseYearsWhole = item.warranty_months % 12 === 0;
+  const originalMonths = item.warranty_months;
   const warrantyRows = itemWarranties(item).map((w) => ({
     ...w,
     duration:
@@ -77,7 +78,7 @@ function ItemPage() {
         store_warranty_years: storeYears,
         brand_warranty_years: brandYears,
       };
-      if (baseYearsWhole && baseYears !== null && baseYears * 12 !== item.warranty_months) patch.warranty_months = baseYears * 12;
+      if (baseYearsWhole && baseYears !== null && baseYears * 12 !== originalMonths) patch.warranty_months = baseYears * 12;
       const { error } = await supabase.from("items").update(patch).eq("id", id);
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["items"] });
