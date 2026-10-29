@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Petit point de couleur pour les rappels dans le calendrier, en plus de la cloche
+- [ ] Prénom par membre à la place de l’e-mail, et e-mail retiré de la liste des objets
 - [x] Ordre des champs à l’ajout : date d’achat, puis garantie légale, puis garanties magasin et marque
 - [x] Garantie légale affichée et modifiable avec les garanties magasin et marque sur la page de l’objet
 - [x] Traits épais par type de garantie dans le calendrier et rappel des couleurs à l’ajout
