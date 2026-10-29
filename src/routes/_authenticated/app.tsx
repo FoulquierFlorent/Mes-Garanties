@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useUserId } from "@/hooks/useUserId";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({ meta: [{ title: "Mes objets — Garantia" }, { name: "description", content: "Vos objets et leurs garanties." }, { property: "og:title", content: "Mes objets — Garantia" }, { property: "og:description", content: "Vos objets et leurs garanties partagés avec votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -109,6 +110,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
 function AppPage() {
   const { data: allItems } = useSuspenseQuery(itemsQuery);
   const { data: household } = useSuspenseQuery(householdQuery);
+  const me = useUserId();
   const [cat, setCat] = useState<string | null>(null);
   const items = cat ? allItems.filter((i) => i.category === cat) : allItems;
   const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
@@ -166,7 +168,7 @@ function AppPage() {
                   <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
                   {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
                   <p className="text-xs uppercase tracking-wider text-accent">{i.category}
-                    {household && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.email?.split("@")[0] ?? "un membre"}</span>}
+                    {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
                   </p>
                   <p className="text-sm text-muted-foreground">Fin de garantie : {fmt(end)}</p>
                   {itemWarranties(i).filter((w) => w.key !== "base").map((w) => <p key={w.key} className="text-xs text-muted-foreground">{w.label} : {fmt(w.end)}</p>)}

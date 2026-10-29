@@ -43,6 +43,13 @@
       "when": 1793112962450,
       "tag": "0005_private_item_photos",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793265297069,
+      "tag": "0006_member_display_names",
+      "breakpoints": true
     }
   ]
 }
