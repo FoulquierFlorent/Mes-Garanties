@@ -10,6 +10,7 @@ import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { ItemPhotos } from "@/components/ItemPhotos";
 import { buildLetter, type LetterInput } from "@/lib/letter";
+import { canShowReturnTracking, savedReplacementLetter } from "@/lib/return-flow";
 import { Receipts } from "@/components/Receipts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,15 +29,19 @@ function ItemPage() {
   const { data: items } = useSuspenseQuery(itemsQuery);
   const qc = useQueryClient();
   const item = items.find((i) => i.id === id);
+  const savedLetter = savedReplacementLetter(item?.replacement_letter);
   const [ret, setRet] = useState({
     return_status: item?.return_status ?? "none",
     return_sent_date: item?.return_sent_date ?? "",
     return_tracking: item?.return_tracking ?? "",
     return_notes: item?.return_notes ?? "",
   });
-  const [l, setL] = useState({ senderName: "", senderAddress: "", problem: "panne" as LetterInput["problem"], details: "" });
+  const [l, setL] = useState({ senderName: savedLetter?.senderName ?? "", senderAddress: savedLetter?.senderAddress ?? "", problem: (savedLetter?.problem ?? "panne") as LetterInput["problem"], details: savedLetter?.details ?? "" });
   const [reportOpen, setReportOpen] = useState(false);
-  const [letterOpen, setLetterOpen] = useState(false);
+  const [letterOpen, setLetterOpen] = useState(Boolean(savedLetter));
+  const [savingLetter, setSavingLetter] = useState(false);
+  const [confirmingReturn, setConfirmingReturn] = useState(false);
+  const [sentDate, setSentDate] = useState(todayISO());
   const [storeYears, setStoreYears] = useState<number | null>(item?.store_warranty_years ?? null);
   const [brandYears, setBrandYears] = useState<number | null>(item?.brand_warranty_years ?? null);
   const [baseYears, setBaseYears] = useState<number | null>(
@@ -64,6 +69,35 @@ function ItemPage() {
         : yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1),
   }));
   const letter = buildLetter({ ...l, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: fmt(end), today: fmt(todayISO()) });
+  const showReturn = canShowReturnTracking(item.replacement_letter, item.return_sent_date);
+
+  async function saveLetter() {
+    if (!l.senderName.trim() || !l.senderAddress.trim()) {
+      toast.error("Renseignez votre nom et votre adresse avant d’enregistrer la lettre");
+      return;
+    }
+    setSavingLetter(true);
+    try {
+      const { error } = await supabase.from("items").update({ replacement_letter: { ...l, text: letter } }).eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success("Lettre enregistrée");
+    } catch { toast.error("Impossible d’enregistrer la lettre"); }
+    finally { setSavingLetter(false); }
+  }
+
+  async function confirmReturn() {
+    if (!savedLetter || !sentDate) return;
+    setConfirmingReturn(true);
+    try {
+      const { error } = await supabase.from("items").update({ return_status: "sent", return_sent_date: sentDate }).eq("id", id);
+      if (error) throw error;
+      setRet((value) => ({ ...value, return_status: "sent", return_sent_date: sentDate }));
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success("Renvoi confirmé");
+    } catch { toast.error("Impossible de confirmer le renvoi"); }
+    finally { setConfirmingReturn(false); }
+  }
 
   async function saveReturn() {
     const { error } = await supabase.from("items").update({ ...ret, return_sent_date: ret.return_sent_date || null }).eq("id", id);
@@ -127,29 +161,13 @@ function ItemPage() {
       <Receipts itemId={item.id} />
       <ItemPhotos itemId={item.id} />
 
-      <section className="mt-8 rounded-lg border bg-card p-6">
-        <h2 className="text-2xl">Suivi du retour</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5"><Label>Statut</Label>
-            <Select value={ret.return_status} onValueChange={(v) => setRet({ ...ret, return_status: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{Object.entries(RETURN_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5"><Label>Date d'envoi</Label><Input type="date" value={ret.return_sent_date} onChange={(e) => setRet({ ...ret, return_sent_date: e.target.value })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label>N° de suivi / dossier</Label><Input value={ret.return_tracking} onChange={(e) => setRet({ ...ret, return_tracking: e.target.value })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label>Notes</Label><Textarea value={ret.return_notes} onChange={(e) => setRet({ ...ret, return_notes: e.target.value })} /></div>
-        </div>
-        <Button className="mt-4" onClick={saveReturn}>Enregistrer</Button>
-      </section>
-
       <section ref={letterRef} className="mt-8 scroll-mt-6 border-t py-6">
         <h2 className="text-2xl">Lettre de demande de remplacement</h2>
         {!letterOpen && <Button className="mt-4" variant="outline" onClick={() => setLetterOpen(true)}>Rédiger une lettre</Button>}
         {letterOpen && <>
         <p className="mt-3 text-sm text-muted-foreground">La garantie légale de conformité concerne les défauts couverts par la loi lors d’un achat auprès d’un vendeur professionnel. Une casse accidentelle ou une mauvaise utilisation n’est pas automatiquement couverte ; la durée de garantie enregistrée ne suffit pas à établir vos droits.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5"><Label>Votre nom</Label><Input value={l.senderName} onChange={(e) => setL({ ...l, senderName: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label htmlFor="letter-name">Votre nom</Label><Input id="letter-name" value={l.senderName} onChange={(e) => setL({ ...l, senderName: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Problème</Label>
             <Select value={l.problem} onValueChange={(v) => setL({ ...l, problem: v as LetterInput["problem"] })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -160,16 +178,36 @@ function ItemPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5 sm:col-span-2"><Label>Votre adresse</Label><Input value={l.senderAddress} onChange={(e) => setL({ ...l, senderAddress: e.target.value })} /></div>
+          <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="letter-address">Votre adresse</Label><Input id="letter-address" value={l.senderAddress} onChange={(e) => setL({ ...l, senderAddress: e.target.value })} /></div>
           <div className="space-y-1.5 sm:col-span-2"><Label>Description du problème (facultatif)</Label><Textarea value={l.details} onChange={(e) => setL({ ...l, details: e.target.value })} /></div>
         </div>
         <pre className="mt-6 whitespace-pre-wrap rounded-md border bg-background p-5 font-serif text-[15px] leading-relaxed">{letter}</pre>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button disabled={savingLetter} onClick={saveLetter}>{savingLetter ? "Enregistrement…" : "Enregistrer la lettre"}</Button>
           <Button variant="outline" onClick={() => { navigator.clipboard.writeText(letter); toast.success("Lettre copiée"); }}><Copy className="h-4 w-4" />Copier</Button>
           <Button onClick={print}><Printer className="h-4 w-4" />Imprimer / PDF</Button>
         </div>
         </>}
       </section>
+      {savedLetter && !showReturn && <section className="border-t py-6">
+        <div className="space-y-1.5"><Label htmlFor="confirm-sent-date">Date du renvoi effectué</Label><Input id="confirm-sent-date" type="date" value={sentDate} onChange={(e) => setSentDate(e.target.value)} /></div>
+        <Button className="mt-4" disabled={confirmingReturn || !sentDate} onClick={confirmReturn}>{confirmingReturn ? "Confirmation…" : "Confirmer le renvoi effectué"}</Button>
+      </section>}
+      {showReturn && <section className="mt-8 rounded-lg border bg-card p-6">
+        <h2 className="text-2xl">Suivi du retour</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5"><Label>Statut</Label>
+            <Select value={ret.return_status} onValueChange={(v) => setRet({ ...ret, return_status: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{Object.entries(RETURN_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5"><Label htmlFor="return-date">Date d'envoi</Label><Input id="return-date" type="date" value={ret.return_sent_date} onChange={(e) => setRet({ ...ret, return_sent_date: e.target.value })} /></div>
+          <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="return-tracking">N° de suivi / dossier</Label><Input id="return-tracking" value={ret.return_tracking} onChange={(e) => setRet({ ...ret, return_tracking: e.target.value })} /></div>
+          <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="return-notes">Notes</Label><Textarea id="return-notes" value={ret.return_notes} onChange={(e) => setRet({ ...ret, return_notes: e.target.value })} /></div>
+        </div>
+        <Button className="mt-4" onClick={saveReturn}>Enregistrer</Button>
+      </section>}
     </main>
   );
 }
