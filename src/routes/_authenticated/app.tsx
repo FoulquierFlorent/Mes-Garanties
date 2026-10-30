@@ -8,6 +8,7 @@ import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, warrantyEnd, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
+import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { PhotoPicker } from "@/components/ItemPhotos";
 import { uploadItemPhotos } from "@/lib/item-photos";
 import { Button } from "@/components/ui/button";
