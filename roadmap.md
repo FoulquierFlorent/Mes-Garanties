@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Suivi après la lettre, uniquement avec lettre enregistrée et renvoi confirmé
+- [x] Lettre personnalisée selon la garantie légale, magasin ou marque choisie
 - [x] Petit point de couleur pour les rappels dans le calendrier, en plus de la cloche
 - [x] Prénom par membre à la place de l’e-mail, et e-mail retiré de la liste des objets
 - [x] Ordre des champs à l’ajout : date d’achat, puis garantie légale, puis garanties magasin et marque
