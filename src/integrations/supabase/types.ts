@@ -82,6 +82,7 @@ export type Database = {
           name: string
           notes: string | null
           purchase_date: string
+          replacement_letter: Json | null
           return_notes: string | null
           return_sent_date: string | null
           return_status: string
@@ -102,6 +103,7 @@ export type Database = {
           name: string
           notes?: string | null
           purchase_date: string
+          replacement_letter?: Json | null
           return_notes?: string | null
           return_sent_date?: string | null
           return_status?: string
@@ -122,6 +124,7 @@ export type Database = {
           name?: string
           notes?: string | null
           purchase_date?: string
+          replacement_letter?: Json | null
           return_notes?: string | null
           return_sent_date?: string | null
           return_status?: string

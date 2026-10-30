@@ -1,0 +1,3 @@
+ALTER TABLE public.items ADD COLUMN replacement_letter jsonb;
+ALTER TABLE public.items ADD CONSTRAINT items_replacement_letter_object CHECK (replacement_letter IS NULL OR jsonb_typeof(replacement_letter) = 'object');
+COMMENT ON COLUMN public.items.replacement_letter IS 'Explicitly saved replacement letter with senderName, senderAddress, problem, details and text. Return tracking requires this letter and return_sent_date.';
