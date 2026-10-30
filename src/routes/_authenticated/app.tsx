@@ -8,6 +8,7 @@ import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, warrantyEnd, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
+import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { PhotoPicker } from "@/components/ItemPhotos";
 import { uploadItemPhotos } from "@/lib/item-photos";
 import { Button } from "@/components/ui/button";
@@ -163,20 +164,38 @@ function AppPage() {
             const end = warrantyEnd(i.purchase_date, i.warranty_months);
             const s = status(end, today);
             return (
-              <li key={i.id} className="flex items-center gap-4 p-4">
-                <div className="min-w-0 flex-1">
-                  <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
-                  {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
-                  <p className="text-xs uppercase tracking-wider text-accent">{i.category}
-                    {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Fin de garantie : {fmt(end)}</p>
-                  {itemWarranties(i).filter((w) => w.key !== "base").map((w) => <p key={w.key} className="text-xs text-muted-foreground">{w.label} : {fmt(w.end)}</p>)}
+              <li key={i.id} className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
+                    {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
+                    <p className="text-xs uppercase tracking-wider text-accent">{i.category}
+                      {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className={s === "expired" ? "text-destructive border-destructive/40" : s === "soon" ? "text-warning border-warning/50" : "text-success border-success/40"}>
+                    {s === "expired" ? "Expirée" : s === "soon" ? `${daysLeft(end, today)} j` : "Active"}
+                  </Badge>
+                  <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => del(i.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
-                <Badge variant="outline" className={s === "expired" ? "text-destructive border-destructive/40" : s === "soon" ? "text-warning border-warning/50" : "text-success border-success/40"}>
-                  {s === "expired" ? "Expirée" : s === "soon" ? `${daysLeft(end, today)} j` : "Active"}
-                </Badge>
-                <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => del(i.id)}><Trash2 className="h-4 w-4" /></Button>
+                <div className="mt-3 space-y-1.5 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5">
+                  {itemWarranties(i).map((w) => {
+                    const ws = status(w.end, today);
+                    const d = daysLeft(w.end, today);
+                    return (
+                      <p key={w.key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+                        <WarrantyMarker warrantyKey={w.key} />
+                        <span className="min-w-0 flex-1 truncate">{w.label}</span>
+                        <span className="flex w-full items-center gap-2 pl-8 sm:w-auto sm:pl-0">
+                          <span className="text-muted-foreground tabular-nums">jusqu’au {fmt(w.end)}</span>
+                          <span className={`font-medium tabular-nums ${ws === "expired" ? "text-destructive" : ws === "soon" ? "text-warning" : "text-success"}`}>
+                            {ws === "expired" ? "Expirée" : ws === "soon" ? `Bientôt · ${d} j` : `Active · ${d} j`}
+                          </span>
+                        </span>
+                      </p>
+                    );
+                  })}
+                </div>
               </li>
             );
           })}
