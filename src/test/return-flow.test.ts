@@ -13,6 +13,6 @@ describe("conditions du suivi de retour", () => {
     expect(canShowReturnTracking({ text: "Demande de remplacement" }, "2026-10-30")).toBe(true);
   });
   it("restitue la lettre enregistrée pour la retrouver après rechargement", () => {
-    expect(savedReplacementLetter({ text: "Lettre", senderName: "Florent", senderAddress: "Adresse", problem: "hs", details: "Panne" })).toEqual({ text: "Lettre", senderName: "Florent", senderAddress: "Adresse", problem: "hs", details: "Panne" });
+    expect(savedReplacementLetter({ text: "Lettre", senderName: "Florent", senderAddress: "Adresse", problem: "hs", details: "Panne" })).toEqual({ text: "Lettre", senderName: "Florent", senderAddress: "Adresse", problem: "hs", details: "Panne", warrantyType: "base" });
   });
 });

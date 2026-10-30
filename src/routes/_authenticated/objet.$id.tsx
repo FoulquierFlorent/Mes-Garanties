@@ -9,7 +9,7 @@ import { warrantyEnd, itemWarranties, yearsLabel } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { ItemPhotos } from "@/components/ItemPhotos";
-import { buildLetter, type LetterInput } from "@/lib/letter";
+import { buildLetter, type LetterInput, type WarrantyLetterType } from "@/lib/letter";
 import { canShowReturnTracking, savedReplacementLetter } from "@/lib/return-flow";
 import { Receipts } from "@/components/Receipts";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ function ItemPage() {
   const [l, setL] = useState({ senderName: savedLetter?.senderName ?? "", senderAddress: savedLetter?.senderAddress ?? "", problem: (savedLetter?.problem ?? "panne") as LetterInput["problem"], details: savedLetter?.details ?? "" });
   const [reportOpen, setReportOpen] = useState(false);
   const [letterOpen, setLetterOpen] = useState(Boolean(savedLetter));
+  const [letterWarranty, setLetterWarranty] = useState<WarrantyLetterType>(savedLetter?.warrantyType ?? "base");
   const [savingLetter, setSavingLetter] = useState(false);
   const [confirmingReturn, setConfirmingReturn] = useState(false);
   const [sentDate, setSentDate] = useState(todayISO());
@@ -68,17 +69,19 @@ function ItemPage() {
           : `${item.warranty_months} mois`
         : yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1),
   }));
-  const letter = buildLetter({ ...l, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: fmt(end), today: fmt(todayISO()) });
+  const chosenWarranty = warrantyRows.find((w) => w.key === letterWarranty);
+  const letter = buildLetter({ ...l, warrantyType: letterWarranty, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: chosenWarranty ? fmt(chosenWarranty.end) : "[Garantie non renseignée]", today: fmt(todayISO()) });
   const showReturn = canShowReturnTracking(item.replacement_letter, item.return_sent_date);
 
   async function saveLetter() {
+    if (!chosenWarranty) { toast.error("Renseignez cette garantie dans la section Garanties avant de rédiger la lettre"); return; }
     if (!l.senderName.trim() || !l.senderAddress.trim()) {
       toast.error("Renseignez votre nom et votre adresse avant d’enregistrer la lettre");
       return;
     }
     setSavingLetter(true);
     try {
-      const { error } = await supabase.from("items").update({ replacement_letter: { ...l, text: letter } }).eq("id", id);
+      const { error } = await supabase.from("items").update({ replacement_letter: { ...l, warrantyType: letterWarranty, text: letter } }).eq("id", id);
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["items"] });
       toast.success("Lettre enregistrée");
@@ -165,6 +168,17 @@ function ItemPage() {
         <h2 className="text-2xl">Lettre de demande de remplacement</h2>
         {!letterOpen && <Button className="mt-4" variant="outline" onClick={() => setLetterOpen(true)}>Rédiger une lettre</Button>}
         {letterOpen && <>
+        <div className="mt-4 space-y-1.5"><Label htmlFor="letter-warranty">Garantie utilisée</Label>
+          <Select value={letterWarranty} onValueChange={(value) => { if (value === "base" || value === "store" || value === "brand") setLetterWarranty(value); }}>
+            <SelectTrigger id="letter-warranty"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="base"><WarrantyMarker warrantyKey="base" />Garantie légale</SelectItem>
+              <SelectItem value="store"><WarrantyMarker warrantyKey="store" />Garantie magasin</SelectItem>
+              <SelectItem value="brand"><WarrantyMarker warrantyKey="brand" />Garantie de marque</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        {!chosenWarranty && <p className="mt-3 text-sm text-destructive">Cette garantie n’est pas renseignée pour cet objet. Ajoutez sa durée dans la section Garanties.</p>}
         <p className="mt-3 text-sm text-muted-foreground">La garantie légale de conformité concerne les défauts couverts par la loi lors d’un achat auprès d’un vendeur professionnel. Une casse accidentelle ou une mauvaise utilisation n’est pas automatiquement couverte ; la durée de garantie enregistrée ne suffit pas à établir vos droits.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5"><Label htmlFor="letter-name">Votre nom</Label><Input id="letter-name" value={l.senderName} onChange={(e) => setL({ ...l, senderName: e.target.value })} /></div>
@@ -183,9 +197,9 @@ function ItemPage() {
         </div>
         <pre className="mt-6 whitespace-pre-wrap rounded-md border bg-background p-5 font-serif text-[15px] leading-relaxed">{letter}</pre>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button disabled={savingLetter} onClick={saveLetter}>{savingLetter ? "Enregistrement…" : "Enregistrer la lettre"}</Button>
-          <Button variant="outline" onClick={() => { navigator.clipboard.writeText(letter); toast.success("Lettre copiée"); }}><Copy className="h-4 w-4" />Copier</Button>
-          <Button onClick={print}><Printer className="h-4 w-4" />Imprimer / PDF</Button>
+          <Button disabled={savingLetter || !chosenWarranty} onClick={saveLetter}>{savingLetter ? "Enregistrement…" : "Enregistrer la lettre"}</Button>
+          <Button disabled={!chosenWarranty} variant="outline" onClick={() => { navigator.clipboard.writeText(letter); toast.success("Lettre copiée"); }}><Copy className="h-4 w-4" />Copier</Button>
+          <Button disabled={!chosenWarranty} onClick={print}><Printer className="h-4 w-4" />Imprimer / PDF</Button>
         </div>
         </>}
       </section>
