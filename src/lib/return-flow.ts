@@ -1,4 +1,5 @@
 import type { Json } from "@/integrations/supabase/types";
+import type { WarrantyLetterType } from "@/lib/letter";
 
 export function savedReplacementLetter(value: Json | undefined) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
@@ -9,7 +10,7 @@ export function savedReplacementLetter(value: Json | undefined) {
     senderAddress: typeof value['senderAddress'] === "string" ? value['senderAddress'] : "",
     problem: value['problem'] === "casse" || value['problem'] === "hs" ? value['problem'] : "panne" as const,
     details: typeof value['details'] === "string" ? value['details'] : "",
-    warrantyType: value['warrantyType'] === "store" || value['warrantyType'] === "brand" ? value['warrantyType'] : "base" as const,
+    warrantyType: (value['warrantyType'] === "store" || value['warrantyType'] === "brand" ? value['warrantyType'] : "base") as WarrantyLetterType,
   };
 }
 
