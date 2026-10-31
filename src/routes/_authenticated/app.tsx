@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useUserId } from "@/hooks/useUserId";
 
@@ -183,9 +182,9 @@ function AppPage() {
                         <span className="min-w-0 flex-1 truncate">{w.label}</span>
                         <span className="flex w-full items-center gap-2 pl-8 sm:w-auto sm:pl-0">
                           <span className="text-muted-foreground tabular-nums">jusqu’au {fmt(w.end)}</span>
-                          <Badge variant="outline" className={`h-4 shrink-0 border-0 px-1.5 py-0 text-[10px] font-semibold tabular-nums ${ws === "expired" ? "bg-destructive/10 text-destructive" : ws === "soon" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"}`}>
+                          <span className={`inline-flex h-4 shrink-0 items-center rounded-md px-1.5 text-[10px] font-semibold tabular-nums ${ws === "expired" ? "bg-destructive/10 text-destructive" : ws === "soon" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"}`}>
                             {ws === "expired" ? "Expirée" : ws === "soon" ? `${d} j` : "Active"}
-                          </Badge>
+                          </span>
                         </span>
                       </p>
                     );
