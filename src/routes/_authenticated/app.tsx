@@ -114,7 +114,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
             </Select>
             {(CATEGORY_TYPES[category] ?? []).length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-1" aria-label="Type d’objet">
-                {CATEGORY_TYPES[category].map((t) => (
+                {(CATEGORY_TYPES[category] ?? []).map((t) => (
                   <button key={t} type="button" onClick={() => setF({ ...f, name: t })} className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${f.name === t ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{t}</button>
                 ))}
               </div>
