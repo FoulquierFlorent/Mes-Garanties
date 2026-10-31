@@ -133,6 +133,7 @@ function AppPage() {
         <div>
           <h1 className="text-4xl sm:text-5xl">{household ? household.name : "Mes objets"}</h1>
           {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
+          <RightBanner variant="whisper" offset={6} className="mt-2" />
         </div>
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} /></div>
       </div>
@@ -156,6 +157,7 @@ function AppPage() {
         </div>
       )}
 
+      <RightBanner offset={0} className="mt-8" />
       {items.length === 0 ? (
         <p className="mt-16 text-center text-muted-foreground">Aucun objet pour l'instant. Ajoutez votre premier achat.</p>
       ) : (

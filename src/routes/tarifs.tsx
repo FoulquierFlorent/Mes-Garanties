@@ -40,6 +40,7 @@ function Tarifs() {
   return (
     <main className="mx-auto max-w-4xl px-5 py-20">
       <h1 className="text-5xl">Tarifs</h1>
+      <RightBanner variant="whisper" offset={4} className="mt-3" />
       <div className="mt-10 grid gap-6 sm:grid-cols-2">
         <Plan name="Gratuit" price="0 €" items={["Objets illimités", "Calendrier des garanties", "Alertes personnalisables"]} cta="Créer un compte" />
         <Plan name="Annuel" price="Bientôt disponible" items={["Tout le plan gratuit", "Alertes par e-mail", "Support prioritaire"]} cta="Bientôt" soon />

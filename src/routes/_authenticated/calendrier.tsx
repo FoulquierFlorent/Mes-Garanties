@@ -45,6 +45,7 @@ function CalendarPage() {
   return (
     <main className="mx-auto max-w-4xl px-5 py-12">
       <h1 className="text-4xl sm:text-5xl">Calendrier des garanties</h1>
+      <RightBanner variant="whisper" offset={7} className="mt-3" />
       <div className="mt-6 flex items-center justify-between gap-3">
         <h2 className="text-2xl capitalize sm:text-3xl">{first.toLocaleDateString("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" })}</h2>
         <div className="flex gap-1">

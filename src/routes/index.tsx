@@ -38,6 +38,7 @@ function Index() {
           <Button asChild size="lg"><Link to="/auth">Commencer gratuitement</Link></Button>
           <Button asChild size="lg" variant="outline"><Link to="/tarifs">Voir les tarifs</Link></Button>
         </div>
+        <RightBanner text="La garantie légale de conformité est un droit, pas une faveur." className="mt-10 max-w-xl" />
       </section>
       <section className="border-t">
         <div className="mx-auto grid max-w-6xl gap-px bg-border sm:grid-cols-3">
@@ -49,6 +50,7 @@ function Index() {
             </div>
           ))}
         </div>
+        <RightBanner variant="whisper" offset={11} className="px-5 py-6 text-center" />
       </section>
       <footer className="border-t py-10 text-center text-xs text-muted-foreground">© Mes garanties</footer>
     </main>

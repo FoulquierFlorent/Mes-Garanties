@@ -155,6 +155,7 @@ function ItemPage() {
       <Button className="mt-6" variant="outline" aria-expanded={reportOpen} onClick={() => setReportOpen(!reportOpen)}><TriangleAlert />Signaler un problème</Button>
       {reportOpen && <section className="mt-4 border-y py-5">
         <h2 className="text-2xl">Que se passe-t-il avec cet objet ?</h2>
+        <RightBanner variant="whisper" offset={8} className="mt-2" />
         <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => reportProblem("panne")}>Dysfonctionnement</Button>
           <Button variant="outline" onClick={() => reportProblem("casse")}>Objet détérioré ou cassé</Button>
@@ -167,6 +168,7 @@ function ItemPage() {
 
       <section ref={letterRef} className="mt-8 scroll-mt-6 border-t py-6">
         <h2 className="text-2xl">Lettre de demande de remplacement</h2>
+        <RightBanner offset={9} className="mt-4" />
         {!letterOpen && <Button className="mt-4" variant="outline" onClick={() => setLetterOpen(true)}>Rédiger une lettre</Button>}
         {letterOpen && <>
         <div className="mt-4 space-y-1.5"><Label htmlFor="letter-warranty">Garantie utilisée</Label>

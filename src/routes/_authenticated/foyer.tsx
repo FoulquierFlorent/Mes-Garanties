@@ -57,6 +57,7 @@ function FoyerPage() {
     return (
       <main className="mx-auto max-w-xl px-5 py-12">
         <h1 className="text-4xl sm:text-5xl">{h.name}</h1>
+        <RightBanner variant="whisper" offset={10} className="mt-3" />
         <div className="mt-8 rounded-lg border bg-card p-6">
           <p className="text-sm text-muted-foreground">Code d'invitation à partager</p>
           <p className="mt-2 font-serif text-5xl tracking-[0.2em] text-accent">{h.invite_code}</p>
@@ -85,6 +86,7 @@ function FoyerPage() {
   return (
     <main className="mx-auto max-w-xl px-5 py-12">
       <h1 className="text-4xl sm:text-5xl">Partager en famille</h1>
+      <RightBanner variant="whisper" offset={2} className="mt-3" />
       <p className="mt-3 text-muted-foreground">Créez un foyer et invitez les personnes de votre maison : tout le monde voit et gère les mêmes objets.</p>
       <div className="mt-8 space-y-3 rounded-lg border bg-card p-6">
         <Label>Nom du foyer</Label>
