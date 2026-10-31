@@ -71,6 +71,13 @@
       "when": 1793468373028,
       "tag": "0009_member_private_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793468483150,
+      "tag": "0010_member_color",
+      "breakpoints": true
     }
   ]
 }
