@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       household_members: {
         Row: {
+          color: string | null
           display_name: string | null
           email: string | null
           household_id: string
@@ -23,6 +24,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          color?: string | null
           display_name?: string | null
           email?: string | null
           household_id: string
@@ -30,6 +32,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          color?: string | null
           display_name?: string | null
           email?: string | null
           household_id?: string
