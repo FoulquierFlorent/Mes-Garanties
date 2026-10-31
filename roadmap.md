@@ -9,6 +9,8 @@
 - [ ] Page d’accueil : définition de la garantie du point de vue du client
 - [ ] Retrouver les objets déjà enregistrés de l’utilisateur
 - [ ] Enregistrer 30 objets différents au hasard
+- [ ] Lettre personnalisée pour chacune des 6 garanties (à vérifier)
+- [ ] Corriger l’alignement des photos de catégorie dans le menu déroulant
 - [x] Suivi après la lettre, uniquement avec lettre enregistrée et renvoi confirmé
 - [x] Lettre personnalisée selon la garantie légale, magasin ou marque choisie
 - [x] Petit point de couleur pour les rappels dans le calendrier, en plus de la cloche
