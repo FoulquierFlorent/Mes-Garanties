@@ -33,7 +33,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const qc = useQueryClient();
   const [category, setCategory] = useState("Électronique");
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
+  const [f, setF] = useState({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 });
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
   const [storeYears, setStoreYears] = useState<number | null>(null);
   const [brandYears, setBrandYears] = useState<number | null>(null);
@@ -48,7 +48,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
     mutationFn: async () => {
       let itemId = savedItemId;
       if (!itemId) {
-        const { data, error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears, constructor_warranty_years: constructorYears, extension_warranty_years: extensionYears, repair_warranty_years: repairYears }).select("id").single();
+        const { data, error } = await supabase.from("items").insert({ ...f, price: f.price.trim() ? Number(f.price.replace(",", ".")) : null, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears, constructor_warranty_years: constructorYears, extension_warranty_years: extensionYears, repair_warranty_years: repairYears }).select("id").single();
         if (error) throw error;
         itemId = data.id;
         setSavedItemId(itemId);
@@ -76,7 +76,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
       setSavedItemId(null);
       setScanFile(null);
       setScanText("");
-      setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
+      setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 });
       toast.success("Objet ajouté");
     },
     onError: (error) => {
@@ -85,7 +85,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -124,6 +124,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
             <div className="space-y-1.5"><Label>Marque</Label><Input value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>Magasin</Label><Input value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>
           </div>
+          <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
           <WarrantyYearSelect id="primary-years" label="Garantie légale" warrantyKey="base" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
 
@@ -229,6 +230,7 @@ function AppPage() {
                     <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
                     {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
                     <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-accent">{catImg && <img src={catImg} alt="" loading="lazy" width={14} height={14} className="h-3.5 w-3.5 rounded object-cover" />}{i.category}
+                      {i.price != null && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· {formatPrice(i.price)}</span>}
                       {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
                     </p>
                   </div>
