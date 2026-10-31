@@ -1,11 +1,11 @@
-import { memberDotClass } from "@/lib/members";
+import { memberFrameColor, FRAME_COLORS } from "@/lib/members";
 import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { householdQuery } from "@/lib/items";
+import { householdQuery, itemsQuery } from "@/lib/items";
 import { useUserId } from "@/hooks/useUserId";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,12 +13,13 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/foyer")({
   head: () => ({ meta: [{ title: "Mon foyer — Mes garanties" }, { name: "description", content: "Partagez vos garanties avec votre foyer." }, { property: "og:title", content: "Mon foyer — Mes garanties" }, { property: "og:description", content: "Partagez vos garanties avec les membres de votre maison." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(householdQuery),
+  loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(householdQuery), context.queryClient.ensureQueryData(itemsQuery)]),
   component: FoyerPage,
 });
 
 function FoyerPage() {
   const { data: h } = useSuspenseQuery(householdQuery);
+  const { data: items } = useSuspenseQuery(itemsQuery);
   const qc = useQueryClient();
   const [name, setName] = useState("Maison");
   const [code, setCode] = useState("");
