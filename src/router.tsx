@@ -3,16 +3,13 @@ import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
 // Safari affiche « Importing a module script failed » quand une page mise à jour
-// cherche un ancien morceau de code : on recharge une seule fois pour récupérer la version fraîche.
-const CHUNK_ERROR = /Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module/i;
+// cherche un ancien morceau de code. Le garde-fou principal est le script en ligne
+// de __root.tsx (window.__chunkRecover), actif même si ce module ne se charge pas ;
+// ici on ne fait que relayer les erreurs de préchargement Vite vers lui.
 if (typeof window !== "undefined" && !(window as { __chunkGuard?: boolean }).__chunkGuard) {
   (window as { __chunkGuard?: boolean }).__chunkGuard = true;
   const recover = (msg: string) => {
-    if (!CHUNK_ERROR.test(msg)) return;
-    const last = Number(sessionStorage.getItem("chunk-reload") || 0);
-    if (Date.now() - last < 10000) return;
-    sessionStorage.setItem("chunk-reload", String(Date.now()));
-    window.location.reload();
+    (window as { __chunkRecover?: (m: string) => boolean }).__chunkRecover?.(msg);
   };
   window.addEventListener("vite:preloadError", (e) => { e.preventDefault(); recover("Failed to fetch dynamically imported module"); });
   window.addEventListener("error", (e) => recover(String(e.message)));
