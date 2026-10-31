@@ -33,13 +33,16 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
   const [storeYears, setStoreYears] = useState<number | null>(null);
   const [brandYears, setBrandYears] = useState<number | null>(null);
+  const [constructorYears, setConstructorYears] = useState<number | null>(null);
+  const [extensionYears, setExtensionYears] = useState<number | null>(null);
+  const [repairYears, setRepairYears] = useState<number | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
   const [savedItemId, setSavedItemId] = useState<string | null>(null);
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
       if (!itemId) {
-        const { data, error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears }).select("id").single();
+        const { data, error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears, constructor_warranty_years: constructorYears, extension_warranty_years: extensionYears, repair_warranty_years: repairYears }).select("id").single();
         if (error) throw error;
         itemId = data.id;
         setSavedItemId(itemId);
@@ -53,6 +56,9 @@ function AddItem({ householdId }: { householdId: string | null }) {
       setOpen(false);
       setStoreYears(null);
       setBrandYears(null);
+      setConstructorYears(null);
+      setExtensionYears(null);
+      setRepairYears(null);
       setPhotos([]);
       setSavedItemId(null);
       setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
@@ -64,7 +70,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -88,6 +94,9 @@ function AddItem({ householdId }: { householdId: string | null }) {
           <div className="grid gap-3 sm:grid-cols-2">
             <WarrantyYearSelect id="store-years" label="Garantie magasin" warrantyKey="store" value={storeYears} onChange={setStoreYears} />
             <WarrantyYearSelect id="brand-years" label="Garantie de marque" warrantyKey="brand" value={brandYears} onChange={setBrandYears} />
+            <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" warrantyKey="constructor" value={constructorYears} onChange={setConstructorYears} />
+            <WarrantyYearSelect id="extension-years" label="Garantie d’extension" warrantyKey="extension" value={extensionYears} onChange={setExtensionYears} />
+            <WarrantyYearSelect id="repair-years" label="Garantie de réparation" warrantyKey="repair" value={repairYears} onChange={setRepairYears} />
           </div>
           <div className="space-y-2">
             <Label>Alertes</Label>

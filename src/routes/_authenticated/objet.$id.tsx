@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
-import { warrantyEnd, itemWarranties, yearsLabel } from "@/lib/warranty";
+import { warrantyEnd, itemWarranties, yearsLabel, WARRANTY_LABELS } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { ItemPhotos } from "@/components/ItemPhotos";
@@ -46,6 +46,9 @@ function ItemPage() {
   const [sentDate, setSentDate] = useState(todayISO());
   const [storeYears, setStoreYears] = useState<number | null>(item?.store_warranty_years ?? null);
   const [brandYears, setBrandYears] = useState<number | null>(item?.brand_warranty_years ?? null);
+  const [constructorYears, setConstructorYears] = useState<number | null>(item?.constructor_warranty_years ?? null);
+  const [extensionYears, setExtensionYears] = useState<number | null>(item?.extension_warranty_years ?? null);
+  const [repairYears, setRepairYears] = useState<number | null>(item?.repair_warranty_years ?? null);
   const [baseYears, setBaseYears] = useState<number | null>(
     item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
   );
@@ -61,6 +64,13 @@ function ItemPage() {
   const end = warrantyEnd(item.purchase_date, item.warranty_months);
   const baseYearsWhole = item.warranty_months % 12 === 0;
   const originalMonths = item.warranty_months;
+  const yearsByWarranty: Record<string, number | null | undefined> = {
+    store: item.store_warranty_years,
+    brand: item.brand_warranty_years,
+    constructor: item.constructor_warranty_years,
+    extension: item.extension_warranty_years,
+    repair: item.repair_warranty_years,
+  };
   const warrantyRows = itemWarranties(item).map((w) => ({
     ...w,
     duration:
@@ -68,7 +78,7 @@ function ItemPage() {
         ? baseYearsWhole
           ? yearsLabel(item.warranty_months / 12)
           : `${item.warranty_months} mois`
-        : yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1),
+        : yearsLabel(yearsByWarranty[w.key] ?? 1),
   }));
   const chosenWarranty = warrantyRows.find((w) => w.key === letterWarranty);
   const letter = buildLetter({ ...l, warrantyType: letterWarranty, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: chosenWarranty ? fmt(chosenWarranty.end) : "[Garantie non renseignée]", today: fmt(todayISO()) });
@@ -112,9 +122,12 @@ function ItemPage() {
   async function saveWarranties() {
     setSavingWarranties(true);
     try {
-      const patch: { store_warranty_years: number | null; brand_warranty_years: number | null; warranty_months?: number } = {
+      const patch: { store_warranty_years: number | null; brand_warranty_years: number | null; constructor_warranty_years: number | null; extension_warranty_years: number | null; repair_warranty_years: number | null; warranty_months?: number } = {
         store_warranty_years: storeYears,
         brand_warranty_years: brandYears,
+        constructor_warranty_years: constructorYears,
+        extension_warranty_years: extensionYears,
+        repair_warranty_years: repairYears,
       };
       if (baseYearsWhole && baseYears !== null && baseYears * 12 !== originalMonths) patch.warranty_months = baseYears * 12;
       const { error } = await supabase.from("items").update(patch).eq("id", id);
@@ -145,6 +158,9 @@ function ItemPage() {
           {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
           <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
           <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
+          <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" value={constructorYears} onChange={setConstructorYears} warrantyKey="constructor" />
+          <WarrantyYearSelect id="extension-years" label="Garantie d’extension" value={extensionYears} onChange={setExtensionYears} warrantyKey="extension" />
+          <WarrantyYearSelect id="repair-years" label="Garantie de réparation" value={repairYears} onChange={setRepairYears} warrantyKey="repair" />
         </div>
         <div className="mt-4 space-y-1.5">
           {warrantyRows.map((w) => <p key={w.key} className="text-sm text-muted-foreground pl-8 -indent-8"><WarrantyMarker warrantyKey={w.key} className="mr-2" />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
@@ -172,12 +188,12 @@ function ItemPage() {
         {!letterOpen && <Button className="mt-4" variant="outline" onClick={() => setLetterOpen(true)}>Rédiger une lettre</Button>}
         {letterOpen && <>
         <div className="mt-4 space-y-1.5"><Label htmlFor="letter-warranty">Garantie utilisée</Label>
-          <Select value={letterWarranty} onValueChange={(value) => { if (value === "base" || value === "store" || value === "brand") setLetterWarranty(value); }}>
+          <Select value={letterWarranty} onValueChange={(value) => { if (value in WARRANTY_LABELS) setLetterWarranty(value as WarrantyLetterType); }}>
             <SelectTrigger id="letter-warranty"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="base"><WarrantyMarker warrantyKey="base" />Garantie légale</SelectItem>
-              <SelectItem value="store"><WarrantyMarker warrantyKey="store" />Garantie magasin</SelectItem>
-              <SelectItem value="brand"><WarrantyMarker warrantyKey="brand" />Garantie de marque</SelectItem>
+              {(["base", "store", "brand", "constructor", "extension", "repair"] as const).map((k) => (
+                <SelectItem key={k} value={k}><WarrantyMarker warrantyKey={k} />{WARRANTY_LABELS[k]}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
