@@ -56,6 +56,30 @@ La mise en conformité doit être effectuée sans frais, dans un délai raisonna
     request = `Ce défaut étant apparu après une intervention de réparation, je vous demande la prise en charge de ce nouveau dysfonctionnement au titre de la garantie de réparation attachée à cette intervention, sans nouveau frais à ma charge. Merci de procéder à une nouvelle réparation ou, si elle s'avère impossible, au remplacement du produit.
 
 Je vous remercie de m'indiquer la date et les modalités de l'intervention, ainsi que le numéro de dossier correspondant.`;
+  } else if (type === "store") {
+    request = `Le ${i.purchaseDate}, j'ai acheté ce produit dans votre enseigne et bénéficié à cette occasion de la ${warranty}, dont le terme est fixé au ${i.warrantyEnd}.
+
+Je sollicite la prise en charge de ce produit au titre de cette garantie commerciale, conformément aux conditions qui m'ont été remises à l'achat : remplacement du produit si ces conditions le permettent, à défaut réparation ou avoir. Je vous remercie de m'indiquer la procédure de retour, l'adresse d'expédition, les éventuels frais prévus au contrat ainsi que le délai de traitement de ma demande.
+
+Cette demande au titre de votre garantie commerciale ne limite pas les droits dont je peux bénéficier au titre des garanties légales.`;
+  } else if (type === "brand") {
+    request = `Le ${i.purchaseDate}, j'ai fait l'acquisition de ce produit, qui bénéficie de la ${warranty} accordée par ${recipient}, dont le terme est fixé au ${i.warrantyEnd}.
+
+Je sollicite la prise en charge de ce produit au titre de cette garantie commerciale de la marque : remplacement du produit si les conditions du contrat le permettent, à défaut réparation dans le réseau que vous agréerez. Je vous remercie de m'indiquer l'adresse d'expédition, les pièces à joindre, les éventuels frais ainsi que le délai de traitement.
+
+Cette demande au titre de la garantie de la marque ne limite pas les droits dont je peux bénéficier au titre des garanties légales, dont celles dues par le vendeur.`;
+  } else if (type === "constructor") {
+    request = `En qualité de fabricant, vous avez accordé à ce produit une ${warranty} dont le terme est fixé au ${i.warrantyEnd}.
+
+Je vous demande de bien vouloir constater ce défaut et de procéder, au titre de cette garantie constructeur, au remplacement du produit ou, à défaut, à sa réparation par l'une de vos stations agréées, sans frais à ma charge. Je vous remercie de m'indiquer la station agréée la plus proche, les pièces à joindre et le numéro de dossier ouvert à mon nom.
+
+Cette demande au titre de la garantie constructeur ne limite pas les droits dont je peux bénéficier au titre des garanties légales.`;
+  } else if (type === "extension") {
+    request = `Ce produit bénéficie d'un contrat d'extension de garantie dont le terme est fixé au ${i.warrantyEnd}.
+
+Je sollicite la prise en charge de ce défaut au titre de ce contrat d'extension, conformément aux garanties et aux exclusions qui le composent : réparation ou remplacement du produit, sans reste à charge autre que celui prévu par le contrat. Je vous remercie de m'indiquer le numéro de dossier, l'adresse d'expédition ou le centre agréé désigné, ainsi que les délais de traitement.
+
+Cette demande au titre du contrat d'extension ne limite pas les droits dont je peux bénéficier au titre des garanties légales.`;
   } else {
     request = COMMERCIAL_REQUEST(warranty);
   }
