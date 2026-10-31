@@ -1,6 +1,7 @@
-export type AlertKey = "3m" | "1m" | "1w";
+export type AlertKey = "6m" | "3m" | "1m" | "1w";
 
 export const ALERT_OPTIONS: { key: AlertKey; label: string }[] = [
+  { key: "6m", label: "6 mois avant la fin de la garantie légale" },
   { key: "3m", label: "3 mois avant la fin de la garantie légale" },
   { key: "1m", label: "1 mois avant la fin de la garantie légale" },
   { key: "1w", label: "1 semaine avant la fin de la garantie légale" },
@@ -82,6 +83,7 @@ export function itemWarranties(item: WarrantyItem): Warranty[] {
 
 export function alertDate(endDate: string, key: AlertKey): string {
   const end = parse(endDate);
+  if (key === "6m") return toISO(addMonths(end, -6));
   if (key === "3m") return toISO(addMonths(end, -3));
   if (key === "1m") return toISO(addMonths(end, -1));
   const r = new Date(end);
