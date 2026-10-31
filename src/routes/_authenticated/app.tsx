@@ -6,7 +6,7 @@ import { Plus, Trash2, Bell, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, warrantyEnd, itemWarranties, type AlertKey } from "@/lib/warranty";
+import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { PhotoPicker } from "@/components/ItemPhotos";
@@ -161,8 +161,6 @@ function AppPage() {
       ) : (
         <ul className="mt-8 divide-y rounded-lg border bg-card">
           {items.map((i) => {
-            const end = warrantyEnd(i.purchase_date, i.warranty_months);
-            const s = status(end, today);
             return (
               <li key={i.id} className="p-4">
                 <div className="flex items-start gap-3">
@@ -173,9 +171,6 @@ function AppPage() {
                       {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
                     </p>
                   </div>
-                  <Badge variant="outline" className={s === "expired" ? "text-destructive border-destructive/40" : s === "soon" ? "text-warning border-warning/50" : "text-success border-success/40"}>
-                    {s === "expired" ? "Expirée" : s === "soon" ? `${daysLeft(end, today)} j` : "Active"}
-                  </Badge>
                   <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => del(i.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
                 <div className="mt-3 space-y-1.5 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5">
@@ -188,9 +183,9 @@ function AppPage() {
                         <span className="min-w-0 flex-1 truncate">{w.label}</span>
                         <span className="flex w-full items-center gap-2 pl-8 sm:w-auto sm:pl-0">
                           <span className="text-muted-foreground tabular-nums">jusqu’au {fmt(w.end)}</span>
-                          <span className={`font-medium tabular-nums ${ws === "expired" ? "text-destructive" : ws === "soon" ? "text-warning" : "text-success"}`}>
-                            {ws === "expired" ? "Expirée" : ws === "soon" ? `Bientôt · ${d} j` : `Active · ${d} j`}
-                          </span>
+                          <Badge variant="outline" className={`h-4 shrink-0 border-0 px-1.5 py-0 text-[10px] font-semibold tabular-nums ${ws === "expired" ? "bg-destructive/10 text-destructive" : ws === "soon" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"}`}>
+                            {ws === "expired" ? "Expirée" : ws === "soon" ? `${d} j` : "Active"}
+                          </Badge>
                         </span>
                       </p>
                     );
