@@ -2,7 +2,7 @@ import { ReceiptSummary } from "@/components/ReceiptSummary";
 import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,6 +39,16 @@ function ItemPage() {
     return_tracking: item?.return_tracking ?? "",
     return_notes: item?.return_notes ?? "",
   });
+  // Resynchronise le suivi avec la fiche enregistrée (rechargement, autre membre du foyer).
+  useEffect(() => {
+    if (!item) return;
+    setRet({
+      return_status: item.return_status ?? "none",
+      return_sent_date: item.return_sent_date ?? "",
+      return_tracking: item.return_tracking ?? "",
+      return_notes: item.return_notes ?? "",
+    });
+  }, [item?.id, item?.return_status, item?.return_sent_date, item?.return_tracking, item?.return_notes]);
   const [l, setL] = useState({ senderName: savedLetter?.senderName ?? "", senderAddress: savedLetter?.senderAddress ?? "", problem: (savedLetter?.problem ?? "panne") as LetterInput["problem"], details: savedLetter?.details ?? "" });
   const [reportOpen, setReportOpen] = useState(false);
   const [letterOpen, setLetterOpen] = useState(Boolean(savedLetter));
