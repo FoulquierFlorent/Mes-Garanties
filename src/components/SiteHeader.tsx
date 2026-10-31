@@ -21,8 +21,8 @@ export function SiteHeader() {
         <nav className="flex items-center gap-1 sm:gap-4 text-sm">
           {signedIn ? (
             <>
-              <Link to="/app" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Objets</Link>
               <Link to="/calendrier" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Calendrier</Link>
+              <Link to="/app" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Objets</Link>
               <Link to="/foyer" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Foyer</Link>
               <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}>
                 Déconnexion
