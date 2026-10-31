@@ -17,7 +17,27 @@ export const todayISO = () => new Date().toISOString().slice(0, 10);
 export const fmt = (d: string) =>
   new Date(d + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
-export const CATEGORIES = ["Électronique", "Électroménager", "Meuble", "Sport", "Enfant", "Jeux", "Accessoires", "Vêtements", "Bricolage", "Autre"];
+/** Catégories et types d’objets proposés (le type remplit le nom). */
+export const CATEGORY_TYPES: Record<string, string[]> = {
+  "Électronique": ["Smartphone", "Ordinateur portable", "Ordinateur fixe", "Tablette", "Liseuse", "Téléviseur", "Écran", "Appareil photo", "Caméra", "Casque", "Écouteurs", "Enceinte", "Montre connectée", "Imprimante", "Scanner"],
+  "Électroménager": ["Réfrigérateur", "Congélateur", "Lave-linge", "Sèche-linge", "Lave-vaisselle", "Four", "Micro-ondes", "Plaque de cuisson", "Hotte", "Aspirateur", "Machine à café", "Climatiseur", "Radiateur"],
+  "Cuisine": ["Robot cuisine", "Blender", "Grille-pain", "Bouilloire", "Friteuse", "Batterie de casseroles", "Couteaux"],
+  "Meuble": ["Canapé", "Fauteuil", "Lit", "Matelas", "Table", "Bureau", "Chaise", "Armoire", "Dressing", "Bibliothèque", "Meuble de rangement"],
+  "Maison & jardin": ["Tondeuse", "Taille-haie", "Barbecue", "Salon de jardin", "Luminaire", "Literie", "Alarme", "Robot piscine"],
+  "Bricolage": ["Perceuse", "Visseuse", "Scie", "Ponceuse", "Nettoyeur haute pression", "Escabeau", "Caisse à outils"],
+  "Mobilité": ["Voiture", "Moto", "Scooter", "Vélo", "Vélo électrique", "Trottinette électrique", "Camping-car", "Remorque", "Pièce auto"],
+  "Sport": ["Tapis de course", "Vélo d’appartement", "Raquette", "Ski", "Chaussures de sport", "Montre GPS", "Tente"],
+  "Enfant": ["Poussette", "Siège auto", "Lit bébé", "Chaise haute", "Babyphone", "Porte-bébé"],
+  "Jeux": ["Console", "Manette", "Jeu vidéo", "Jeu de société", "Jouet", "Casque VR"],
+  "Musique": ["Guitare", "Piano", "Platine vinyle", "Ampli", "Micro"],
+  "Santé & beauté": ["Sèche-cheveux", "Lisseur", "Rasoir", "Brosse à dents électrique", "Tensiomètre", "Balance"],
+  "Accessoires": ["Sac", "Valise", "Portefeuille", "Bijou", "Montre", "Lunettes"],
+  "Vêtements": ["Manteau", "Chaussures", "Veste", "Pantalon"],
+  "Animaux": ["Arbre à chat", "Fontaine", "Distributeur", "Niche"],
+  "Bureau": ["Fauteuil de bureau", "Lampe de bureau", "Déchiqueteuse", "Calculatrice"],
+  "Autre": [],
+};
+export const CATEGORIES = Object.keys(CATEGORY_TYPES);
 
 export const householdQuery = queryOptions({
   queryKey: ["household"],
