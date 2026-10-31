@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Mini banderoles et petites phrases accrocheuses rappelant que les garanties sont un droit
 - [x] Suivi après la lettre, uniquement avec lettre enregistrée et renvoi confirmé
 - [x] Lettre personnalisée selon la garantie légale, magasin ou marque choisie
 - [x] Petit point de couleur pour les rappels dans le calendrier, en plus de la cloche
