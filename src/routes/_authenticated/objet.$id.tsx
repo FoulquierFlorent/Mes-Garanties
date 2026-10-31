@@ -285,7 +285,7 @@ function ItemPage() {
 
       <Receipts itemId={item.id} />
       <ReceiptSummary itemId={item.id} summary={item.receipt_summary ?? null} />
-      <ItemPhotos itemId={item.id} />
+
 
       <section ref={letterRef} className="mt-8 scroll-mt-6 border-t py-6">
         <h2 className="text-2xl">Lettre de demande de remplacement</h2>
