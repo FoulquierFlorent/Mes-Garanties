@@ -96,6 +96,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
               setScanFile(file);
               setScanText(text);
               setF((prev) => ({
+                ...prev,
                 name: fields.name || prev.name,
                 brand: fields.brand || prev.brand,
                 store: fields.store || prev.store,
