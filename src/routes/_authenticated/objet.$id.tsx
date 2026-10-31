@@ -65,6 +65,12 @@ function ItemPage() {
     item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
   );
   const [savingWarranties, setSavingWarranties] = useState(false);
+  const [price, setPrice] = useState(item?.price != null ? String(item.price) : "");
+  const [savingPrice, setSavingPrice] = useState(false);
+  // Resynchronise le prix avec la fiche enregistrée (rechargement, autre membre du foyer).
+  useEffect(() => {
+    setPrice(item?.price != null ? String(item.price) : "");
+  }, [item?.id, item?.price]);
   const [damagePhotos, setDamagePhotos] = useState<File[]>([]);
   const [uploadingDamage, setUploadingDamage] = useState(false);
   const { data: photoNames = [] } = useQuery({
