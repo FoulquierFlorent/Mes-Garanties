@@ -23,5 +23,5 @@ const CATEGORY_IMAGES: Record<string, string> = {
 };
 
 export function categoryImage(category: string): string | null {
-  return CATEGORY_IMAGES[category] ?? null;
+  return CATEGORY_IMAGES[category] ?? autre;
 }
