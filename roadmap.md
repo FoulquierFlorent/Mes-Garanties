@@ -7,8 +7,8 @@
 - [x] Photo de l’objet endommagé au signalement : l’envoi « Joindre au dossier » n’a pas pu être testé (sélecteur du sélecteur de fichiers à reprendre)
 - [x] Vérifier visuellement l’alignement photo/texte des catégories dans le menu déroulant
 - [x] Vérification complète des objets partagés entre deux comptes et lecture d’un vrai ticket — nécessite un second compte et une photo de ticket réelle
-- [ ] Envoi de factures par e-mail — nécessite un nom de domaine
-- [ ] Alertes et factures par e-mail aux membres du foyer — en attente de la configuration d’un nom de domaine d’envoi
+- [ ] Envoi de factures par e-mail — nécessite un nom de domaine (Florent le fera plus tard : le lui rappeler)
+- [ ] Alertes et factures par e-mail aux membres du foyer — en attente de la configuration d’un nom de domaine d’envoi (le rappeler)
 - [ ] Abonnement annuel — en attente de la décision de l’utilisateur
 
 ## Fait
