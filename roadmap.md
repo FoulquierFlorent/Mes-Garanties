@@ -7,7 +7,6 @@
 - [x] Photo de l’objet endommagé au signalement : l’envoi « Joindre au dossier » n’a pas pu être testé (sélecteur du sélecteur de fichiers à reprendre)
 - [x] Vérifier visuellement l’alignement photo/texte des catégories dans le menu déroulant
 - [x] Vérification complète des objets partagés entre deux comptes et lecture d’un vrai ticket — nécessite un second compte et une photo de ticket réelle
-- [ ] Prix sur les objets : champ prix à l'ajout/modification, affiché sur la fiche et la liste
 - [ ] Envoi de factures par e-mail — nécessite un nom de domaine (Florent le fera plus tard : le lui rappeler)
 - [ ] Alertes et factures par e-mail aux membres du foyer — en attente de la configuration d’un nom de domaine d’envoi (le rappeler)
 - [ ] Abonnement annuel — en attente de la décision de l’utilisateur
@@ -53,3 +52,6 @@
 - [x] Vérifier que Charles voit les objets partagés après rechargement
 - [x] Alertes : préciser « avant la fin de la garantie légale »
 - [x] Calendrier : date du jour encadrée en rouge
+- [x] Connexion ouvre le Calendrier ; un membre déjà connecté qui ouvre la page de connexion est renvoyé au Calendrier
+- [x] Alerte « 6 mois avant » rétablie (elle affichait « Alerte undefined » dans le calendrier)
+- [x] Prix facultatif sur les objets : champ à l'ajout, affiché dans la liste et sur la fiche
