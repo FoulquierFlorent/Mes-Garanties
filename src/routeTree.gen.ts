@@ -16,6 +16,7 @@ import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedCalendrierRouteImport } from './routes/_authenticated/calendrier'
 import { Route as AuthenticatedFoyerRouteImport } from './routes/_authenticated/foyer'
+import { Route as AuthenticatedMembreIdRouteImport } from './routes/_authenticated/membre.$id'
 import { Route as AuthenticatedObjetIdRouteImport } from './routes/_authenticated/objet.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -52,6 +53,11 @@ const AuthenticatedFoyerRoute = AuthenticatedFoyerRouteImport.update({
   path: '/foyer',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMembreIdRoute = AuthenticatedMembreIdRouteImport.update({
+  id: '/membre/$id',
+  path: '/membre/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedObjetIdRoute = AuthenticatedObjetIdRouteImport.update({
   id: '/objet/$id',
   path: '/objet/$id',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
   '/foyer': typeof AuthenticatedFoyerRoute
+  '/membre/$id': typeof AuthenticatedMembreIdRoute
   '/objet/$id': typeof AuthenticatedObjetIdRoute
 }
 export interface FileRoutesByTo {
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
   '/foyer': typeof AuthenticatedFoyerRoute
+  '/membre/$id': typeof AuthenticatedMembreIdRoute
   '/objet/$id': typeof AuthenticatedObjetIdRoute
 }
 export interface FileRoutesById {
@@ -85,15 +93,30 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/calendrier': typeof AuthenticatedCalendrierRoute
   '/_authenticated/foyer': typeof AuthenticatedFoyerRoute
+  '/_authenticated/membre/$id': typeof AuthenticatedMembreIdRoute
   '/_authenticated/objet/$id': typeof AuthenticatedObjetIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/tarifs' | '/app' | '/calendrier' | '/foyer' | '/objet/$id'
+    | '/'
+    | '/auth'
+    | '/tarifs'
+    | '/app'
+    | '/calendrier'
+    | '/foyer'
+    | '/membre/$id'
+    | '/objet/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/auth' | '/tarifs' | '/app' | '/calendrier' | '/foyer' | '/objet/$id'
+    | '/'
+    | '/auth'
+    | '/tarifs'
+    | '/app'
+    | '/calendrier'
+    | '/foyer'
+    | '/membre/$id'
+    | '/objet/$id'
   id:
     | '__root__'
     | '/'
@@ -103,6 +126,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/calendrier'
     | '/_authenticated/foyer'
+    | '/_authenticated/membre/$id'
     | '/_authenticated/objet/$id'
   fileRoutesById: FileRoutesById
 }
@@ -164,6 +188,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFoyerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/membre/$id': {
+      id: '/_authenticated/membre/$id'
+      path: '/membre/$id'
+      fullPath: '/membre/$id'
+      preLoaderRoute: typeof AuthenticatedMembreIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/objet/$id': {
       id: '/_authenticated/objet/$id'
       path: '/objet/$id'
@@ -178,6 +209,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedCalendrierRoute: typeof AuthenticatedCalendrierRoute
   AuthenticatedFoyerRoute: typeof AuthenticatedFoyerRoute
+  AuthenticatedMembreIdRoute: typeof AuthenticatedMembreIdRoute
   AuthenticatedObjetIdRoute: typeof AuthenticatedObjetIdRoute
 }
 
@@ -185,6 +217,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedCalendrierRoute: AuthenticatedCalendrierRoute,
   AuthenticatedFoyerRoute: AuthenticatedFoyerRoute,
+  AuthenticatedMembreIdRoute: AuthenticatedMembreIdRoute,
   AuthenticatedObjetIdRoute: AuthenticatedObjetIdRoute,
 }
 
