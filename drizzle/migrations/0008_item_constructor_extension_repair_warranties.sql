@@ -1,0 +1,3 @@
+ALTER TABLE public.items ADD COLUMN constructor_warranty_years integer CHECK (constructor_warranty_years IS NULL OR constructor_warranty_years >= 1);
+ALTER TABLE public.items ADD COLUMN extension_warranty_years integer CHECK (extension_warranty_years IS NULL OR extension_warranty_years >= 1);
+ALTER TABLE public.items ADD COLUMN repair_warranty_years integer CHECK (repair_warranty_years IS NULL OR repair_warranty_years >= 1);

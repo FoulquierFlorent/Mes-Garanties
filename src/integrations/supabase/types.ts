@@ -76,12 +76,15 @@ export type Database = {
           brand: string | null
           brand_warranty_years: number | null
           category: string
+          constructor_warranty_years: number | null
           created_at: string
+          extension_warranty_years: number | null
           household_id: string | null
           id: string
           name: string
           notes: string | null
           purchase_date: string
+          repair_warranty_years: number | null
           replacement_letter: Json | null
           return_notes: string | null
           return_sent_date: string | null
@@ -97,12 +100,15 @@ export type Database = {
           brand?: string | null
           brand_warranty_years?: number | null
           category?: string
+          constructor_warranty_years?: number | null
           created_at?: string
+          extension_warranty_years?: number | null
           household_id?: string | null
           id?: string
           name: string
           notes?: string | null
           purchase_date: string
+          repair_warranty_years?: number | null
           replacement_letter?: Json | null
           return_notes?: string | null
           return_sent_date?: string | null
@@ -118,12 +124,15 @@ export type Database = {
           brand?: string | null
           brand_warranty_years?: number | null
           category?: string
+          constructor_warranty_years?: number | null
           created_at?: string
+          extension_warranty_years?: number | null
           household_id?: string | null
           id?: string
           name?: string
           notes?: string | null
           purchase_date?: string
+          repair_warranty_years?: number | null
           replacement_letter?: Json | null
           return_notes?: string | null
           return_sent_date?: string | null

@@ -4,6 +4,7 @@
 - [ ] Nom de l’application : « Mes garanties »
 - [ ] Une photo pour chaque catégorie
 - [ ] Contour de chaque objet coloré selon le membre du foyer qui l’a ajouté
+- [ ] Garanties constructeur, extension et réparation en plus des trois actuelles
 - [x] Suivi après la lettre, uniquement avec lettre enregistrée et renvoi confirmé
 - [x] Lettre personnalisée selon la garantie légale, magasin ou marque choisie
 - [x] Petit point de couleur pour les rappels dans le calendrier, en plus de la cloche
