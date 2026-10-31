@@ -28,3 +28,18 @@ export function memberDotClass(userId?: string | null): string {
   const i = memberIndex(userId);
   return i < 0 ? "bg-muted-foreground" : `bg-${MEMBER_CLASSES[i]}`;
 }
+
+/** Couleurs d'encadré qu'un membre peut choisir pour son carré. */
+export const FRAME_COLORS = [
+  { key: "bleu", label: "Bleu" }, { key: "blanc", label: "Blanc" }, { key: "noir", label: "Noir" },
+  { key: "marron", label: "Marron" }, { key: "rouge", label: "Rouge" }, { key: "vert", label: "Vert" },
+  { key: "orange", label: "Orange" }, { key: "rose", label: "Rose" }, { key: "violet", label: "Violet" },
+  { key: "jaune", label: "Jaune" },
+] as const;
+
+/** Couleur CSS de l'encadré : choix du membre, sinon sa couleur automatique. */
+export function memberFrameColor(color: string | null | undefined, userId?: string | null): string {
+  if (color && FRAME_COLORS.some((c) => c.key === color)) return `var(--frame-${color})`;
+  const i = memberIndex(userId);
+  return i < 0 ? "var(--border)" : `var(--${MEMBER_CLASSES[i]})`;
+}

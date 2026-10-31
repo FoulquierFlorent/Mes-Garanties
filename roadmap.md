@@ -2,11 +2,11 @@
 
 ## À finir
 - [x] Page « espace membre » créée (objet, garanties, lien depuis le foyer) ; le prénom Charles a été mis sur son compte
-- [ ] Charles doit rejoindre le foyer de Florent avec le code E6236F — aujourd’hui chacun est dans sa propre maison, donc la liste du foyer n’affiche pas l’autre personne
+- [x] Charles doit rejoindre le foyer de Florent avec le code E6236F — aujourd’hui chacun est dans sa propre maison, donc la liste du foyer n’affiche pas l’autre personne
 - [ ] Numéro de suivi du retour : ne revient pas après rechargement de la page — à corriger puis revérifier
 - [ ] Photo de l’objet endommagé au signalement : l’envoi « Joindre au dossier » n’a pas pu être testé (sélecteur du sélecteur de fichiers à reprendre)
 - [ ] Vérifier visuellement l’alignement photo/texte des catégories dans le menu déroulant
-- [ ] Vérification complète des objets partagés entre deux comptes et lecture d’un vrai ticket — nécessite un second compte et une photo de ticket réelle
+- [x] Vérification complète des objets partagés entre deux comptes et lecture d’un vrai ticket — nécessite un second compte et une photo de ticket réelle
 - [ ] Envoi de factures par e-mail — nécessite un nom de domaine
 - [ ] Alertes par e-mail — en attente d’un nom de domaine
 - [ ] Abonnement annuel — en attente de la décision de l’utilisateur
@@ -46,7 +46,9 @@
 - [x] Suivi des retours d'objets
 - [x] Envoi de factures / tickets dans l'app
 - [x] Espace profil privé par membre (infos perso, e-mail, lien familial) visible seulement par lui
-- [ ] Crash aperçu « Importing a module script failed »
-- [ ] Membres en carrés 2 par ligne, encadré couleur choisie par le membre
-- [ ] Résumé IA des tickets/factures sur la fiche objet
-- [ ] Vérifier que Charles voit les objets partagés après rechargement
+- [x] Crash aperçu « Importing a module script failed »
+- [x] Membres en carrés 2 par ligne, encadré couleur choisie par le membre
+- [x] Résumé IA des tickets/factures sur la fiche objet
+- [x] Vérifier que Charles voit les objets partagés après rechargement
+- [x] Alertes : préciser « avant la fin de la garantie légale »
+- [x] Calendrier : date du jour encadrée en rouge
