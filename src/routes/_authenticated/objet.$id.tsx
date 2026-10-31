@@ -147,6 +147,22 @@ function ItemPage() {
     qc.invalidateQueries({ queryKey: ["items"] });
     toast.success("Suivi enregistré");
   }
+  async function savePrice() {
+    const trimmed = price.trim().replace(",", ".");
+    const value = trimmed === "" ? null : Number(trimmed);
+    if (value !== null && (!Number.isFinite(value) || value < 0)) {
+      toast.error("Le prix doit être un nombre positif");
+      return;
+    }
+    setSavingPrice(true);
+    try {
+      const { error } = await supabase.from("items").update({ price: value }).eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success(value === null ? "Prix retiré" : "Prix enregistré");
+    } catch { toast.error("Impossible d’enregistrer le prix"); }
+    finally { setSavingPrice(false); }
+  }
   async function saveWarranties() {
     setSavingWarranties(true);
     try {
