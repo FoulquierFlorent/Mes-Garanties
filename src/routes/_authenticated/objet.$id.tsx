@@ -227,6 +227,17 @@ function ItemPage() {
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
 
       <section className="mt-6 border-y py-6">
+        <h2 className="text-2xl">Descriptif de l’objet</h2>
+        <div className="mt-4 space-y-1.5">
+          <Label htmlFor="item-description">Descriptif (facultatif)</Label>
+          <Textarea id="item-description" placeholder="Ex. modèle, couleur, numéro de série, état…" value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
+        <Button className="mt-3" disabled={savingDescription} onClick={saveDescription}>{savingDescription ? "Enregistrement…" : "Enregistrer le descriptif"}</Button>
+      </section>
+
+      <ItemPhotos itemId={item.id} />
+
+      <section className="mt-6 border-y py-6">
         <h2 className="text-2xl">Prix</h2>
         <div className="mt-4 flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
