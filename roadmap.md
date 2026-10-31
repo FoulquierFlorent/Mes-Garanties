@@ -1,7 +1,8 @@
 # Roadmap
 
 ## À finir
-- [ ] Profil de Charles dans le foyer, avec son espace perso (ses objets, ses garanties)
+- [x] Page « espace membre » créée (objet, garanties, lien depuis le foyer) ; le prénom Charles a été mis sur son compte
+- [ ] Charles doit rejoindre le foyer de Florent avec le code E6236F — aujourd’hui chacun est dans sa propre maison, donc la liste du foyer n’affiche pas l’autre personne
 - [ ] Numéro de suivi du retour : ne revient pas après rechargement de la page — à corriger puis revérifier
 - [ ] Photo de l’objet endommagé au signalement : l’envoi « Joindre au dossier » n’a pas pu être testé (sélecteur du sélecteur de fichiers à reprendre)
 - [ ] Vérifier visuellement l’alignement photo/texte des catégories dans le menu déroulant
