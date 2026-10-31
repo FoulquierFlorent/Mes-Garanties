@@ -20,6 +20,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useUserId } from "@/hooks/useUserId";
 import { memberBorderClass } from "@/lib/members";
 import { categoryImage } from "@/lib/category-images";
+import { ReceiptScanner } from "@/components/ReceiptScanner";
+import { uploadReceipt } from "@/lib/receipt-upload";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({ meta: [{ title: "Mes objets — Mes garanties" }, { name: "description", content: "Vos objets et leurs garanties." }, { property: "og:title", content: "Mes objets — Mes garanties" }, { property: "og:description", content: "Vos objets et leurs garanties partagés avec votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -40,6 +42,8 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const [repairYears, setRepairYears] = useState<number | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
   const [savedItemId, setSavedItemId] = useState<string | null>(null);
+  const [scanFile, setScanFile] = useState<File | null>(null);
+  const [scanText, setScanText] = useState("");
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
@@ -48,6 +52,13 @@ function AddItem({ householdId }: { householdId: string | null }) {
         if (error) throw error;
         itemId = data.id;
         setSavedItemId(itemId);
+        if (scanFile) {
+          try {
+            await uploadReceipt(itemId, scanFile, scanText);
+          } catch {
+            toast.error("Justificatif non joint : vous pouvez le rajouter depuis la fiche de l'objet.");
+          }
+        }
       }
       const failed = await uploadItemPhotos(itemId, photos);
       setPhotos(failed);
@@ -63,6 +74,8 @@ function AddItem({ householdId }: { householdId: string | null }) {
       setRepairYears(null);
       setPhotos([]);
       setSavedItemId(null);
+      setScanFile(null);
+      setScanText("");
       setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
       toast.success("Objet ajouté");
     },
@@ -72,11 +85,26 @@ function AddItem({ householdId }: { householdId: string | null }) {
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
+          <ReceiptScanner
+            disabled={m.isPending}
+            onResult={(fields, file, text) => {
+              setScanFile(file);
+              setScanText(text);
+              setF((prev) => ({
+                name: fields.name || prev.name,
+                brand: fields.brand || prev.brand,
+                store: fields.store || prev.store,
+                purchase_date: fields.purchase_date || prev.purchase_date,
+                warranty_months: prev.warranty_months,
+              }));
+              if (fields.category) setCategory(fields.category);
+            }}
+          />
           <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
           <div className="space-y-1.5"><Label>Nom</Label><Input required placeholder="Lave-linge" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Catégorie</Label>
