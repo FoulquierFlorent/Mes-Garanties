@@ -66,7 +66,7 @@ function CalendarPage() {
         {cells.map((d, k) => {
           const ev = d ? events.get(d) ?? [] : [];
           return (
-            d ? <Button key={k} variant="ghost" aria-label={`${fmt(d)}, ${ev.length} événement(s)`} aria-pressed={selected === d} onClick={() => setSelected(selected === d ? null : d)} className={`relative h-16 min-w-0 flex-col items-start justify-start gap-0 rounded-none bg-card p-1.5 sm:h-20 ${selected === d ? "bg-secondary ring-2 ring-inset ring-primary" : d === today ? "ring-1 ring-inset ring-accent" : ""}`}>
+            d ? <Button key={k} variant="ghost" aria-label={`${fmt(d)}, ${ev.length} événement(s)`} aria-pressed={selected === d} onClick={() => setSelected(selected === d ? null : d)} className={`relative h-16 min-w-0 flex-col items-start justify-start gap-0 rounded-none bg-card p-1.5 sm:h-20 ${selected === d ? `bg-secondary ring-2 ring-inset ${d === today ? "ring-destructive" : "ring-primary"}` : d === today ? "ring-2 ring-inset ring-destructive" : ""}`}>
               <span className="text-xs text-muted-foreground">{Number(d.slice(8))}</span>
               <div className="mt-1 flex w-full flex-col gap-1">
                 {WARRANTY_LEGEND.map((w) => {

@@ -46,9 +46,9 @@
 - [x] Suivi des retours d'objets
 - [x] Envoi de factures / tickets dans l'app
 - [x] Espace profil privé par membre (infos perso, e-mail, lien familial) visible seulement par lui
-- [ ] Crash aperçu « Importing a module script failed »
-- [ ] Membres en carrés 2 par ligne, encadré couleur choisie par le membre
-- [ ] Résumé IA des tickets/factures sur la fiche objet
-- [ ] Vérifier que Charles voit les objets partagés après rechargement
+- [x] Crash aperçu « Importing a module script failed »
+- [x] Membres en carrés 2 par ligne, encadré couleur choisie par le membre
+- [x] Résumé IA des tickets/factures sur la fiche objet
+- [x] Vérifier que Charles voit les objets partagés après rechargement
 - [x] Alertes : préciser « avant la fin de la garantie légale »
-- [ ] Calendrier : date du jour encadrée en rouge
+- [x] Calendrier : date du jour encadrée en rouge
