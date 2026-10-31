@@ -12,6 +12,7 @@
 - [ ] Lettre personnalisée pour chacune des 6 garanties (à vérifier)
 - [ ] Corriger l’alignement des photos de catégorie dans le menu déroulant
 - [ ] Scanner une facture, un ticket de caisse et/ou une photo (OCR + remplissage de la fiche)
+- [ ] Tester le parcours des garanties (lettre puis suivi de retour) et corriger les problèmes
 - [x] Suivi après la lettre, uniquement avec lettre enregistrée et renvoi confirmé
 - [x] Lettre personnalisée selon la garantie légale, magasin ou marque choisie
 - [x] Petit point de couleur pour les rappels dans le calendrier, en plus de la cloche
