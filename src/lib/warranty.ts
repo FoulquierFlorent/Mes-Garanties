@@ -1,9 +1,9 @@
 export type AlertKey = "3m" | "1m" | "1w";
 
 export const ALERT_OPTIONS: { key: AlertKey; label: string }[] = [
-  { key: "3m", label: "3 mois avant" },
-  { key: "1m", label: "1 mois avant" },
-  { key: "1w", label: "1 semaine avant" },
+  { key: "3m", label: "3 mois avant la fin de la garantie légale" },
+  { key: "1m", label: "1 mois avant la fin de la garantie légale" },
+  { key: "1w", label: "1 semaine avant la fin de la garantie légale" },
 ];
 
 function parse(d: string) {
