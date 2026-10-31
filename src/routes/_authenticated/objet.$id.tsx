@@ -65,6 +65,12 @@ function ItemPage() {
     item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
   );
   const [savingWarranties, setSavingWarranties] = useState(false);
+  const [price, setPrice] = useState(item?.price != null ? String(item.price) : "");
+  const [savingPrice, setSavingPrice] = useState(false);
+  // Resynchronise le prix avec la fiche enregistrée (rechargement, autre membre du foyer).
+  useEffect(() => {
+    setPrice(item?.price != null ? String(item.price) : "");
+  }, [item?.id, item?.price]);
   const [damagePhotos, setDamagePhotos] = useState<File[]>([]);
   const [uploadingDamage, setUploadingDamage] = useState(false);
   const { data: photoNames = [] } = useQuery({
@@ -141,6 +147,22 @@ function ItemPage() {
     qc.invalidateQueries({ queryKey: ["items"] });
     toast.success("Suivi enregistré");
   }
+  async function savePrice() {
+    const trimmed = price.trim().replace(",", ".");
+    const value = trimmed === "" ? null : Number(trimmed);
+    if (value !== null && (!Number.isFinite(value) || value < 0)) {
+      toast.error("Le prix doit être un nombre positif");
+      return;
+    }
+    setSavingPrice(true);
+    try {
+      const { error } = await supabase.from("items").update({ price: value }).eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success(value === null ? "Prix retiré" : "Prix enregistré");
+    } catch { toast.error("Impossible d’enregistrer le prix"); }
+    finally { setSavingPrice(false); }
+  }
   async function saveWarranties() {
     setSavingWarranties(true);
     try {
@@ -187,6 +209,19 @@ function ItemPage() {
       <p className="mt-6 text-xs uppercase tracking-wider text-accent">{item.category}</p>
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
+
+      <section className="mt-6 border-y py-6">
+        <h2 className="text-2xl">Prix</h2>
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="item-price">Prix d’achat (€, facultatif)</Label>
+            <Input id="item-price" type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" className="w-40" value={price} onChange={(e) => setPrice(e.target.value)} />
+          </div>
+          <Button disabled={savingPrice} onClick={savePrice}>{savingPrice ? "Enregistrement…" : "Enregistrer le prix"}</Button>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">Laissez vide pour retirer le prix de la fiche.</p>
+      </section>
+
 
       <section className="mt-6 border-y py-6">
         <h2 className="text-2xl">Garanties</h2>
