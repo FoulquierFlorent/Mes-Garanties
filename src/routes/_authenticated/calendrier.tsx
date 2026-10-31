@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ReminderMarker, WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
 
 export const Route = createFileRoute("/_authenticated/calendrier")({
-  head: () => ({ meta: [{ title: "Calendrier des garanties — Garantia" }, { name: "description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:title", content: "Calendrier des garanties — Garantia" }, { property: "og:description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Calendrier des garanties — Mes garanties" }, { name: "description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:title", content: "Calendrier des garanties — Mes garanties" }, { property: "og:description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(itemsQuery),
   component: CalendarPage,
 });

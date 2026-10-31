@@ -5,9 +5,9 @@ import { Check } from "lucide-react";
 export const Route = createFileRoute("/tarifs")({
   head: () => ({
     meta: [
-      { title: "Tarifs — Garantia" },
+      { title: "Tarifs — Mes garanties" },
       { name: "description", content: "Commencez gratuitement. Un abonnement annuel arrive bientôt." },
-      { property: "og:title", content: "Tarifs — Garantia" },
+      { property: "og:title", content: "Tarifs — Mes garanties" },
       { property: "og:description", content: "Commencez gratuitement. Un abonnement annuel arrive bientôt." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -16,7 +16,7 @@ export function SiteHeader() {
     <header className="border-b bg-background/80 backdrop-blur sticky top-0 z-30">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link to="/" className="font-serif text-2xl">
-          Garantia<span className="text-accent">.</span>
+          Mes garanties<span className="text-accent">.</span>
         </Link>
         <nav className="flex items-center gap-1 sm:gap-4 text-sm">
           {signedIn ? (

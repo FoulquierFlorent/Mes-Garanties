@@ -5,9 +5,9 @@ import { Bell, CalendarDays, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Garantia — ne laissez plus expirer vos garanties" },
+      { title: "Mes garanties — ne laissez plus expirer vos garanties" },
       { name: "description", content: "Enregistrez vos achats, suivez leur garantie dans un calendrier et soyez alerté 3 mois, 1 mois ou 1 semaine avant la fin." },
-      { property: "og:title", content: "Garantia — ne laissez plus expirer vos garanties" },
+      { property: "og:title", content: "Mes garanties — ne laissez plus expirer vos garanties" },
       { property: "og:description", content: "Suivi des garanties de vos objets avec calendrier et alertes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -49,7 +49,7 @@ function Index() {
           ))}
         </div>
       </section>
-      <footer className="border-t py-10 text-center text-xs text-muted-foreground">© Garantia</footer>
+      <footer className="border-t py-10 text-center text-xs text-muted-foreground">© Mes garanties</footer>
     </main>
   );
 }
