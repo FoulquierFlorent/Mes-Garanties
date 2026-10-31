@@ -153,6 +153,16 @@ function ItemPage() {
     qc.invalidateQueries({ queryKey: ["items"] });
     toast.success("Suivi enregistré");
   }
+  async function saveDescription() {
+    setSavingDescription(true);
+    try {
+      const { error } = await supabase.from("items").update({ description: description.trim() || null }).eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success("Descriptif enregistré");
+    } catch { toast.error("Impossible d’enregistrer le descriptif"); }
+    finally { setSavingDescription(false); }
+  }
   async function savePrice() {
     const trimmed = price.trim().replace(",", ".");
     const value = trimmed === "" ? null : Number(trimmed);
