@@ -45,3 +45,4 @@
 - [x] Lettre de demande de remplacement (panne, casse)
 - [x] Suivi des retours d'objets
 - [x] Envoi de factures / tickets dans l'app
+- [ ] Espace profil privé par membre (infos perso, e-mail, lien familial) visible seulement par lui
