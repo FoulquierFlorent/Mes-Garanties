@@ -50,3 +50,4 @@
 - [ ] Membres en carrés 2 par ligne, encadré couleur choisie par le membre
 - [ ] Résumé IA des tickets/factures sur la fiche objet
 - [ ] Vérifier que Charles voit les objets partagés après rechargement
+- [x] Alertes : préciser « avant la fin de la garantie légale »
