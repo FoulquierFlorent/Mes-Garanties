@@ -71,6 +71,12 @@ function ItemPage() {
   useEffect(() => {
     setPrice(item?.price != null ? String(item.price) : "");
   }, [item?.id, item?.price]);
+  const [description, setDescription] = useState(item?.description ?? "");
+  const [savingDescription, setSavingDescription] = useState(false);
+  // Resynchronise le descriptif avec la fiche enregistrée.
+  useEffect(() => {
+    setDescription(item?.description ?? "");
+  }, [item?.id, item?.description]);
   const [damagePhotos, setDamagePhotos] = useState<File[]>([]);
   const [uploadingDamage, setUploadingDamage] = useState(false);
   const { data: photoNames = [] } = useQuery({
