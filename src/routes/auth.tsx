@@ -36,7 +36,7 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setLoading(false);
       if (error) { toast.error("Identifiants incorrects"); return; }
-      navigate({ to: "/app" });
+      navigate({ to: "/calendrier" });
     } else {
       const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/app" } });
       setLoading(false);
@@ -49,7 +49,7 @@ function AuthPage() {
     const r = await lovable.auth.signInWithOAuth(p, { redirect_uri: window.location.origin });
     if (r.error) { toast.error("Connexion impossible"); return; }
     if (r.redirected) { return; }
-    navigate({ to: "/app" });
+    navigate({ to: "/calendrier" });
   }
 
   return (
