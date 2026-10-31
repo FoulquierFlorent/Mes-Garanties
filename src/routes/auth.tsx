@@ -38,7 +38,7 @@ function AuthPage() {
       if (error) { toast.error("Identifiants incorrects"); return; }
       navigate({ to: "/calendrier" });
     } else {
-      const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/app" } });
+      const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/calendrier" } });
       setLoading(false);
       if (error) { toast.error(error.message); return; }
       toast.success("Vérifiez votre e-mail pour confirmer votre compte.");
