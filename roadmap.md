@@ -1,6 +1,7 @@
 # Roadmap
 
 ## À finir
+- [ ] Profil de Charles dans le foyer, avec son espace perso (ses objets, ses garanties)
 - [ ] Numéro de suivi du retour : ne revient pas après rechargement de la page — à corriger puis revérifier
 - [ ] Photo de l’objet endommagé au signalement : l’envoi « Joindre au dossier » n’a pas pu être testé (sélecteur du sélecteur de fichiers à reprendre)
 - [ ] Vérifier visuellement l’alignement photo/texte des catégories dans le menu déroulant
