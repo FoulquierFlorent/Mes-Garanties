@@ -71,14 +71,20 @@ describe("garanties dans la liste des objets", () => {
     expect(brand.querySelector("span.bg-warranty-brand")).not.toBeNull();
   });
 
-  it("donne la date de fin et le statut avec les jours restants pour chaque garantie", () => {
+  it("affiche un petit rectangle de statut par garantie, avec les jours restants ou la mention expirée", () => {
     const Page = Route.options.component as ComponentType;
     render(<Page />);
 
     const rows = warrantyRows();
-    const texts = rows.map((r) => r.textContent ?? "");
-    expect(texts.find((t) => t.startsWith("Garantie légale"))).toMatch(/jusqu’au 15 janvier 2027\s*(Bientôt|Active|Expirée)/);
-    expect(texts.find((t) => t.startsWith("Garantie magasin"))).toMatch(/jusqu’au 15 janvier 2026\s*Expirée/);
-    expect(texts.find((t) => t.startsWith("Garantie de marque"))).toMatch(/jusqu’au 15 janvier 2028\s*Active · \d+ j/);
+    const legal = rows.find((r) => r.textContent?.startsWith("Garantie légale")) as HTMLElement;
+    const store = rows.find((r) => r.textContent?.startsWith("Garantie magasin")) as HTMLElement;
+    const brand = rows.find((r) => r.textContent?.startsWith("Garantie de marque")) as HTMLElement;
+
+    expect(legal.textContent).toMatch(/jusqu’au 15 janvier 2027\s*\d+ j/);
+    expect(legal.querySelector(".text-warning")).not.toBeNull();
+    expect(store.textContent).toMatch(/jusqu’au 15 janvier 2026\s*Expirée/);
+    expect(store.querySelector(".text-destructive")).not.toBeNull();
+    expect(brand.textContent).toMatch(/jusqu’au 15 janvier 2028\s*Active/);
+    expect(brand.querySelector(".text-success")).not.toBeNull();
   });
 });
