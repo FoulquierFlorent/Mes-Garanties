@@ -152,7 +152,7 @@ function ItemPage() {
     if (!damagePhotos.length) return;
     setUploadingDamage(true);
     try {
-      const failed = await uploadItemPhotos(item.id, damagePhotos);
+      const failed = await uploadItemPhotos(id, damagePhotos);
       setDamagePhotos(failed);
       await qc.invalidateQueries({ queryKey: ["item-photos", id] });
       await qc.invalidateQueries({ queryKey: ["item-photo-names", id] });
