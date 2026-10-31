@@ -1,3 +1,4 @@
+import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Bell, CalendarDays, ShieldCheck } from "lucide-react";

@@ -1,3 +1,4 @@
+import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
