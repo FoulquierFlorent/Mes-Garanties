@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, Bell, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } from "@/lib/items";
+import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
@@ -112,6 +112,13 @@ function AddItem({ householdId }: { householdId: string | null }) {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{CATEGORIES.map((c) => { const img = categoryImage(c); return <SelectItem key={c} value={c} textValue={c} className="gap-2"><span className="flex items-center gap-2">{img && <img src={img} alt="" loading="lazy" width={20} height={20} className="h-5 w-5 shrink-0 rounded object-cover" />}{c}</span></SelectItem>; })}</SelectContent>
             </Select>
+            {(CATEGORY_TYPES[category] ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1" aria-label="Type d’objet">
+                {(CATEGORY_TYPES[category] ?? []).map((t) => (
+                  <button key={t} type="button" onClick={() => setF({ ...f, name: t })} className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${f.name === t ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{t}</button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5"><Label>Marque</Label><Input value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
@@ -176,19 +183,25 @@ function AppPage() {
         </div>
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} /></div>
       </div>
-      {usedCats.length > 0 && (
-        <div className="mt-6 flex flex-wrap gap-2">
-          {[null, ...usedCats].map((c) => {
-            const img = c ? categoryImage(c) : null;
-            return (
-              <Button key={c ?? "all"} size="sm" variant={cat === c ? "default" : "outline"} className="rounded-full" onClick={() => setCat(c)}>
-                {img && <img src={img} alt="" loading="lazy" width={16} height={16} className="mr-1.5 h-4 w-4 rounded-full object-cover" />}
-                {c ?? "Toutes"}
-              </Button>
-            );
-          })}
+      {usedCats.length > 0 && (cat === null ? (
+        <div className="mt-6">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Choisir une catégorie</p>
+          <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {usedCats.map((c) => (
+              <button key={c} type="button" onClick={() => setCat(c)} className="group overflow-hidden rounded-lg border text-left transition-colors hover:border-primary">
+                <img src={categoryImage(c) ?? ""} alt="" loading="lazy" width={120} height={64} className="h-14 w-full object-cover" />
+                <span className="block truncate px-2 pt-1 text-xs font-medium">{c}</span>
+                <span className="block px-2 pb-1.5 text-[11px] text-muted-foreground">{allItems.filter((i) => i.category === c).length} objet(s)</span>
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      ) : (
+        <div className="mt-6 flex items-center gap-2">
+          <Button size="sm" variant="outline" className="rounded-full" onClick={() => setCat(null)}>← Toutes les catégories</Button>
+          <span className="flex items-center gap-1.5 text-sm font-medium"><img src={categoryImage(cat) ?? ""} alt="" width={18} height={18} className="h-[18px] w-[18px] rounded-full object-cover" />{cat} · {items.length}</span>
+        </div>
+      ))}
 
       {(upcoming.length > 0 || firstYearItems.length > 0) && (
         <div className="mt-8 rounded-lg border border-accent/40 bg-accent/10 p-4">
