@@ -14,6 +14,7 @@
 - [ ] Scanner une facture, un ticket de caisse et/ou une photo (OCR + remplissage de la fiche)
 - [ ] Tester le parcours des garanties (lettre puis suivi de retour) et corriger les problèmes
 - [ ] Photo de l’objet endommagé au signalement, rangée avec les documents de la fiche
+- [ ] Vérifier que les 30 objets apparaissent bien côté utilisateur (onglet Objets, connecté)
 - [x] Suivi après la lettre, uniquement avec lettre enregistrée et renvoi confirmé
 - [x] Lettre personnalisée selon la garantie légale, magasin ou marque choisie
 - [x] Petit point de couleur pour les rappels dans le calendrier, en plus de la cloche
