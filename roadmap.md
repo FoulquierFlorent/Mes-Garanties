@@ -46,3 +46,5 @@
 - [x] Suivi des retours d'objets
 - [x] Envoi de factures / tickets dans l'app
 - [x] Espace profil privé par membre (infos perso, e-mail, lien familial) visible seulement par lui
+- [ ] Crash aperçu « Importing a module script failed »
+- [ ] Membres en carrés 2 par ligne, encadré couleur choisie par le membre
