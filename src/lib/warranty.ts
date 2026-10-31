@@ -36,10 +36,47 @@ export function firstYearReminder(purchaseDate: string): string {
 export const WARRANTY_YEARS = Array.from({ length: 100 }, (_, i) => i + 1);
 export const yearsLabel = (years: number) => `${years} ${years === 1 ? "an" : "ans"}`;
 
-export function itemWarranties(item: { purchase_date: string; warranty_months: number; store_warranty_years?: number | null; brand_warranty_years?: number | null }) {
-  const warranties = [{ key: "base", label: "Garantie légale", end: warrantyEnd(item.purchase_date, item.warranty_months) }];
-  if (item.store_warranty_years) warranties.push({ key: "store", label: "Garantie magasin", end: warrantyEnd(item.purchase_date, item.store_warranty_years * 12) });
-  if (item.brand_warranty_years) warranties.push({ key: "brand", label: "Garantie de marque", end: warrantyEnd(item.purchase_date, item.brand_warranty_years * 12) });
+/** Les 6 garanties suivies par l'application. */
+export type WarrantyKey = "base" | "store" | "brand" | "constructor" | "extension" | "repair";
+
+export const WARRANTY_LABELS: Record<WarrantyKey, string> = {
+  base: "Garantie légale",
+  store: "Garantie magasin",
+  brand: "Garantie de marque",
+  constructor: "Garantie constructeur",
+  extension: "Garantie d’extension",
+  repair: "Garantie de réparation",
+};
+
+/** Garanties facultatives, exprimées en années entières. */
+export const OPTIONAL_WARRANTY_KEYS = ["store", "brand", "constructor", "extension", "repair"] as const;
+
+export type WarrantyItem = {
+  purchase_date: string;
+  warranty_months: number;
+  store_warranty_years?: number | null;
+  brand_warranty_years?: number | null;
+  constructor_warranty_years?: number | null;
+  extension_warranty_years?: number | null;
+  repair_warranty_years?: number | null;
+};
+
+export type Warranty = { key: WarrantyKey; label: string; end: string };
+
+export function itemWarranties(item: WarrantyItem): Warranty[] {
+  const warranties: Warranty[] = [
+    { key: "base", label: WARRANTY_LABELS.base, end: warrantyEnd(item.purchase_date, item.warranty_months) },
+  ];
+  const optional: [WarrantyKey, number | null | undefined][] = [
+    ["store", item.store_warranty_years],
+    ["brand", item.brand_warranty_years],
+    ["constructor", item.constructor_warranty_years],
+    ["extension", item.extension_warranty_years],
+    ["repair", item.repair_warranty_years],
+  ];
+  for (const [key, years] of optional) {
+    if (years) warranties.push({ key, label: WARRANTY_LABELS[key], end: warrantyEnd(item.purchase_date, years * 12) });
+  }
   return warranties;
 }
 
