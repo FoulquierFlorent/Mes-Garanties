@@ -87,6 +87,16 @@
   --member-4: oklch(0.50 0.13 320);
   --member-5: oklch(0.62 0.11 85);
   --member-6: oklch(0.55 0.09 195);
+  --frame-bleu: oklch(0.55 0.2 260);
+  --frame-blanc: oklch(0.97 0.005 85);
+  --frame-noir: oklch(0.2 0.01 260);
+  --frame-marron: oklch(0.45 0.08 55);
+  --frame-rouge: oklch(0.58 0.21 27);
+  --frame-vert: oklch(0.6 0.15 150);
+  --frame-orange: oklch(0.7 0.17 55);
+  --frame-rose: oklch(0.72 0.15 350);
+  --frame-violet: oklch(0.55 0.2 300);
+  --frame-jaune: oklch(0.85 0.16 95);
   --border: oklch(0.89 0.012 85);
   --input: oklch(0.89 0.012 85);
   --ring: oklch(0.72 0.11 75);
