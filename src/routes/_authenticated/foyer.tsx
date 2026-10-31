@@ -1,3 +1,4 @@
+import { memberDotClass } from "@/lib/members";
 import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
