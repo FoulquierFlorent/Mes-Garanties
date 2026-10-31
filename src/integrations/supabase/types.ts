@@ -81,6 +81,7 @@ export type Database = {
           category: string
           constructor_warranty_years: number | null
           created_at: string
+          description: string | null
           extension_warranty_years: number | null
           household_id: string | null
           id: string
@@ -107,6 +108,7 @@ export type Database = {
           category?: string
           constructor_warranty_years?: number | null
           created_at?: string
+          description?: string | null
           extension_warranty_years?: number | null
           household_id?: string | null
           id?: string
@@ -133,6 +135,7 @@ export type Database = {
           category?: string
           constructor_warranty_years?: number | null
           created_at?: string
+          description?: string | null
           extension_warranty_years?: number | null
           household_id?: string | null
           id?: string

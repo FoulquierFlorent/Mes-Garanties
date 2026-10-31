@@ -92,6 +92,13 @@
       "when": 1793470586522,
       "tag": "0012_add_item_price",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793471514513,
+      "tag": "0013_add_item_description",
+      "breakpoints": true
     }
   ]
 }

@@ -71,6 +71,12 @@ function ItemPage() {
   useEffect(() => {
     setPrice(item?.price != null ? String(item.price) : "");
   }, [item?.id, item?.price]);
+  const [description, setDescription] = useState(item?.description ?? "");
+  const [savingDescription, setSavingDescription] = useState(false);
+  // Resynchronise le descriptif avec la fiche enregistrée.
+  useEffect(() => {
+    setDescription(item?.description ?? "");
+  }, [item?.id, item?.description]);
   const [damagePhotos, setDamagePhotos] = useState<File[]>([]);
   const [uploadingDamage, setUploadingDamage] = useState(false);
   const { data: photoNames = [] } = useQuery({
@@ -147,6 +153,16 @@ function ItemPage() {
     qc.invalidateQueries({ queryKey: ["items"] });
     toast.success("Suivi enregistré");
   }
+  async function saveDescription() {
+    setSavingDescription(true);
+    try {
+      const { error } = await supabase.from("items").update({ description: description.trim() || null }).eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success("Descriptif enregistré");
+    } catch { toast.error("Impossible d’enregistrer le descriptif"); }
+    finally { setSavingDescription(false); }
+  }
   async function savePrice() {
     const trimmed = price.trim().replace(",", ".");
     const value = trimmed === "" ? null : Number(trimmed);
@@ -211,6 +227,17 @@ function ItemPage() {
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
 
       <section className="mt-6 border-y py-6">
+        <h2 className="text-2xl">Descriptif de l’objet</h2>
+        <div className="mt-4 space-y-1.5">
+          <Label htmlFor="item-description">Descriptif (facultatif)</Label>
+          <Textarea id="item-description" placeholder="Ex. modèle, couleur, numéro de série, état…" value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
+        <Button className="mt-3" disabled={savingDescription} onClick={saveDescription}>{savingDescription ? "Enregistrement…" : "Enregistrer le descriptif"}</Button>
+      </section>
+
+      <ItemPhotos itemId={item.id} />
+
+      <section className="mt-6 border-y py-6">
         <h2 className="text-2xl">Prix</h2>
         <div className="mt-4 flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
@@ -258,7 +285,7 @@ function ItemPage() {
 
       <Receipts itemId={item.id} />
       <ReceiptSummary itemId={item.id} summary={item.receipt_summary ?? null} />
-      <ItemPhotos itemId={item.id} />
+
 
       <section ref={letterRef} className="mt-8 scroll-mt-6 border-t py-6">
         <h2 className="text-2xl">Lettre de demande de remplacement</h2>
