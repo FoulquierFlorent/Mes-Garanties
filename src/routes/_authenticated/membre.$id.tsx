@@ -5,6 +5,8 @@ import { RightBanner } from "@/components/RightBanner";
 import { householdQuery, itemsQuery, fmt, todayISO } from "@/lib/items";
 import { itemWarranties, status, WARRANTY_LABELS } from "@/lib/warranty";
 import { memberDotClass, memberBorderClass } from "@/lib/members";
+import { PrivateProfile } from "@/components/PrivateProfile";
+import { useUserId } from "@/hooks/useUserId";
 
 export const Route = createFileRoute("/_authenticated/membre/$id")({
   head: () => ({ meta: [{ title: "Espace membre — Mes garanties" }, { name: "description", content: "L'espace d'un membre du foyer : ses objets et ses garanties." }, { property: "og:title", content: "Espace membre — Mes garanties" }, { property: "og:description", content: "Les objets et les garanties d'un membre du foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -20,6 +22,8 @@ function MemberSpace() {
   const own = items.filter((i) => i.user_id === id);
   const today = todayISO();
   const name = member?.display_name?.trim() || "Membre";
+  const me = useUserId();
+  const isMe = me === id;
   const covered = own.filter((i) => itemWarranties(i).some((w) => status(w.end, today) !== "expired")).length;
 
   return (
@@ -36,6 +40,7 @@ function MemberSpace() {
         {own.length} objet{own.length > 1 ? "s" : ""} enregistré{own.length > 1 ? "s" : ""} · {covered} encore couvert{covered > 1 ? "s" : ""}.
       </p>
 
+      {isMe && (member?.display_name?.trim() ? <PrivateProfile userId={id} /> : <p className="mt-8 rounded-lg border bg-card p-5 text-sm text-muted-foreground">Enregistrez votre prénom dans la page Foyer pour ouvrir votre espace secret.</p>)}
       {own.length ? (
         <ul className="mt-8 space-y-3">
           {own.map((i) => (
