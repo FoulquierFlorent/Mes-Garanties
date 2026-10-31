@@ -153,6 +153,39 @@ export type Database = {
           },
         ]
       }
+      member_profiles: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          email: string | null
+          notes: string | null
+          phone: string | null
+          relation: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          email?: string | null
+          notes?: string | null
+          phone?: string | null
+          relation?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          email?: string | null
+          notes?: string | null
+          phone?: string | null
+          relation?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

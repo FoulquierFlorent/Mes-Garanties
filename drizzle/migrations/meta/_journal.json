@@ -64,6 +64,13 @@
       "when": 1793467010012,
       "tag": "0008_item_constructor_extension_repair_warranties",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793468373028,
+      "tag": "0009_member_private_profiles",
+      "breakpoints": true
     }
   ]
 }
