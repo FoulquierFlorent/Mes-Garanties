@@ -11,6 +11,7 @@ export type LetterInput = {
   warrantyEnd: string; // formatted
   problem: "panne" | "casse" | "hs";
   details: string;
+  photoCount?: number;
   today: string; // formatted
 };
 
@@ -106,7 +107,7 @@ Or, ce produit ${PROBLEMS[i.problem]}.${i.details ? `\n\n${i.details}` : ""}
 
 ${request}
 
-Vous trouverez ci-joint une copie de ma preuve d'achat.
+Vous trouverez ci-joint une copie de ma preuve d'achat${i.photoCount ? " ainsi qu'une photo de l'objet endommagé" : ""}.
 
 Dans l'attente de votre réponse, je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.
 

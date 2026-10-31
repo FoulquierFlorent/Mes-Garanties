@@ -1,6 +1,6 @@
 import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
@@ -9,7 +9,8 @@ import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
 import { warrantyEnd, itemWarranties, yearsLabel, WARRANTY_LABELS } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
-import { ItemPhotos } from "@/components/ItemPhotos";
+import { ItemPhotos, PhotoPicker } from "@/components/ItemPhotos";
+import { uploadItemPhotos } from "@/lib/item-photos";
 import { buildLetter, type LetterInput, type WarrantyLetterType } from "@/lib/letter";
 import { canShowReturnTracking, savedReplacementLetter } from "@/lib/return-flow";
 import { Receipts } from "@/components/Receipts";
@@ -53,6 +54,16 @@ function ItemPage() {
     item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
   );
   const [savingWarranties, setSavingWarranties] = useState(false);
+  const [damagePhotos, setDamagePhotos] = useState<File[]>([]);
+  const [uploadingDamage, setUploadingDamage] = useState(false);
+  const { data: photoNames = [] } = useQuery({
+    queryKey: ["item-photo-names", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from("item-photos").list(id);
+      if (error) return [];
+      return (data ?? []).filter((f) => f.id).map((f) => f.name);
+    },
+  });
   const letterRef = useRef<HTMLElement>(null);
   function reportProblem(problem: LetterInput["problem"]) {
     setL((value) => ({ ...value, problem }));
@@ -81,7 +92,7 @@ function ItemPage() {
         : yearsLabel(yearsByWarranty[w.key] ?? 1),
   }));
   const chosenWarranty = warrantyRows.find((w) => w.key === letterWarranty);
-  const letter = buildLetter({ ...l, warrantyType: letterWarranty, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: chosenWarranty ? fmt(chosenWarranty.end) : "[Garantie non renseignée]", today: fmt(todayISO()) });
+  const letter = buildLetter({ ...l, warrantyType: letterWarranty, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: chosenWarranty ? fmt(chosenWarranty.end) : "[Garantie non renseignée]", today: fmt(todayISO()), photoCount: photoNames.length });
   const showReturn = canShowReturnTracking(item.replacement_letter, item.return_sent_date);
 
   async function saveLetter() {
@@ -137,6 +148,20 @@ function ItemPage() {
     } catch { toast.error("Impossible d’enregistrer les garanties"); }
     finally { setSavingWarranties(false); }
   }
+  async function attachDamagePhotos() {
+    if (!damagePhotos.length) return;
+    setUploadingDamage(true);
+    try {
+      const failed = await uploadItemPhotos(item.id, damagePhotos);
+      setDamagePhotos(failed);
+      await qc.invalidateQueries({ queryKey: ["item-photos", id] });
+      await qc.invalidateQueries({ queryKey: ["item-photo-names", id] });
+      if (failed.length) toast.error("Certaines photos n'ont pas pu être jointes. Réessayez.");
+      else toast.success("Photo jointe au dossier de l'objet");
+    } catch { toast.error("Envoi de la photo impossible"); }
+    finally { setUploadingDamage(false); }
+  }
+
   function print() {
     const w = window.open("", "_blank");
     if (!w) return;
@@ -176,6 +201,12 @@ function ItemPage() {
           <Button variant="outline" onClick={() => reportProblem("panne")}>Dysfonctionnement</Button>
           <Button variant="outline" onClick={() => reportProblem("casse")}>Objet détérioré ou cassé</Button>
           <Button variant="outline" onClick={() => reportProblem("hs")}>Ne fonctionne plus</Button>
+        </div>
+        <div className="mt-5">
+          <p className="text-sm font-medium">Photo de l’objet endommagé</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">Elle est rangée avec les documents de la fiche et signalée dans la lettre.</p>
+          <div className="mt-2"><PhotoPicker files={damagePhotos} onChange={setDamagePhotos} disabled={uploadingDamage} /></div>
+          {damagePhotos.length > 0 && <Button className="mt-3" disabled={uploadingDamage} onClick={attachDamagePhotos}>{uploadingDamage ? "Envoi…" : "Joindre au dossier"}</Button>}
         </div>
       </section>}
 
