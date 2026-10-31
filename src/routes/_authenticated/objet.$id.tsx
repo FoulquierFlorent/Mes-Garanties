@@ -211,6 +211,19 @@ function ItemPage() {
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
 
       <section className="mt-6 border-y py-6">
+        <h2 className="text-2xl">Prix</h2>
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="item-price">Prix d’achat (€, facultatif)</Label>
+            <Input id="item-price" type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" className="w-40" value={price} onChange={(e) => setPrice(e.target.value)} />
+          </div>
+          <Button disabled={savingPrice} onClick={savePrice}>{savingPrice ? "Enregistrement…" : "Enregistrer le prix"}</Button>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">Laissez vide pour retirer le prix de la fiche.</p>
+      </section>
+
+
+      <section className="mt-6 border-y py-6">
         <h2 className="text-2xl">Garanties</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
