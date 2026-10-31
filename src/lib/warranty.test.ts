@@ -24,6 +24,7 @@ describe("garantie", () => {
     expect(warrantyEnd("2025-03-15", 24)).toBe("2027-03-15");
     expect(warrantyEnd("2024-01-31", 1)).toBe("2024-02-29");
   });
+  it("alerte 6 mois avant", () => expect(alertDate("2027-03-15", "6m")).toBe("2026-09-15"));
   it("alerte 3 mois avant", () => expect(alertDate("2027-03-15", "3m")).toBe("2026-12-15"));
   it("alerte 1 mois avant", () => expect(alertDate("2027-03-15", "1m")).toBe("2027-02-15"));
   it("alerte 1 semaine avant", () => expect(alertDate("2027-03-15", "1w")).toBe("2027-03-08"));

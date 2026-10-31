@@ -17,6 +17,9 @@ export const todayISO = () => new Date().toISOString().slice(0, 10);
 export const fmt = (d: string) =>
   new Date(d + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
+export const formatPrice = (p: number) =>
+  new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(p);
+
 /** Catégories et types d’objets proposés (le type remplit le nom). */
 export const CATEGORY_TYPES: Record<string, string[]> = {
   "Électronique": ["Smartphone", "Ordinateur portable", "Ordinateur fixe", "Tablette", "Liseuse", "Téléviseur", "Écran", "Appareil photo", "Caméra", "Casque", "Écouteurs", "Enceinte", "Montre connectée", "Imprimante", "Scanner"],

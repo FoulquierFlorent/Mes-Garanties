@@ -52,3 +52,6 @@
 - [x] Vérifier que Charles voit les objets partagés après rechargement
 - [x] Alertes : préciser « avant la fin de la garantie légale »
 - [x] Calendrier : date du jour encadrée en rouge
+- [x] Connexion ouvre le Calendrier ; un membre déjà connecté qui ouvre la page de connexion est renvoyé au Calendrier
+- [x] Alerte « 6 mois avant » rétablie (elle affichait « Alerte undefined » dans le calendrier)
+- [x] Prix facultatif sur les objets : champ à l'ajout, affiché dans la liste et sur la fiche

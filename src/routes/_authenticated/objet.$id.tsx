@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
+import { itemsQuery, fmt, todayISO, RETURN_LABELS, formatPrice } from "@/lib/items";
 import { warrantyEnd, itemWarranties, yearsLabel, WARRANTY_LABELS } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
@@ -186,7 +186,7 @@ function ItemPage() {
       <Link to="/app" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Retour</Link>
       <p className="mt-6 text-xs uppercase tracking-wider text-accent">{item.category}</p>
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
-      <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
+      <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
 
       <section className="mt-6 border-y py-6">
         <h2 className="text-2xl">Garanties</h2>

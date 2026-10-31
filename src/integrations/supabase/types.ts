@@ -86,6 +86,7 @@ export type Database = {
           id: string
           name: string
           notes: string | null
+          price: number | null
           purchase_date: string
           receipt_summary: string | null
           repair_warranty_years: number | null
@@ -111,6 +112,7 @@ export type Database = {
           id?: string
           name: string
           notes?: string | null
+          price?: number | null
           purchase_date: string
           receipt_summary?: string | null
           repair_warranty_years?: number | null
@@ -136,6 +138,7 @@ export type Database = {
           id?: string
           name?: string
           notes?: string | null
+          price?: number | null
           purchase_date?: string
           receipt_summary?: string | null
           repair_warranty_years?: number | null

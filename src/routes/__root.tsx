@@ -35,10 +35,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   useEffect(() => {
     const msg = String((error as Error | undefined)?.message ?? "");
-    if (/Importing a module script failed|dynamically imported module/i.test(msg)) {
-      const last = Number(sessionStorage.getItem("chunk-reload") || 0);
-      if (Date.now() - last > 10000) { sessionStorage.setItem("chunk-reload", String(Date.now())); window.location.reload(); return; }
-    }
+    const recover = (window as { __chunkRecover?: (m: string) => boolean }).__chunkRecover;
+    if (recover?.(msg)) return;
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
@@ -80,10 +78,39 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+// Garde-fou chargé avant tout module : si un morceau de code ne se charge pas
+// (Safari : « Importing a module script failed »), on recharge jusqu'à 3 fois,
+// puis on affiche un bouton de rechargement au lieu d'un écran vide.
+const CHUNK_GUARD = `(function(){
+var RE=/Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module/i;
+function showFallback(){
+function render(){
+if(document.getElementById("chunk-fallback"))return;
+var d=document.createElement("div");d.id="chunk-fallback";
+d.style.cssText="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#faf7f2;font-family:Georgia,serif;z-index:99999;text-align:center;padding:24px";
+d.innerHTML='<div><p style="font-size:20px;margin-bottom:16px">La page n\\u2019a pas pu se charger complètement.</p><button onclick="location.reload()" style="background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:8px;border:0;font-size:14px;cursor:pointer">Recharger la page</button></div>';
+document.body.appendChild(d);
+}
+if(document.body)render();else document.addEventListener("DOMContentLoaded",render);
+}
+window.__chunkRecover=function(msg){
+if(!RE.test(String(msg)))return false;
+var n=0;try{n=Number(sessionStorage.getItem("chunk-reloads")||0);}catch(e){}
+if(n<3){try{sessionStorage.setItem("chunk-reloads",String(n+1));}catch(e){}
+location.reload();return true;}
+showFallback();return false;
+};
+window.addEventListener("error",function(e){window.__chunkRecover(e.message);},true);
+window.addEventListener("unhandledrejection",function(e){var r=e.reason;window.__chunkRecover(r&&r.message?r.message:String(r));});
+window.addEventListener("vite:preloadError",function(e){e.preventDefault();window.__chunkRecover("Failed to fetch dynamically imported module");});
+window.addEventListener("load",function(){setTimeout(function(){try{sessionStorage.removeItem("chunk-reloads");}catch(e){}},5000);});
+})();`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: CHUNK_GUARD }} />
         <HeadContent />
       </head>
       <body>
