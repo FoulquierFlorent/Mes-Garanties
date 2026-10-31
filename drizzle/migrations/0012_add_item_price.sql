@@ -1,0 +1,1 @@
+ALTER TABLE public.items ADD COLUMN price numeric(10,2);
