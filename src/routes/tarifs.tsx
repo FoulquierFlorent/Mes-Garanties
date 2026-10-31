@@ -7,9 +7,9 @@ export const Route = createFileRoute("/tarifs")({
   head: () => ({
     meta: [
       { title: "Tarifs — Mes garanties" },
-      { name: "description", content: "Commencez gratuitement. Les abonnements Garantie+ arrivent bientôt." },
+      { name: "description", content: "Commencez gratuitement. Les abonnements payants arrivent bientôt." },
       { property: "og:title", content: "Tarifs — Mes garanties" },
-      { property: "og:description", content: "Commencez gratuitement. Les abonnements Garantie+ arrivent bientôt." },
+      { property: "og:description", content: "Commencez gratuitement. Les abonnements payants arrivent bientôt." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -34,32 +34,39 @@ const PLANS: PlanSpec[] = [
     cta: "Créer un compte",
   },
   {
-    name: "Garantie+ Plus",
+    name: "Mes Garan Titi et Grominet",
+    description: "Un abonnement pour deux, dans le même logement.",
+    items: ["2 comptes reliés", "Objets partagés à deux", "Rappels pour les deux", "Scans illimités"],
+    cta: "Choisir Titi et Grominet",
+    soon: true,
+  },
+  {
+    name: "Mes Garanties au Max",
     description: "Centralisez davantage de preuves et suivez vos échéances.",
     items: ["Objets illimités", "Scan factures", "Assistant SAV", "Exports PDF", "Dossier assurance simple"],
-    cta: "S’abonner",
+    cta: "Choisir au Max",
     soon: true,
     recommended: true,
   },
   {
-    name: "Garantie+ Famille",
+    name: "Mes Garan Team",
     description: "Organisez les preuves d’achat de votre foyer.",
     items: ["Profils familiaux", "Biens par membre du foyer", "Filtres par profil", "Dossier assurance complet"],
-    cta: "Choisir Famille",
+    cta: "Choisir Team",
     soon: true,
   },
   {
-    name: "Garantie+ Pro Solo",
+    name: "Mes garanties Titane",
     description: "Pour indépendants et matériel pro.",
     items: ["Matériel professionnel", "Suivi garanties", "Historique réparations", "Dossier assurance pro"],
-    cta: "Choisir Pro Solo",
+    cta: "Choisir Titane",
     soon: true,
   },
   {
-    name: "Garantie+ Pro Business",
+    name: "Mes Garan Titanesque",
     description: "Pour petites équipes et parcs suivis.",
     items: ["Profils d’affectation", "Employé, véhicule, chantier ou service", "Inventaire par profil", "Exports avancés plus tard"],
-    cta: "Choisir Pro Business",
+    cta: "Choisir Titanesque",
     soon: true,
   },
 ];
@@ -90,7 +97,7 @@ function Tarifs() {
       <h1 className="text-5xl">Tarifs</h1>
       <RightBanner variant="whisper" offset={4} className="mt-3" />
       <p className="mt-4 max-w-2xl text-muted-foreground">
-        Les prix des abonnements Garantie+ ne sont pas encore fixés. Le plan Gratuit reste accessible dès maintenant.
+        Les prix des abonnements payants ne sont pas encore fixés. Le plan Gratuit reste accessible dès maintenant.
       </p>
       <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {PLANS.map((p) => <Plan key={p.name} {...p} />)}
