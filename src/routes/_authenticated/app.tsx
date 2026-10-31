@@ -110,7 +110,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
           <div className="space-y-1.5"><Label>Catégorie</Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{CATEGORIES.map((c) => { const img = categoryImage(c); return <SelectItem key={c} value={c} className="gap-2">{img && <img src={img} alt="" loading="lazy" width={20} height={20} className="h-5 w-5 rounded object-cover" />}{c}</SelectItem>; })}</SelectContent>
+              <SelectContent>{CATEGORIES.map((c) => { const img = categoryImage(c); return <SelectItem key={c} value={c} textValue={c} className="gap-2"><span className="flex items-center gap-2">{img && <img src={img} alt="" loading="lazy" width={20} height={20} className="h-5 w-5 shrink-0 rounded object-cover" />}{c}</span></SelectItem>; })}</SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
