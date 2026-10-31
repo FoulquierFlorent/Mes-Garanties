@@ -17,7 +17,7 @@ type Props = {
  * les garanties sont un droit.
  */
 export function RightBanner({ offset = 0, text, variant = "strip", className }: Props) {
-  const [phrase, setPhrase] = useState(text ?? WARRANTY_PHRASES[offset % WARRANTY_PHRASES.length]);
+  const [phrase, setPhrase] = useState(text ?? WARRANTY_PHRASES[offset % WARRANTY_PHRASES.length] ?? "");
 
   useEffect(() => {
     if (!text) setPhrase(phraseOfDay(daySeed(), offset));

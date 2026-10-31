@@ -26,5 +26,6 @@ export function daySeed(today = new Date()): number {
 /** Une phrase différente chaque jour, décalée par `offset` pour varier les emplacements. */
 export function phraseOfDay(seed: number, offset = 0): string {
   const n = WARRANTY_PHRASES.length;
-  return WARRANTY_PHRASES[(((seed + offset) % n) + n) % n];
+  const idx = (((seed + offset) % n) + n) % n;
+  return WARRANTY_PHRASES[idx] ?? "";
 }
