@@ -2,6 +2,9 @@ export const WARRANTY_LEGEND = [
   { key: "base", label: "Garantie légale", className: "bg-warranty-legal" },
   { key: "store", label: "Garantie magasin", className: "bg-warranty-store" },
   { key: "brand", label: "Garantie de marque", className: "bg-warranty-brand" },
+  { key: "constructor", label: "Garantie constructeur", className: "bg-warranty-constructor" },
+  { key: "extension", label: "Garantie d’extension", className: "bg-warranty-extension" },
+  { key: "repair", label: "Garantie de réparation", className: "bg-warranty-repair" },
 ];
 
 export function WarrantyMarker({ warrantyKey, className = "", title }: { warrantyKey: string; className?: string; title?: string }) {

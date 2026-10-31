@@ -1,3 +1,4 @@
+import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ReminderMarker, WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
 
 export const Route = createFileRoute("/_authenticated/calendrier")({
-  head: () => ({ meta: [{ title: "Calendrier des garanties — Garantia" }, { name: "description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:title", content: "Calendrier des garanties — Garantia" }, { property: "og:description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Calendrier des garanties — Mes garanties" }, { name: "description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:title", content: "Calendrier des garanties — Mes garanties" }, { property: "og:description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(itemsQuery),
   component: CalendarPage,
 });
@@ -44,6 +45,7 @@ function CalendarPage() {
   return (
     <main className="mx-auto max-w-4xl px-5 py-12">
       <h1 className="text-4xl sm:text-5xl">Calendrier des garanties</h1>
+      <RightBanner variant="whisper" offset={7} className="mt-3" />
       <div className="mt-6 flex items-center justify-between gap-3">
         <h2 className="text-2xl capitalize sm:text-3xl">{first.toLocaleDateString("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" })}</h2>
         <div className="flex gap-1">

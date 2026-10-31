@@ -19,13 +19,14 @@ vi.mock("@tanstack/react-query", () => ({
     ],
   }),
   useQueryClient: () => ({ invalidateQueries: vi.fn() }),
+  useQuery: () => ({ data: [] }),
 }));
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => (options: { component: ComponentType }) => ({ options, useParams: () => ({ id: "shared-item" }) }),
   Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
 }));
 vi.mock("@/components/Receipts", () => ({ Receipts: () => null }));
-vi.mock("@/components/ItemPhotos", () => ({ ItemPhotos: () => null }));
+vi.mock("@/components/ItemPhotos", () => ({ ItemPhotos: () => null, PhotoPicker: () => null }));
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: { from: () => ({ update: () => ({ eq: () => Promise.resolve({ error: null }) }) }) },
 }));

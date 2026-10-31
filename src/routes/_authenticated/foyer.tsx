@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { memberDotClass } from "@/lib/members";
+import { RightBanner } from "@/components/RightBanner";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/foyer")({
-  head: () => ({ meta: [{ title: "Mon foyer — Garantia" }, { name: "description", content: "Partagez vos garanties avec votre foyer." }, { property: "og:title", content: "Mon foyer — Garantia" }, { property: "og:description", content: "Partagez vos garanties avec les membres de votre maison." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Mon foyer — Mes garanties" }, { name: "description", content: "Partagez vos garanties avec votre foyer." }, { property: "og:title", content: "Mon foyer — Mes garanties" }, { property: "og:description", content: "Partagez vos garanties avec les membres de votre maison." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(householdQuery),
   component: FoyerPage,
 });
@@ -56,6 +58,7 @@ function FoyerPage() {
     return (
       <main className="mx-auto max-w-xl px-5 py-12">
         <h1 className="text-4xl sm:text-5xl">{h.name}</h1>
+        <RightBanner variant="whisper" offset={10} className="mt-3" />
         <div className="mt-8 rounded-lg border bg-card p-6">
           <p className="text-sm text-muted-foreground">Code d'invitation à partager</p>
           <p className="mt-2 font-serif text-5xl tracking-[0.2em] text-accent">{h.invite_code}</p>
@@ -65,7 +68,7 @@ function FoyerPage() {
         <ul className="mt-3 divide-y rounded-lg border bg-card">
           {h.members.map((m) => m.user_id === me ? (
             <li key={m.user_id} className="p-3">
-              <Label className="text-xs text-muted-foreground">Votre prénom</Label>
+              <div className="flex items-center gap-2"><span aria-hidden className={`h-2.5 w-2.5 shrink-0 rounded-full ${memberDotClass(m.user_id)}`} /><Label className="text-xs text-muted-foreground">Votre prénom</Label></div>
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <Input value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Prénom" aria-label="Votre prénom" className="max-w-48" />
                 <Button size="sm" variant="outline" onClick={saveName}>Enregistrer</Button>
@@ -73,7 +76,7 @@ function FoyerPage() {
               <p className="mt-1.5 text-xs text-muted-foreground">C'est ce que les autres membres du foyer verront.</p>
             </li>
           ) : (
-            <li key={m.user_id} className="p-3 text-sm">{m.display_name?.trim() || "Membre"}</li>
+            <li key={m.user_id} className="p-3 text-sm"><Link to="/membre/$id" params={{ id: m.user_id }} className="flex items-center gap-2 hover:underline"><span aria-hidden className={`h-2.5 w-2.5 shrink-0 rounded-full ${memberDotClass(m.user_id)}`} />{m.display_name?.trim() || "Membre"}<span className="ml-auto text-xs text-muted-foreground">Son espace</span></Link></li>
           ))}
         </ul>
         <Button variant="ghost" className="mt-6 text-destructive" onClick={leave}>Quitter le foyer</Button>
@@ -84,6 +87,7 @@ function FoyerPage() {
   return (
     <main className="mx-auto max-w-xl px-5 py-12">
       <h1 className="text-4xl sm:text-5xl">Partager en famille</h1>
+      <RightBanner variant="whisper" offset={2} className="mt-3" />
       <p className="mt-3 text-muted-foreground">Créez un foyer et invitez les personnes de votre maison : tout le monde voit et gère les mêmes objets.</p>
       <div className="mt-8 space-y-3 rounded-lg border bg-card p-6">
         <Label>Nom du foyer</Label>

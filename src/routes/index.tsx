@@ -1,3 +1,4 @@
+import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Bell, CalendarDays, ShieldCheck } from "lucide-react";
@@ -5,9 +6,9 @@ import { Bell, CalendarDays, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Garantia — ne laissez plus expirer vos garanties" },
+      { title: "Mes garanties — ne laissez plus expirer vos garanties" },
       { name: "description", content: "Enregistrez vos achats, suivez leur garantie dans un calendrier et soyez alerté 3 mois, 1 mois ou 1 semaine avant la fin." },
-      { property: "og:title", content: "Garantia — ne laissez plus expirer vos garanties" },
+      { property: "og:title", content: "Mes garanties — ne laissez plus expirer vos garanties" },
       { property: "og:description", content: "Suivi des garanties de vos objets avec calendrier et alertes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -37,6 +38,24 @@ function Index() {
           <Button asChild size="lg"><Link to="/auth">Commencer gratuitement</Link></Button>
           <Button asChild size="lg" variant="outline"><Link to="/tarifs">Voir les tarifs</Link></Button>
         </div>
+        <RightBanner text="La garantie légale de conformité est un droit, pas une faveur." className="mt-10 max-w-xl" />
+      </section>
+      <section className="border-t bg-muted/40">
+        <div className="mx-auto max-w-3xl px-5 py-14">
+          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Côté client</p>
+          <h2 className="mt-4 text-3xl sm:text-4xl">Une garantie, pour vous, c’est quoi&nbsp;?</h2>
+          <p className="mt-5 text-lg">
+            C’est le droit de ne pas payer deux fois le même objet. Quand un achat tombe en panne,
+            se casse ou ne fonctionne plus, vous n’avez pas à racheter ni à payer la réparation :
+            vous demandez au vendeur, à la marque ou au fabricant de réparer, de remplacer ou de rembourser.
+          </p>
+          <p className="mt-4 text-muted-foreground">
+            Ce droit a une date de fin, et une preuve d’achat. C’est exactement ce que nous suivons pour vous :
+            garantie légale, garantie magasin, garantie de marque, garantie constructeur, extension ou réparation.
+            Tant que vous avez la date et la preuve, vous pouvez le faire valoir.
+          </p>
+          <RightBanner variant="whisper" offset={5} className="mt-6" />
+        </div>
       </section>
       <section className="border-t">
         <div className="mx-auto grid max-w-6xl gap-px bg-border sm:grid-cols-3">
@@ -48,8 +67,9 @@ function Index() {
             </div>
           ))}
         </div>
+        <RightBanner variant="whisper" offset={11} className="px-5 py-6 text-center" />
       </section>
-      <footer className="border-t py-10 text-center text-xs text-muted-foreground">© Garantia</footer>
+      <footer className="border-t py-10 text-center text-xs text-muted-foreground">© Mes garanties</footer>
     </main>
   );
 }

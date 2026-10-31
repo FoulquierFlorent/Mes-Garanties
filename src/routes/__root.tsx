@@ -56,7 +56,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Garantia — vos garanties sous contrôle" },
+      { title: "Mes garanties — vos garanties sous contrôle" },
       { name: "description", content: "Suivez la durée de garantie de vos objets et recevez une alerte avant expiration." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

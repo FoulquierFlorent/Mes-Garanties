@@ -1,14 +1,16 @@
+import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, fmt, todayISO, RETURN_LABELS } from "@/lib/items";
-import { warrantyEnd, itemWarranties, yearsLabel } from "@/lib/warranty";
+import { warrantyEnd, itemWarranties, yearsLabel, WARRANTY_LABELS } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
-import { ItemPhotos } from "@/components/ItemPhotos";
+import { ItemPhotos, PhotoPicker } from "@/components/ItemPhotos";
+import { uploadItemPhotos } from "@/lib/item-photos";
 import { buildLetter, type LetterInput, type WarrantyLetterType } from "@/lib/letter";
 import { canShowReturnTracking, savedReplacementLetter } from "@/lib/return-flow";
 import { Receipts } from "@/components/Receipts";
@@ -19,7 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/objet/$id")({
-  head: () => ({ meta: [{ title: "Objet — Garantia" }, { name: "description", content: "Détail, réclamation et suivi de retour." }, { property: "og:title", content: "Objet — Garantia" }, { property: "og:description", content: "Factures, lettre de conformité et suivi des retours de votre objet." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Objet — Mes garanties" }, { name: "description", content: "Détail, réclamation et suivi de retour." }, { property: "og:title", content: "Objet — Mes garanties" }, { property: "og:description", content: "Factures, lettre de conformité et suivi des retours de votre objet." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   loader: ({ context }) => context.queryClient.ensureQueryData(itemsQuery),
   component: ItemPage,
 });
@@ -45,10 +47,23 @@ function ItemPage() {
   const [sentDate, setSentDate] = useState(todayISO());
   const [storeYears, setStoreYears] = useState<number | null>(item?.store_warranty_years ?? null);
   const [brandYears, setBrandYears] = useState<number | null>(item?.brand_warranty_years ?? null);
+  const [constructorYears, setConstructorYears] = useState<number | null>(item?.constructor_warranty_years ?? null);
+  const [extensionYears, setExtensionYears] = useState<number | null>(item?.extension_warranty_years ?? null);
+  const [repairYears, setRepairYears] = useState<number | null>(item?.repair_warranty_years ?? null);
   const [baseYears, setBaseYears] = useState<number | null>(
     item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
   );
   const [savingWarranties, setSavingWarranties] = useState(false);
+  const [damagePhotos, setDamagePhotos] = useState<File[]>([]);
+  const [uploadingDamage, setUploadingDamage] = useState(false);
+  const { data: photoNames = [] } = useQuery({
+    queryKey: ["item-photo-names", id],
+    queryFn: async () => {
+      const { data, error } = await supabase.storage.from("item-photos").list(id);
+      if (error) return [];
+      return (data ?? []).filter((f) => f.id).map((f) => f.name);
+    },
+  });
   const letterRef = useRef<HTMLElement>(null);
   function reportProblem(problem: LetterInput["problem"]) {
     setL((value) => ({ ...value, problem }));
@@ -60,6 +75,13 @@ function ItemPage() {
   const end = warrantyEnd(item.purchase_date, item.warranty_months);
   const baseYearsWhole = item.warranty_months % 12 === 0;
   const originalMonths = item.warranty_months;
+  const yearsByWarranty: Record<string, number | null | undefined> = {
+    store: item.store_warranty_years,
+    brand: item.brand_warranty_years,
+    constructor: item.constructor_warranty_years,
+    extension: item.extension_warranty_years,
+    repair: item.repair_warranty_years,
+  };
   const warrantyRows = itemWarranties(item).map((w) => ({
     ...w,
     duration:
@@ -67,10 +89,10 @@ function ItemPage() {
         ? baseYearsWhole
           ? yearsLabel(item.warranty_months / 12)
           : `${item.warranty_months} mois`
-        : yearsLabel((w.key === "store" ? item.store_warranty_years : item.brand_warranty_years) ?? 1),
+        : yearsLabel(yearsByWarranty[w.key] ?? 1),
   }));
   const chosenWarranty = warrantyRows.find((w) => w.key === letterWarranty);
-  const letter = buildLetter({ ...l, warrantyType: letterWarranty, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: chosenWarranty ? fmt(chosenWarranty.end) : "[Garantie non renseignée]", today: fmt(todayISO()) });
+  const letter = buildLetter({ ...l, warrantyType: letterWarranty, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: chosenWarranty ? fmt(chosenWarranty.end) : "[Garantie non renseignée]", today: fmt(todayISO()), photoCount: photoNames.length });
   const showReturn = canShowReturnTracking(item.replacement_letter, item.return_sent_date);
 
   async function saveLetter() {
@@ -111,9 +133,12 @@ function ItemPage() {
   async function saveWarranties() {
     setSavingWarranties(true);
     try {
-      const patch: { store_warranty_years: number | null; brand_warranty_years: number | null; warranty_months?: number } = {
+      const patch: { store_warranty_years: number | null; brand_warranty_years: number | null; constructor_warranty_years: number | null; extension_warranty_years: number | null; repair_warranty_years: number | null; warranty_months?: number } = {
         store_warranty_years: storeYears,
         brand_warranty_years: brandYears,
+        constructor_warranty_years: constructorYears,
+        extension_warranty_years: extensionYears,
+        repair_warranty_years: repairYears,
       };
       if (baseYearsWhole && baseYears !== null && baseYears * 12 !== originalMonths) patch.warranty_months = baseYears * 12;
       const { error } = await supabase.from("items").update(patch).eq("id", id);
@@ -123,6 +148,20 @@ function ItemPage() {
     } catch { toast.error("Impossible d’enregistrer les garanties"); }
     finally { setSavingWarranties(false); }
   }
+  async function attachDamagePhotos() {
+    if (!damagePhotos.length) return;
+    setUploadingDamage(true);
+    try {
+      const failed = await uploadItemPhotos(id, damagePhotos);
+      setDamagePhotos(failed);
+      await qc.invalidateQueries({ queryKey: ["item-photos", id] });
+      await qc.invalidateQueries({ queryKey: ["item-photo-names", id] });
+      if (failed.length) toast.error("Certaines photos n'ont pas pu être jointes. Réessayez.");
+      else toast.success("Photo jointe au dossier de l'objet");
+    } catch { toast.error("Envoi de la photo impossible"); }
+    finally { setUploadingDamage(false); }
+  }
+
   function print() {
     const w = window.open("", "_blank");
     if (!w) return;
@@ -144,6 +183,9 @@ function ItemPage() {
           {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
           <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
           <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
+          <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" value={constructorYears} onChange={setConstructorYears} warrantyKey="constructor" />
+          <WarrantyYearSelect id="extension-years" label="Garantie d’extension" value={extensionYears} onChange={setExtensionYears} warrantyKey="extension" />
+          <WarrantyYearSelect id="repair-years" label="Garantie de réparation" value={repairYears} onChange={setRepairYears} warrantyKey="repair" />
         </div>
         <div className="mt-4 space-y-1.5">
           {warrantyRows.map((w) => <p key={w.key} className="text-sm text-muted-foreground pl-8 -indent-8"><WarrantyMarker warrantyKey={w.key} className="mr-2" />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
@@ -154,10 +196,17 @@ function ItemPage() {
       <Button className="mt-6" variant="outline" aria-expanded={reportOpen} onClick={() => setReportOpen(!reportOpen)}><TriangleAlert />Signaler un problème</Button>
       {reportOpen && <section className="mt-4 border-y py-5">
         <h2 className="text-2xl">Que se passe-t-il avec cet objet ?</h2>
+        <RightBanner variant="whisper" offset={8} className="mt-2" />
         <div className="mt-4 flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => reportProblem("panne")}>Dysfonctionnement</Button>
           <Button variant="outline" onClick={() => reportProblem("casse")}>Objet détérioré ou cassé</Button>
           <Button variant="outline" onClick={() => reportProblem("hs")}>Ne fonctionne plus</Button>
+        </div>
+        <div className="mt-5">
+          <p className="text-sm font-medium">Photo de l’objet endommagé</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">Elle est rangée avec les documents de la fiche et signalée dans la lettre.</p>
+          <div className="mt-2"><PhotoPicker files={damagePhotos} onChange={setDamagePhotos} disabled={uploadingDamage} /></div>
+          {damagePhotos.length > 0 && <Button className="mt-3" disabled={uploadingDamage} onClick={attachDamagePhotos}>{uploadingDamage ? "Envoi…" : "Joindre au dossier"}</Button>}
         </div>
       </section>}
 
@@ -166,15 +215,16 @@ function ItemPage() {
 
       <section ref={letterRef} className="mt-8 scroll-mt-6 border-t py-6">
         <h2 className="text-2xl">Lettre de demande de remplacement</h2>
+        <RightBanner offset={9} className="mt-4" />
         {!letterOpen && <Button className="mt-4" variant="outline" onClick={() => setLetterOpen(true)}>Rédiger une lettre</Button>}
         {letterOpen && <>
         <div className="mt-4 space-y-1.5"><Label htmlFor="letter-warranty">Garantie utilisée</Label>
-          <Select value={letterWarranty} onValueChange={(value) => { if (value === "base" || value === "store" || value === "brand") setLetterWarranty(value); }}>
+          <Select value={letterWarranty} onValueChange={(value) => { if (value in WARRANTY_LABELS) setLetterWarranty(value as WarrantyLetterType); }}>
             <SelectTrigger id="letter-warranty"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="base"><WarrantyMarker warrantyKey="base" />Garantie légale</SelectItem>
-              <SelectItem value="store"><WarrantyMarker warrantyKey="store" />Garantie magasin</SelectItem>
-              <SelectItem value="brand"><WarrantyMarker warrantyKey="brand" />Garantie de marque</SelectItem>
+              {(["base", "store", "brand", "constructor", "extension", "repair"] as const).map((k) => (
+                <SelectItem key={k} value={k}><WarrantyMarker warrantyKey={k} />{WARRANTY_LABELS[k]}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

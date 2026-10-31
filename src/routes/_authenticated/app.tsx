@@ -1,3 +1,4 @@
+import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -6,7 +7,7 @@ import { Plus, Trash2, Bell, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, CATEGORIES, RETURN_LABELS, todayISO, fmt } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, warrantyEnd, itemWarranties, type AlertKey } from "@/lib/warranty";
+import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { PhotoPicker } from "@/components/ItemPhotos";
@@ -15,12 +16,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useUserId } from "@/hooks/useUserId";
+import { memberBorderClass } from "@/lib/members";
+import { categoryImage } from "@/lib/category-images";
+import { ReceiptScanner } from "@/components/ReceiptScanner";
+import { uploadReceipt } from "@/lib/receipt-upload";
 
 export const Route = createFileRoute("/_authenticated/app")({
-  head: () => ({ meta: [{ title: "Mes objets — Garantia" }, { name: "description", content: "Vos objets et leurs garanties." }, { property: "og:title", content: "Mes objets — Garantia" }, { property: "og:description", content: "Vos objets et leurs garanties partagés avec votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Mes objets — Mes garanties" }, { name: "description", content: "Vos objets et leurs garanties." }, { property: "og:title", content: "Mes objets — Mes garanties" }, { property: "og:description", content: "Vos objets et leurs garanties partagés avec votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(itemsQuery), context.queryClient.ensureQueryData(householdQuery)]),
   component: AppPage,
 });
@@ -33,16 +37,28 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
   const [storeYears, setStoreYears] = useState<number | null>(null);
   const [brandYears, setBrandYears] = useState<number | null>(null);
+  const [constructorYears, setConstructorYears] = useState<number | null>(null);
+  const [extensionYears, setExtensionYears] = useState<number | null>(null);
+  const [repairYears, setRepairYears] = useState<number | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
   const [savedItemId, setSavedItemId] = useState<string | null>(null);
+  const [scanFile, setScanFile] = useState<File | null>(null);
+  const [scanText, setScanText] = useState("");
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
       if (!itemId) {
-        const { data, error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears }).select("id").single();
+        const { data, error } = await supabase.from("items").insert({ ...f, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears, constructor_warranty_years: constructorYears, extension_warranty_years: extensionYears, repair_warranty_years: repairYears }).select("id").single();
         if (error) throw error;
         itemId = data.id;
         setSavedItemId(itemId);
+        if (scanFile) {
+          try {
+            await uploadReceipt(itemId, scanFile, scanText);
+          } catch {
+            toast.error("Justificatif non joint : vous pouvez le rajouter depuis la fiche de l'objet.");
+          }
+        }
       }
       const failed = await uploadItemPhotos(itemId, photos);
       setPhotos(failed);
@@ -53,8 +69,13 @@ function AddItem({ householdId }: { householdId: string | null }) {
       setOpen(false);
       setStoreYears(null);
       setBrandYears(null);
+      setConstructorYears(null);
+      setExtensionYears(null);
+      setRepairYears(null);
       setPhotos([]);
       setSavedItemId(null);
+      setScanFile(null);
+      setScanText("");
       setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 });
       toast.success("Objet ajouté");
     },
@@ -64,17 +85,32 @@ function AddItem({ householdId }: { householdId: string | null }) {
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
+          <ReceiptScanner
+            disabled={m.isPending}
+            onResult={(fields, file, text) => {
+              setScanFile(file);
+              setScanText(text);
+              setF((prev) => ({
+                name: fields.name || prev.name,
+                brand: fields.brand || prev.brand,
+                store: fields.store || prev.store,
+                purchase_date: fields.purchase_date || prev.purchase_date,
+                warranty_months: prev.warranty_months,
+              }));
+              if (fields.category) setCategory(fields.category);
+            }}
+          />
           <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
           <div className="space-y-1.5"><Label>Nom</Label><Input required placeholder="Lave-linge" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Catégorie</Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+              <SelectContent>{CATEGORIES.map((c) => { const img = categoryImage(c); return <SelectItem key={c} value={c} textValue={c} className="gap-2"><span className="flex items-center gap-2">{img && <img src={img} alt="" loading="lazy" width={20} height={20} className="h-5 w-5 shrink-0 rounded object-cover" />}{c}</span></SelectItem>; })}</SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -88,6 +124,9 @@ function AddItem({ householdId }: { householdId: string | null }) {
           <div className="grid gap-3 sm:grid-cols-2">
             <WarrantyYearSelect id="store-years" label="Garantie magasin" warrantyKey="store" value={storeYears} onChange={setStoreYears} />
             <WarrantyYearSelect id="brand-years" label="Garantie de marque" warrantyKey="brand" value={brandYears} onChange={setBrandYears} />
+            <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" warrantyKey="constructor" value={constructorYears} onChange={setConstructorYears} />
+            <WarrantyYearSelect id="extension-years" label="Garantie d’extension" warrantyKey="extension" value={extensionYears} onChange={setExtensionYears} />
+            <WarrantyYearSelect id="repair-years" label="Garantie de réparation" warrantyKey="repair" value={repairYears} onChange={setRepairYears} />
           </div>
           <div className="space-y-2">
             <Label>Alertes</Label>
@@ -133,14 +172,21 @@ function AppPage() {
         <div>
           <h1 className="text-4xl sm:text-5xl">{household ? household.name : "Mes objets"}</h1>
           {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
+          <RightBanner variant="whisper" offset={6} className="mt-2" />
         </div>
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} /></div>
       </div>
       {usedCats.length > 0 && (
         <div className="mt-6 flex flex-wrap gap-2">
-          {[null, ...usedCats].map((c) => (
-            <Button key={c ?? "all"} size="sm" variant={cat === c ? "default" : "outline"} className="rounded-full" onClick={() => setCat(c)}>{c ?? "Toutes"}</Button>
-          ))}
+          {[null, ...usedCats].map((c) => {
+            const img = c ? categoryImage(c) : null;
+            return (
+              <Button key={c ?? "all"} size="sm" variant={cat === c ? "default" : "outline"} className="rounded-full" onClick={() => setCat(c)}>
+                {img && <img src={img} alt="" loading="lazy" width={16} height={16} className="mr-1.5 h-4 w-4 rounded-full object-cover" />}
+                {c ?? "Toutes"}
+              </Button>
+            );
+          })}
         </div>
       )}
 
@@ -156,26 +202,23 @@ function AppPage() {
         </div>
       )}
 
+      <RightBanner offset={0} className="mt-8" />
       {items.length === 0 ? (
         <p className="mt-16 text-center text-muted-foreground">Aucun objet pour l'instant. Ajoutez votre premier achat.</p>
       ) : (
-        <ul className="mt-8 divide-y rounded-lg border bg-card">
+        <ul className="mt-8 space-y-3">
           {items.map((i) => {
-            const end = warrantyEnd(i.purchase_date, i.warranty_months);
-            const s = status(end, today);
+            const catImg = categoryImage(i.category);
             return (
-              <li key={i.id} className="p-4">
+              <li key={i.id} className={`rounded-lg border-2 bg-card p-4 ${memberBorderClass(i.user_id)}`}>
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">
                     <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
                     {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
-                    <p className="text-xs uppercase tracking-wider text-accent">{i.category}
+                    <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-accent">{catImg && <img src={catImg} alt="" loading="lazy" width={14} height={14} className="h-3.5 w-3.5 rounded object-cover" />}{i.category}
                       {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
                     </p>
                   </div>
-                  <Badge variant="outline" className={s === "expired" ? "text-destructive border-destructive/40" : s === "soon" ? "text-warning border-warning/50" : "text-success border-success/40"}>
-                    {s === "expired" ? "Expirée" : s === "soon" ? `${daysLeft(end, today)} j` : "Active"}
-                  </Badge>
                   <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => del(i.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
                 <div className="mt-3 space-y-1.5 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5">
@@ -188,8 +231,8 @@ function AppPage() {
                         <span className="min-w-0 flex-1 truncate">{w.label}</span>
                         <span className="flex w-full items-center gap-2 pl-8 sm:w-auto sm:pl-0">
                           <span className="text-muted-foreground tabular-nums">jusqu’au {fmt(w.end)}</span>
-                          <span className={`font-medium tabular-nums ${ws === "expired" ? "text-destructive" : ws === "soon" ? "text-warning" : "text-success"}`}>
-                            {ws === "expired" ? "Expirée" : ws === "soon" ? `Bientôt · ${d} j` : `Active · ${d} j`}
+                          <span className={`inline-flex h-4 shrink-0 items-center rounded-md px-1.5 text-[10px] font-semibold tabular-nums ${ws === "expired" ? "bg-destructive/10 text-destructive" : ws === "soon" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"}`}>
+                            {ws === "expired" ? "Expirée" : ws === "soon" ? `${d} j` : "Active"}
                           </span>
                         </span>
                       </p>

@@ -11,10 +11,10 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Connexion — Garantia" },
-      { name: "description", content: "Connectez-vous ou créez votre compte Garantia." },
-      { property: "og:title", content: "Connexion — Garantia" },
-      { property: "og:description", content: "Connectez-vous ou créez votre compte Garantia." },
+      { title: "Connexion — Mes garanties" },
+      { name: "description", content: "Connectez-vous ou créez votre compte Mes garanties." },
+      { property: "og:title", content: "Connexion — Mes garanties" },
+      { property: "og:description", content: "Connectez-vous ou créez votre compte Mes garanties." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
