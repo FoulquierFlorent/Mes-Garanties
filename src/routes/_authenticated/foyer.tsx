@@ -67,7 +67,7 @@ function FoyerPage() {
         <ul className="mt-3 divide-y rounded-lg border bg-card">
           {h.members.map((m) => m.user_id === me ? (
             <li key={m.user_id} className="p-3">
-              <Label className="text-xs text-muted-foreground">Votre prénom</Label>
+              <div className="flex items-center gap-2"><span aria-hidden className={`h-2.5 w-2.5 shrink-0 rounded-full ${memberDotClass(m.user_id)}`} /><Label className="text-xs text-muted-foreground">Votre prénom</Label></div>
               <div className="mt-1.5 flex flex-wrap items-center gap-2">
                 <Input value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Prénom" aria-label="Votre prénom" className="max-w-48" />
                 <Button size="sm" variant="outline" onClick={saveName}>Enregistrer</Button>
@@ -75,7 +75,7 @@ function FoyerPage() {
               <p className="mt-1.5 text-xs text-muted-foreground">C'est ce que les autres membres du foyer verront.</p>
             </li>
           ) : (
-            <li key={m.user_id} className="p-3 text-sm">{m.display_name?.trim() || "Membre"}</li>
+            <li key={m.user_id} className="flex items-center gap-2 p-3 text-sm"><span aria-hidden className={`h-2.5 w-2.5 shrink-0 rounded-full ${memberDotClass(m.user_id)}`} />{m.display_name?.trim() || "Membre"}</li>
           ))}
         </ul>
         <Button variant="ghost" className="mt-6 text-destructive" onClick={leave}>Quitter le foyer</Button>
