@@ -57,10 +57,10 @@ describe("garanties dans la liste des objets", () => {
     render(<Page />);
 
     const rows = warrantyRows();
-    expect(rows.map((r) => r.textContent?.replace(/\s+/g, " ").trim().slice(0, 16))).toEqual([
-      "Garantie légale j",
+    expect(rows.map((r) => (r.textContent ?? "").match(/Garantie (?:légale|magasin|de marque)/)?.[0])).toEqual([
+      "Garantie légale",
       "Garantie magasin",
-      "Garantie de marq",
+      "Garantie de marque",
     ]);
 
     const legal = rows.find((r) => r.textContent?.startsWith("Garantie légale")) as HTMLElement;
@@ -76,9 +76,9 @@ describe("garanties dans la liste des objets", () => {
     render(<Page />);
 
     const rows = warrantyRows();
-    const texts = rows.map((r) => r.textContent?.replace(/\s+/g, " ") ?? "");
-    expect(texts.find((t) => t.startsWith("Garantie légale"))).toMatch(/jusqu’au 15 janvier 2027 (Bientôt|Active|Expirée)/);
-    expect(texts.find((t) => t.startsWith("Garantie magasin"))).toContain("jusqu’au 15 janvier 2026 Expirée");
-    expect(texts.find((t) => t.startsWith("Garantie de marque"))).toMatch(/jusqu’au 15 janvier 2028 Active · \d+ j/);
+    const texts = rows.map((r) => r.textContent ?? "");
+    expect(texts.find((t) => t.startsWith("Garantie légale"))).toMatch(/jusqu’au 15 janvier 2027\s*(Bientôt|Active|Expirée)/);
+    expect(texts.find((t) => t.startsWith("Garantie magasin"))).toMatch(/jusqu’au 15 janvier 2026\s*Expirée/);
+    expect(texts.find((t) => t.startsWith("Garantie de marque"))).toMatch(/jusqu’au 15 janvier 2028\s*Active · \d+ j/);
   });
 });
