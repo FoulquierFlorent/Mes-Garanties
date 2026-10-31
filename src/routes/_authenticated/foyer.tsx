@@ -1,6 +1,6 @@
 import { memberDotClass } from "@/lib/members";
 import { RightBanner } from "@/components/RightBanner";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -76,7 +76,7 @@ function FoyerPage() {
               <p className="mt-1.5 text-xs text-muted-foreground">C'est ce que les autres membres du foyer verront.</p>
             </li>
           ) : (
-            <li key={m.user_id} className="flex items-center gap-2 p-3 text-sm"><span aria-hidden className={`h-2.5 w-2.5 shrink-0 rounded-full ${memberDotClass(m.user_id)}`} />{m.display_name?.trim() || "Membre"}</li>
+            <li key={m.user_id} className="p-3 text-sm"><Link to="/membre/$id" params={{ id: m.user_id }} className="flex items-center gap-2 hover:underline"><span aria-hidden className={`h-2.5 w-2.5 shrink-0 rounded-full ${memberDotClass(m.user_id)}`} />{m.display_name?.trim() || "Membre"}<span className="ml-auto text-xs text-muted-foreground">Son espace</span></Link></li>
           ))}
         </ul>
         <Button variant="ghost" className="mt-6 text-destructive" onClick={leave}>Quitter le foyer</Button>
