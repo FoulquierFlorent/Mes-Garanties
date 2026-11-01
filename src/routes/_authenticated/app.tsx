@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Bell, CalendarDays, ChevronDown } from "lucide-react";
+import { Plus, Trash2, Bell, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt, formatPrice } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,7 +21,7 @@ import { useUserId } from "@/hooks/useUserId";
 import { memberBorderClass } from "@/lib/members";
 import { categoryImage } from "@/lib/category-images";
 import { ReceiptScanner } from "@/components/ReceiptScanner";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Rubrique } from "@/components/Rubrique";
 import { uploadReceipt } from "@/lib/receipt-upload";
 
 export const Route = createFileRoute("/_authenticated/app")({
