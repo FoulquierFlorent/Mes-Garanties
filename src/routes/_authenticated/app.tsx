@@ -127,12 +127,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
           <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
           <p className="text-xs text-muted-foreground">Garantie légale : 2 ans par défaut pour tout achat. Modifiez-la dans les détails facultatifs.</p>
           </fieldset>
-          <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
-            <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 rounded-md border px-3 py-2.5 text-left text-sm hover:bg-muted">
-              <span className="flex flex-col"><span className="font-medium">Détails facultatifs</span><span className="text-xs font-normal text-muted-foreground">marque, magasin, prix, garanties, alertes, photos</span></span>
-              <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${detailsOpen ? "rotate-180" : ""}`} />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-4 space-y-4">
+          <Rubrique compact title="Détails facultatifs" hint="marque, magasin, prix, garanties, alertes, photos" open={detailsOpen} onOpenChange={setDetailsOpen} contentClassName="mt-4 space-y-4">
               <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
                 <WarrantyYearSelect id="primary-years" label="Garantie légale" warrantyKey="base" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
                 <div className="grid grid-cols-2 gap-3">
@@ -159,8 +154,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
                 </div>
               </fieldset>
               <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
-            </CollapsibleContent>
-          </Collapsible>
+          </Rubrique>
           <Button className="w-full" disabled={m.isPending}>{m.isPending ? "Enregistrement…" : savedItemId ? "Réessayer l’envoi des photos" : "Enregistrer"}</Button>
         </form>
       </DialogContent>
