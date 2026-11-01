@@ -38,7 +38,7 @@ function Index() {
           <Button asChild size="lg"><Link to="/auth">Commencer gratuitement</Link></Button>
           <Button asChild size="lg" variant="outline"><Link to="/tarifs">Voir les tarifs</Link></Button>
         </div>
-        <RightBanner text="La garantie légale de conformité est un droit, pas une faveur." className="mt-10 max-w-xl" />
+        <RightBanner text="La garantie légale de conformité couvre vos achats pendant 2 ans : réparation ou remplacement gratuit." className="mt-10 max-w-xl" />
       </section>
       <section className="border-t bg-muted/40">
         <div className="mx-auto max-w-3xl px-5 py-14">
