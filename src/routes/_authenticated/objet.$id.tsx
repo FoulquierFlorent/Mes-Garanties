@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Rubrique } from "@/components/Rubrique";
 
 export const Route = createFileRoute("/_authenticated/objet/$id")({
   head: () => ({ meta: [{ title: "Objet — Mes garanties" }, { name: "description", content: "Détail, réclamation et suivi de retour." }, { property: "og:title", content: "Objet — Mes garanties" }, { property: "og:description", content: "Factures, lettre de conformité et suivi des retours de votre objet." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -92,6 +92,9 @@ function ItemPage() {
   const [openSections, setOpenSections] = useState<string[]>(() => (savedLetter ? ["steps"] : []));
   function openSection(key: string) {
     setOpenSections((value) => (value.includes(key) ? value : [...value, key]));
+  }
+  function setSection(key: string, open: boolean) {
+    setOpenSections((value) => (open ? [...new Set([...value, key])] : value.filter((k) => k !== key)));
   }
   function scrollToSection(ref: { current: Element | null }) {
     setTimeout(() => {
@@ -282,19 +285,19 @@ function ItemPage() {
 
       <Button className="mt-6" variant="outline" onClick={() => { openSection("steps"); scrollToSection(stepsRef); }}><TriangleAlert />Signaler un problème</Button>
 
-      <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="mt-8">
-        <AccordionItem value="docs">
-          <AccordionTrigger className="font-serif text-2xl font-normal hover:no-underline">Factures, tickets et résumé</AccordionTrigger>
-          <AccordionContent className="[&>section:first-child]:mt-0 [&>section:first-child]:border-t-0">
-            <Receipts itemId={item.id} />
-            <ReceiptSummary itemId={item.id} summary={item.receipt_summary ?? null} />
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem value="steps" ref={stepsRef}>
-          <AccordionTrigger className="font-serif text-2xl font-normal hover:no-underline">
-            <span>Démarches en cas de problème{savedLetter && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 font-sans text-xs font-normal text-muted-foreground">Lettre enregistrée</span>}{showReturn && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 font-sans text-xs font-normal text-muted-foreground">Retour {RETURN_LABELS[ret.return_status]}</span>}</span>
-          </AccordionTrigger>
-          <AccordionContent className="space-y-6 pt-2">
+      <div className="mt-8">
+        <Rubrique title="Factures, tickets et résumé" open={openSections.includes("docs")} onOpenChange={(o) => setSection("docs", o)} contentClassName="pb-6 [&>section:first-child]:mt-0 [&>section:first-child]:border-t-0">
+          <Receipts itemId={item.id} />
+          <ReceiptSummary itemId={item.id} summary={item.receipt_summary ?? null} />
+        </Rubrique>
+        <div ref={stepsRef}>
+          <Rubrique
+            title="Démarches en cas de problème"
+            badge={<span className="flex gap-2 font-sans text-xs font-normal">{savedLetter && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">Lettre enregistrée</span>}{showReturn && <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">Retour {RETURN_LABELS[ret.return_status]}</span>}</span>}
+            open={openSections.includes("steps")}
+            onOpenChange={(o) => setSection("steps", o)}
+            contentClassName="space-y-6 pb-6 pt-2"
+          >
             <section className="border-y py-5">
               <h2 className="text-2xl">Que se passe-t-il avec cet objet ?</h2>
               <RightBanner variant="whisper" offset={8} className="mt-2" />
@@ -370,9 +373,9 @@ function ItemPage() {
               </div>
               <Button className="mt-4" onClick={saveReturn}>Enregistrer</Button>
             </section>}
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+          </Rubrique>
+        </div>
+      </div>
     </main>
   );
 }
