@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Bell, CalendarDays } from "lucide-react";
+import { Plus, Trash2, Bell, CalendarDays, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt, formatPrice } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,6 +21,7 @@ import { useUserId } from "@/hooks/useUserId";
 import { memberBorderClass } from "@/lib/members";
 import { categoryImage } from "@/lib/category-images";
 import { ReceiptScanner } from "@/components/ReceiptScanner";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { uploadReceipt } from "@/lib/receipt-upload";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -33,6 +34,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const qc = useQueryClient();
   const [category, setCategory] = useState("Électronique");
   const [open, setOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [f, setF] = useState({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 });
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
   const [storeYears, setStoreYears] = useState<number | null>(null);
@@ -67,6 +69,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
       setOpen(false);
+      setDetailsOpen(false);
       setStoreYears(null);
       setBrandYears(null);
       setConstructorYears(null);
@@ -81,11 +84,11 @@ function AddItem({ householdId }: { householdId: string | null }) {
     },
     onError: (error) => {
       qc.invalidateQueries({ queryKey: ["items"] });
-      toast.error(error.message === "photos" ? "Objet enregistré, mais certaines photos ont échoué. Réessayez l’envoi ou fermez pour les ajouter plus tard." : "Impossible d'ajouter l'objet");
+      if (error.message === "photos") { setDetailsOpen(true); toast.error("Objet enregistré, mais certaines photos ont échoué. Réessayez l’envoi ou fermez pour les ajouter plus tard."); } else { toast.error("Impossible d'ajouter l'objet"); }
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
