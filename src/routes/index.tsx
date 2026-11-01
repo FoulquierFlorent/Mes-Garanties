@@ -67,7 +67,9 @@ function Index() {
             </div>
           ))}
         </div>
-        <RightBanner variant="whisper" offset={11} className="mx-auto my-6 max-w-3xl justify-center px-5 py-4" />
+        <div className="px-5">
+          <RightBanner variant="whisper" offset={11} className="mx-auto my-6 max-w-3xl justify-center py-4" />
+        </div>
       </section>
       <footer className="border-t py-10 text-center text-xs text-muted-foreground">© Mes garanties</footer>
     </main>
