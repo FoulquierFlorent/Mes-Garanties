@@ -25,12 +25,18 @@ export function RightBanner({ offset = 0, text, variant = "strip", className }: 
 
   if (variant === "whisper") {
     return (
-      <p className={cn("flex items-start justify-center gap-1.5 text-xs text-muted-foreground", className)}>
+      <p
+        className={cn(
+          "flex items-start gap-2 rounded-lg bg-banner px-3 py-2 text-xs leading-relaxed text-banner-foreground",
+          className,
+        )}
+      >
         <Pointer className="mt-0.5 h-3 w-3 shrink-0 -rotate-12 text-accent" aria-hidden />
         <span>{phrase}</span>
       </p>
     );
   }
+
 
   return (
     <p
