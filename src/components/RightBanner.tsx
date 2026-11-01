@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Info } from "lucide-react";
+import { Pointer } from "lucide-react";
 import { WARRANTY_PHRASES, daySeed, phraseOfDay } from "@/lib/phrases";
 import { cn } from "@/lib/utils";
 
@@ -24,17 +24,22 @@ export function RightBanner({ offset = 0, text, variant = "strip", className }: 
   }, [offset, text]);
 
   if (variant === "whisper") {
-    return <p className={cn("text-xs text-muted-foreground", className)}>{phrase}</p>;
+    return (
+      <p className={cn("flex items-start justify-center gap-1.5 text-xs text-muted-foreground", className)}>
+        <Pointer className="mt-0.5 h-3 w-3 shrink-0 -rotate-12 text-accent" aria-hidden />
+        <span>{phrase}</span>
+      </p>
+    );
   }
 
   return (
     <p
       className={cn(
-        "flex items-start gap-3 rounded-lg bg-muted/60 px-4 py-3 text-sm leading-relaxed text-foreground/80",
+        "flex items-start gap-3 rounded-lg bg-banner px-4 py-3 text-sm leading-relaxed text-banner-foreground",
         className,
       )}
     >
-      <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
+      <Pointer className="mt-0.5 h-4 w-4 shrink-0 -rotate-12 text-accent" aria-hidden />
       <span>{phrase}</span>
     </p>
   );

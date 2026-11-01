@@ -35,6 +35,8 @@
   --color-warranty-constructor: var(--warranty-constructor);
   --color-warranty-extension: var(--warranty-extension);
   --color-warranty-repair: var(--warranty-repair);
+  --color-banner: var(--banner);
+  --color-banner-foreground: var(--banner-foreground);
   --color-member-1: var(--member-1);
   --color-member-2: var(--member-2);
   --color-member-3: var(--member-3);
@@ -81,6 +83,8 @@
   --warranty-constructor: oklch(0.65 0.15 85);
   --warranty-extension: oklch(0.60 0.13 175);
   --warranty-repair: oklch(0.60 0.18 350);
+  --banner: oklch(0.92 0.045 75);
+  --banner-foreground: oklch(0.32 0.03 260);
   --member-1: oklch(0.60 0.13 40);
   --member-2: oklch(0.58 0.08 145);
   --member-3: oklch(0.45 0.11 255);
