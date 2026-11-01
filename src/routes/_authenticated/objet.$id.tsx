@@ -240,126 +240,133 @@ function ItemPage() {
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
 
-      <section className="mt-6 border-y py-6">
-        <h2 className="text-2xl">Descriptif de l’objet</h2>
-        <div className="mt-4 space-y-1.5">
-          <Label htmlFor="item-description">Descriptif (facultatif)</Label>
-          <Textarea id="item-description" placeholder="Ex. modèle, couleur, numéro de série, état…" value={description} onChange={(e) => setDescription(e.target.value)} />
-        </div>
-        <Button className="mt-3" disabled={savingDescription} onClick={saveDescription}>{savingDescription ? "Enregistrement…" : "Enregistrer le descriptif"}</Button>
-      </section>
-
       <ItemPhotos itemId={item.id} />
 
       <section className="mt-6 border-y py-6">
-        <h2 className="text-2xl">Prix</h2>
+        <h2 className="text-2xl">Descriptif et prix</h2>
+        <div className="mt-4 space-y-1.5">
+          <Label htmlFor="item-description">Descriptif (facultatif)</Label>
+          <Textarea id="item-description" rows={3} placeholder="Ex. modèle, couleur, numéro de série, état…" value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
         <div className="mt-4 flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="item-price">Prix d’achat (€, facultatif)</Label>
             <Input id="item-price" type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" className="w-40" value={price} onChange={(e) => setPrice(e.target.value)} />
           </div>
-          <Button disabled={savingPrice} onClick={savePrice}>{savingPrice ? "Enregistrement…" : "Enregistrer le prix"}</Button>
+          <Button variant="outline" disabled={savingDescription} onClick={saveDescription}>{savingDescription ? "Enregistrement…" : "Enregistrer le descriptif"}</Button>
+          <Button variant="outline" disabled={savingPrice} onClick={savePrice}>{savingPrice ? "Enregistrement…" : "Enregistrer le prix"}</Button>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">Laissez vide pour retirer le prix de la fiche.</p>
       </section>
 
-
-      <section className="mt-6 border-y py-6">
+      <section className="mt-6 border-b pb-6">
         <h2 className="text-2xl">Garanties</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
-          <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
-          <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
-          <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" value={constructorYears} onChange={setConstructorYears} warrantyKey="constructor" />
-          <WarrantyYearSelect id="extension-years" label="Garantie d’extension" value={extensionYears} onChange={setExtensionYears} warrantyKey="extension" />
-          <WarrantyYearSelect id="repair-years" label="Garantie de réparation" value={repairYears} onChange={setRepairYears} warrantyKey="repair" />
+        <WarrantyMarker className="mt-4" />
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+          <span className="flex items-center gap-2"><span className="h-3 w-8 rounded-sm bg-warranty-legal" />Légale : {baseYears === 0 ? "non applicable" : `${baseYears} an${baseYears > 1 ? "s" : ""}`}</span>
+          <span className="flex items-center gap-2"><span className="h-3 w-8 rounded-sm bg-warranty-store" />Magasin : {storeYears === 0 ? "aucune" : `${storeYears} an${storeYears > 1 ? "s" : ""}`}</span>
+          <span className="flex items-center gap-2"><span className="h-3 w-8 rounded-sm bg-warranty-brand" />Marque : {brandYears === 0 ? "aucune" : `${brandYears} an${brandYears > 1 ? "s" : ""}`}</span>
+          <span className="flex items-center gap-2"><span className="h-3 w-8 rounded-sm bg-warranty-constructor" />Constructeur : {constructorYears === 0 ? "aucune" : `${constructorYears} an${constructorYears > 1 ? "s" : ""}`}</span>
+          <span className="flex items-center gap-2"><span className="h-3 w-8 rounded-sm bg-warranty-extension" />Extension : {extensionYears === 0 ? "aucune" : `${extensionYears} an${extensionYears > 1 ? "s" : ""}`}</span>
+          <span className="flex items-center gap-2"><span className="h-3 w-8 rounded-sm bg-warranty-repair" />Réparation : {repairYears === 0 ? "aucune" : `${repairYears} an${repairYears > 1 ? "s" : ""}`}</span>
         </div>
-        <div className="mt-4 space-y-1.5">
-          {warrantyRows.map((w) => <p key={w.key} className="text-sm text-muted-foreground pl-8 -indent-8"><WarrantyMarker warrantyKey={w.key} className="mr-2" />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
-        </div>
-        <Button className="mt-4" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
+        <p className="mt-4 text-sm text-muted-foreground">Fins : {warrantySummary(item)}</p>
+        <Button className="mt-4" variant="outline" disabled={m.isPending || item.return_status === "waiting"} onClick={saveWarranties}><Save />Enregistrer les garanties</Button>
       </section>
 
-      <Button className="mt-6" variant="outline" aria-expanded={reportOpen} onClick={() => setReportOpen(!reportOpen)}><TriangleAlert />Signaler un problème</Button>
-      {reportOpen && <section className="mt-4 border-y py-5">
-        <h2 className="text-2xl">Que se passe-t-il avec cet objet ?</h2>
-        <RightBanner variant="whisper" offset={8} className="mt-2" />
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => reportProblem("panne")}>Dysfonctionnement</Button>
-          <Button variant="outline" onClick={() => reportProblem("casse")}>Objet détérioré ou cassé</Button>
-          <Button variant="outline" onClick={() => reportProblem("hs")}>Ne fonctionne plus</Button>
-        </div>
-        <div className="mt-5">
-          <p className="text-sm font-medium">Photo de l’objet endommagé</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">Elle est rangée avec les documents de la fiche et signalée dans la lettre.</p>
-          <div className="mt-2"><PhotoPicker files={damagePhotos} onChange={setDamagePhotos} disabled={uploadingDamage} /></div>
-          {damagePhotos.length > 0 && <Button className="mt-3" disabled={uploadingDamage} onClick={attachDamagePhotos}>{uploadingDamage ? "Envoi…" : "Joindre au dossier"}</Button>}
-        </div>
-      </section>}
+      <Button className="mt-6 w-full sm:w-auto" variant="outline" onClick={() => { openSection("steps"); scrollToSection(stepsRef); }}><TriangleAlert />Signaler un problème</Button>
 
-      <Receipts itemId={item.id} />
-      <ReceiptSummary itemId={item.id} summary={item.receipt_summary ?? null} />
+      <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="mt-8">
+        <AccordionItem value="docs">
+          <AccordionTrigger className="font-serif text-2xl font-normal hover:no-underline">Factures, tickets et résumé</AccordionTrigger>
+          <AccordionContent className="[&>section:first-child]:mt-0 [&>section:first-child]:border-t-0">
+            <Receipts itemId={item.id} />
+            <ReceiptSummary itemId={item.id} summary={item.receipt_summary ?? null} />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="steps" ref={stepsRef}>
+          <AccordionTrigger className="font-serif text-2xl font-normal hover:no-underline">
+            <span>Démarches en cas de problème{savedLetter && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 font-sans text-xs font-normal text-muted-foreground">Lettre enregistrée</span>}{showReturn && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 font-sans text-xs font-normal text-muted-foreground">Retour {RETURN_LABELS[item.return_status]}</span>}</span>
+          </AccordionTrigger>
+          <AccordionContent className="space-y-6 pt-2">
+            <section>
+              <h3 className="text-xl">Que se passe-t-il avec cet objet ?</h3>
+              <RightBanner variant="whisper" offset={8} className="mt-2" />
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button variant={l.problem === "dysfunction" ? "default" : "outline"} onClick={() => reportProblem("dysfunction")}>Dysfonctionnement</Button>
+                <Button variant={l.problem === "broken" ? "default" : "outline"} onClick={() => reportProblem("broken")}>Cassé</Button>
+                <Button variant={l.problem === "dead" ? "default" : "outline"} onClick={() => reportProblem("dead")}>Ne marche plus</Button>
+              </div>
+              <div className="mt-5">
+                <h4 className="text-sm font-medium">Photo de l’objet endommagé</h4>
+                <p className="mb-3 text-xs text-muted-foreground">Facultatif : elle est rangée avec les photos de l’objet et mentionnée dans la lettre.</p>
+                <PhotoPicker files={damagePhotos} onChange={setDamagePhotos} disabled={m.isPending} />
+                {damagePhotos.length > 0 && <Button className="mt-3" variant="outline" disabled={m.isPending} onClick={attachDamagePhotos}><Paperclip />Joindre au dossier</Button>}
+              </div>
+            </section>
 
-
-      <section ref={letterRef} className="mt-8 scroll-mt-6 border-t py-6">
-        <h2 className="text-2xl">Lettre de demande de remplacement</h2>
-        <RightBanner offset={9} className="mt-4" />
-        {!letterOpen && <Button className="mt-4" variant="outline" onClick={() => setLetterOpen(true)}>Rédiger une lettre</Button>}
-        {letterOpen && <>
-        <div className="mt-4 space-y-1.5"><Label htmlFor="letter-warranty">Garantie utilisée</Label>
-          <Select value={letterWarranty} onValueChange={(value) => { if (value in WARRANTY_LABELS) setLetterWarranty(value as WarrantyLetterType); }}>
-            <SelectTrigger id="letter-warranty"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {(["base", "store", "brand", "constructor", "extension", "repair"] as const).map((k) => (
-                <SelectItem key={k} value={k}><WarrantyMarker warrantyKey={k} />{WARRANTY_LABELS[k]}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {!chosenWarranty && <p className="mt-3 text-sm text-destructive">Cette garantie n’est pas renseignée pour cet objet. Ajoutez sa durée dans la section Garanties.</p>}
-        <p className="mt-3 text-sm text-muted-foreground">La garantie légale de conformité concerne les défauts couverts par la loi lors d’un achat auprès d’un vendeur professionnel. Une casse accidentelle ou une mauvaise utilisation n’est pas automatiquement couverte ; la durée de garantie enregistrée ne suffit pas à établir vos droits.</p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5"><Label htmlFor="letter-name">Votre nom</Label><Input id="letter-name" value={l.senderName} onChange={(e) => setL({ ...l, senderName: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label>Problème</Label>
-            <Select value={l.problem} onValueChange={(v) => setL({ ...l, problem: v as LetterInput["problem"] })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="panne">Dysfonctionnement</SelectItem>
-                <SelectItem value="casse">Objet cassé</SelectItem>
-                <SelectItem value="hs">Ne marche plus</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="letter-address">Votre adresse</Label><Input id="letter-address" value={l.senderAddress} onChange={(e) => setL({ ...l, senderAddress: e.target.value })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label>Description du problème (facultatif)</Label><Textarea value={l.details} onChange={(e) => setL({ ...l, details: e.target.value })} /></div>
-        </div>
-        <pre className="mt-6 whitespace-pre-wrap rounded-md border bg-background p-5 font-serif text-[15px] leading-relaxed">{letter}</pre>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button disabled={savingLetter || !chosenWarranty} onClick={saveLetter}>{savingLetter ? "Enregistrement…" : "Enregistrer la lettre"}</Button>
-          <Button disabled={!chosenWarranty} variant="outline" onClick={() => { navigator.clipboard.writeText(letter); toast.success("Lettre copiée"); }}><Copy className="h-4 w-4" />Copier</Button>
-          <Button disabled={!chosenWarranty} onClick={print}><Printer className="h-4 w-4" />Imprimer / PDF</Button>
-        </div>
-        </>}
-      </section>
-      {savedLetter && !showReturn && <section className="border-t py-6">
-        <div className="space-y-1.5"><Label htmlFor="confirm-sent-date">Date du renvoi effectué</Label><Input id="confirm-sent-date" type="date" value={sentDate} onChange={(e) => setSentDate(e.target.value)} /></div>
-        <Button className="mt-4" disabled={confirmingReturn || !sentDate} onClick={confirmReturn}>{confirmingReturn ? "Confirmation…" : "Confirmer le renvoi effectué"}</Button>
-      </section>}
-      {showReturn && <section className="mt-8 rounded-lg border bg-card p-6">
-        <h2 className="text-2xl">Suivi du retour</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5"><Label>Statut</Label>
-            <Select value={ret.return_status} onValueChange={(v) => setRet({ ...ret, return_status: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{Object.entries(RETURN_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5"><Label htmlFor="return-date">Date d'envoi</Label><Input id="return-date" type="date" value={ret.return_sent_date} onChange={(e) => setRet({ ...ret, return_sent_date: e.target.value })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="return-tracking">N° de suivi / dossier</Label><Input id="return-tracking" value={ret.return_tracking} onChange={(e) => setRet({ ...ret, return_tracking: e.target.value })} /></div>
-          <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="return-notes">Notes</Label><Textarea id="return-notes" value={ret.return_notes} onChange={(e) => setRet({ ...ret, return_notes: e.target.value })} /></div>
-        </div>
-        <Button className="mt-4" onClick={saveReturn}>Enregistrer</Button>
-      </section>}
+            <section ref={letterRef} className="border-t pt-6">
+              {!letterOpen ? <Button variant="outline" onClick={() => setLetterOpen(true)}>Rédiger une lettre</Button> : <>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-xl">Lettre de demande de remplacement</h3>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={copyLetter}><Copy />Copier</Button>
+                  <Button size="sm" variant="outline" onClick={printLetter}><Printer />Imprimer</Button>
+                  <Button size="sm" variant="outline" disabled={m.isPending} onClick={saveLetter}><Save />Enregistrer</Button>
+                </div>
+              </div>
+              <RightBanner className="mt-4" text="La garantie légale de conformité est un droit, pas une faveur." />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {warrantyOptions.map((option) => (
+                  <label key={option.key} className="flex items-center gap-3 rounded-md border px-3 py-2 text-sm">
+                    <input type="radio" name="letter-warranty" checked={letterWarranty === option.key} onChange={() => setLetterWarranty(option.key)} />
+                    <span className="h-3 w-3 rounded-sm" style={{ backgroundColor: `var(--warranty-${option.key})` }} />
+                    {option.label}
+                    <span className="ml-auto text-xs text-muted-foreground">jusqu’au {fmt(option.deadline)}</span>
+                  </label>
+                ))}
+              </div>
+              {!chosenWarranty && <p className="mt-3 text-sm text-destructive">Choisissez la garantie à activer pour rédiger la lettre.</p>}
+              {chosenWarranty?.commercial && <p className="mt-3 text-sm text-muted-foreground">Les règles de la garantie légale de conformité ne s’appliquent pas ici : cette lettre s’appuie sur le contrat de {chosenWarranty.label.toLowerCase()} de {item.store || "le vendeur"}.</p>}
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5"><Label htmlFor="letter-from">De</Label><Input id="letter-from" value={l.from} onChange={(e) => setL({ ...l, from: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-address">Adresse</Label><Input id="letter-address" value={l.address} onChange={(e) => setL({ ...l, address: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-to">À</Label><Input id="letter-to" value={l.to} onChange={(e) => setL({ ...l, to: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-store">Magasin</Label><Input id="letter-store" value={l.store} onChange={(e) => setL({ ...l, store: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-purchase">Acheté le</Label><Input id="letter-purchase" type="date" value={l.purchaseDate} onChange={(e) => setL({ ...l, purchaseDate: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-obj">Objet</Label><Input id="letter-obj" value={l.object} onChange={(e) => setL({ ...l, object: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-problem">Problème</Label><Select value={l.problem ?? "dysfunction"} onValueChange={(v) => setL({ ...l, problem: v as LetterInput["problem"] })}><SelectTrigger id="letter-problem"><SelectValue /></SelectTrigger><SelectContent>{PROBLEMS.map((p) => <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-deadline">Deadline</Label><Input id="letter-deadline" type="date" value={l.deadline} onChange={(e) => setL({ ...l, deadline: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-ref">Référence</Label><Input id="letter-ref" value={l.reference} onChange={(e) => setL({ ...l, reference: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-invoice">Facture</Label><Input id="letter-invoice" value={l.invoice} onChange={(e) => setL({ ...l, invoice: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-serial">N° de série</Label><Input id="letter-serial" value={l.serial} onChange={(e) => setL({ ...l, serial: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="letter-date">Date</Label><Input id="letter-date" type="date" value={l.date} onChange={(e) => setL({ ...l, date: e.target.value })} /></div>
+                <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="letter-claims">Demandes</Label><Textarea id="letter-claims" value={l.claims} onChange={(e) => setL({ ...l, claims: e.target.value })} /></div>
+              </div>
+              </>}
+            </section>
+            {savedLetter && !showReturn && <section className="border-t pt-6">
+              <h3 className="text-xl">Renvoi effectué</h3>
+              <p className="mt-2 text-sm text-muted-foreground">Confirmez le renvoi pour ouvrir le suivi du retour.</p>
+              <Button className="mt-3" disabled={m.isPending} onClick={confirmReturn}><Send />J’ai renvoyé l’objet</Button>
+            </section>}
+            {showReturn && <section className="border-t pt-6">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-xl">Suivi du retour</h3>
+                <Badge variant="secondary">{RETURN_LABELS[item.return_status]}</Badge>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">Renvoyé le {fmt(item.return_sent_date ?? "")} · reçu le {fmt(item.return_received_date ?? "")}</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5"><Label htmlFor="return-carrier">Transporteur</Label><Input id="return-carrier" value={ret.carrier} onChange={(e) => setRet({ ...ret, carrier: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="return-tracking">N° de suivi</Label><Input id="return-tracking" value={ret.trackingNumber} onChange={(e) => setRet({ ...ret, trackingNumber: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="return-status">Étape</Label><Select value={ret.status} onValueChange={(v) => setRet({ ...ret, status: v as ItemReturnStatus })}><SelectTrigger id="return-status"><SelectValue /></SelectTrigger><SelectContent>{(["waiting", "in_transit", "received"] as const).map((s) => <SelectItem key={s} value={s}>{RETURN_LABELS[s]}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-1.5"><Label htmlFor="return-date">Date</Label><Input id="return-date" type="date" value={ret.date} onChange={(e) => setRet({ ...ret, date: e.target.value })} /></div>
+                <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="return-notes">Notes</Label><Textarea id="return-notes" value={ret.notes} onChange={(e) => setRet({ ...ret, notes: e.target.value })} /></div>
+              </div>
+              <Button className="mt-4" onClick={saveReturn}>Enregistrer</Button>
+            </section>}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </main>
   );
 }
