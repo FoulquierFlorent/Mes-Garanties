@@ -178,13 +178,13 @@ function AppPage() {
   return (
     <main className="mx-auto max-w-4xl px-5 py-12">
       <div className="flex items-end justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-4xl sm:text-5xl">{household ? household.name : "Mes objets"}</h1>
           {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
-          <RightBanner variant="whisper" offset={6} className="mt-2" />
         </div>
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} /></div>
       </div>
+      <RightBanner variant="whisper" offset={6} className="mt-4" />
       {usedCats.length > 0 && (cat === null ? (
         <div className="mt-6">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Choisir une catégorie</p>
