@@ -51,7 +51,6 @@ function ItemPage() {
     });
   }, [item?.id, item?.return_status, item?.return_sent_date, item?.return_tracking, item?.return_notes]);
   const [l, setL] = useState({ senderName: savedLetter?.senderName ?? "", senderAddress: savedLetter?.senderAddress ?? "", problem: (savedLetter?.problem ?? "panne") as LetterInput["problem"], details: savedLetter?.details ?? "" });
-  const [reportOpen, setReportOpen] = useState(false);
   const [letterOpen, setLetterOpen] = useState(Boolean(savedLetter));
   const [letterWarranty, setLetterWarranty] = useState<WarrantyLetterType>(savedLetter?.warrantyType ?? "base");
   const [savingLetter, setSavingLetter] = useState(false);
@@ -89,10 +88,24 @@ function ItemPage() {
     },
   });
   const letterRef = useRef<HTMLElement>(null);
+  const stepsRef = useRef<HTMLDivElement>(null);
+  const [openSections, setOpenSections] = useState<string[]>(() => (savedLetter ? ["steps"] : []));
+  function openSection(key: string) {
+    setOpenSections((value) => (value.includes(key) ? value : [...value, key]));
+  }
+  function scrollToSection(ref: { current: Element | null }) {
+    setTimeout(() => {
+      const el = ref.current;
+      if (el && typeof el.scrollIntoView === "function") {
+        el.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+      }
+    }, 300);
+  }
   function reportProblem(problem: LetterInput["problem"]) {
     setL((value) => ({ ...value, problem }));
     setLetterOpen(true);
-    setTimeout(() => letterRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" }), 50);
+    openSection("steps");
+    scrollToSection(letterRef);
   }
 
   if (!item) return <main className="p-12 text-center">Objet introuvable.</main>;
