@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShieldCheck } from "lucide-react";
+import { Info } from "lucide-react";
 import { WARRANTY_PHRASES, daySeed, phraseOfDay } from "@/lib/phrases";
 import { cn } from "@/lib/utils";
 
@@ -13,8 +13,8 @@ type Props = {
 };
 
 /**
- * Mini banderole (strip) ou petite écriture (whisper) rappelant que
- * les garanties sont un droit.
+ * Bandeau d'information (strip) ou petite écriture (whisper) rappelant
+ * que les garanties sont un droit. Ton informatif, décontracté.
  */
 export function RightBanner({ offset = 0, text, variant = "strip", className }: Props) {
   const [phrase, setPhrase] = useState(text ?? WARRANTY_PHRASES[offset % WARRANTY_PHRASES.length] ?? "");
@@ -24,12 +24,17 @@ export function RightBanner({ offset = 0, text, variant = "strip", className }: 
   }, [offset, text]);
 
   if (variant === "whisper") {
-    return <p className={cn("text-xs italic text-muted-foreground", className)}>{phrase}</p>;
+    return <p className={cn("text-xs text-muted-foreground", className)}>{phrase}</p>;
   }
 
   return (
-    <p className={cn("flex items-center gap-2 rounded-md border border-accent/25 bg-accent/5 px-3 py-2 text-xs text-foreground/80", className)}>
-      <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
+    <p
+      className={cn(
+        "flex items-start gap-3 rounded-lg bg-muted/60 px-4 py-3 text-sm leading-relaxed text-foreground/80",
+        className,
+      )}
+    >
+      <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
       <span>{phrase}</span>
     </p>
   );

@@ -4,8 +4,10 @@ import { RightBanner } from "@/components/RightBanner";
 import { WARRANTY_PHRASES, daySeed, phraseOfDay } from "@/lib/phrases";
 
 describe("phrases rappelant que les garanties sont un droit", () => {
-  it("la liste contient la phrase sur le droit de conformité", () => {
-    expect(WARRANTY_PHRASES).toContain("La garantie légale de conformité est un droit, pas une faveur.");
+  it("la liste contient la phrase sur la garantie légale de 2 ans", () => {
+    expect(WARRANTY_PHRASES).toContain(
+      "La garantie légale de conformité couvre vos achats pendant 2 ans : réparation ou remplacement gratuit.",
+    );
   });
 
   it("la phrase du jour change chaque jour et reste dans la liste", () => {

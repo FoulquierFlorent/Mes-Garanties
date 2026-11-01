@@ -1,24 +1,26 @@
-// Phrases accrocheuses rappelant que les garanties sont un droit.
-// Utilisées par RightBanner (mini banderoles et petites écritures).
+// Messages d'information rappelant que les garanties sont un droit.
+// Utilisés par RightBanner (bandeaux d'information et petites écritures).
+// Ton : informatif et décontracté, pas publicitaire.
 
 export const WARRANTY_PHRASES = [
-  "Ne jetez plus vos tickets : transformez-les en droits.",
-  "Le ticket s’efface, votre garantie reste.",
-  "Vos garanties méritent mieux qu’un fond de tiroir.",
-  "La garantie légale de conformité est un droit, pas une faveur.",
-  "Et si des centaines d’euros de réparations gratuites dormaient chez vous ?",
-  "Ne payez plus pour une panne couverte : enregistrez, réclamez, profitez.",
-  "On surveille les dates pour vous. Vous n’avez plus qu’à souffler.",
-  "Toutes vos garanties au même endroit, bien au chaud jusqu’au jour J.",
-  "Un problème avec un achat ? Votre justificatif est déjà là.",
-  "Faites valoir vos droits sans effort : un scan, et votre achat est protégé.",
-  "Le bouclier de vos achats dans votre poche.",
-  "Finis les tickets perdus, bonjour la tranquillité.",
-  "Votre coffre-fort de garanties : le seul endroit où archiver rapporte gros.",
-  "Combien de garanties perdues au fond d’un tiroir ? Il est temps de changer d’époque.",
+  "La garantie légale de conformité couvre vos achats pendant 2 ans : réparation ou remplacement gratuit.",
+  "Un objet en panne avant la fin de la garantie ? C'est au vendeur d'intervenir, pas à vous de payer.",
+  "Gardez vos tickets ici : ils serviront le jour où vous en aurez besoin.",
+  "Une garantie ne se demande pas, elle se fait valoir.",
+  "Les réparations couvertes ne coûtent rien : autant savoir quand elles s'appliquent.",
+  "En cas de problème, une lettre bien rédigée suffit souvent à obtenir gain de cause.",
+  "Les dates de fin de garantie sont notées pour vous : pas besoin de les retenir.",
+  "Tout est au même endroit : vos achats, vos garanties, vos justificatifs.",
+  "Un souci avec un achat ? Votre ticket est déjà là, prêt à être joint au dossier.",
+  "Scanner un ticket prend quelques secondes et protège l'achat pendant des années.",
+  "Votre suivi de retour est gardé de côté jusqu'à ce que le colis reparte.",
+  "Finis les tickets perdus au fond d'un tiroir.",
+  "Un dossier bien préparé, c'est déjà la moitié du chemin.",
+  "Vos garanties sont des droits : cette application vous aide à les faire respecter.",
+  "Deux ans pour faire valoir la garantie légale, on vous rappelle quand il faut agir.",
 ];
 
-/** Nombre de jours depuis l’époque : sert à faire tourner les phrases chaque jour. */
+/** Nombre de jours depuis l'époque : sert à faire tourner les phrases chaque jour. */
 export function daySeed(today = new Date()): number {
   return Math.floor(today.getTime() / 86_400_000);
 }
