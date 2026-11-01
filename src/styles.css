@@ -37,6 +37,8 @@
   --color-warranty-repair: var(--warranty-repair);
   --color-banner: var(--banner);
   --color-banner-foreground: var(--banner-foreground);
+  --animate-accordion-down: accordion-down 0.22s ease-out;
+  --animate-accordion-up: accordion-up 0.22s ease-out;
   --color-member-1: var(--member-1);
   --color-member-2: var(--member-2);
   --color-member-3: var(--member-3);
