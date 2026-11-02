@@ -32,3 +32,18 @@ describe("currentReturnStep", () => {
     expect(currentReturnStep(true, "2026-01-02", false)).toBe(3);
   });
 });
+
+import { groupByItem, isArchived, upcomingByItem } from "./deadlines";
+describe("regroupement et classement", () => {
+  it("one line per item in upcoming deadlines", () => {
+    const items = [{ ...base, id: "a", name: "A", purchase_date: "2025-01-10", store_warranty_years: 3, alerts: ["1m"] }];
+    const r = upcomingByItem(items, "2026-01-01");
+    expect(r).toHaveLength(1);
+    expect(r[0]!.entries.length).toBeGreaterThan(1);
+    expect(groupByItem([]).length).toBe(0);
+  });
+  it("archives an item only when all warranties are expired", () => {
+    expect(isArchived({ purchase_date: "2020-01-01", warranty_months: 24 }, "2026-01-01")).toBe(true);
+    expect(isArchived({ purchase_date: "2020-01-01", warranty_months: 24, brand_warranty_years: 10 }, "2026-01-01")).toBe(false);
+  });
+});

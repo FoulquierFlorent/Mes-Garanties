@@ -4,7 +4,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, Trash2, Bell, CalendarDays, Search } from "lucide-react";
-import { matchesSearch } from "@/lib/deadlines";
+import { isArchived, matchesSearch } from "@/lib/deadlines";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt, formatPrice } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -169,6 +169,7 @@ function AppPage() {
   const me = useUserId();
   const [cat, setCat] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const items = allItems.filter((i) => (!cat || i.category === cat) && matchesSearch(i, query));
   const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
   const qc = useQueryClient();
@@ -182,6 +183,45 @@ function AppPage() {
     return itemWarranties(i).flatMap((w) => (i.alerts as AlertKey[]).map((a) => ({ item: i, label: w.label, date: alertDate(w.end, a), end: w.end })))
       .filter((x) => x.date <= today && x.end >= today);
   });
+
+  const activeItems = items.filter((i) => !isArchived(i, today));
+  const archivedItems = items.filter((i) => isArchived(i, today));
+  const renderItem = (i: (typeof items)[number]) => {
+            const catImg = categoryImage(i.category);
+            return (
+              <li key={i.id} className={`rounded-lg border-2 bg-card p-4 ${memberBorderClass(i.user_id)}`}>
+                <div className="flex items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
+                    {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
+                    <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-accent">{catImg && <img src={catImg} alt="" loading="lazy" width={14} height={14} className="h-3.5 w-3.5 rounded object-cover" />}{i.category}
+                      {i.price != null && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· {formatPrice(i.price)}</span>}
+                      {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
+                    </p>
+                  </div>
+                  <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => del(i.id)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+                <div className="mt-3 space-y-1.5 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5">
+                  {itemWarranties(i).map((w) => {
+                    const ws = status(w.end, today);
+                    const d = daysLeft(w.end, today);
+                    return (
+                      <p key={w.key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+                        <WarrantyMarker warrantyKey={w.key} />
+                        <span className="min-w-0 flex-1 truncate">{w.label}</span>
+                        <span className="flex w-full items-center gap-2 pl-8 sm:w-auto sm:pl-0">
+                          <span className="text-muted-foreground tabular-nums">jusqu’au {fmt(w.end)}</span>
+                          <span className={`inline-flex h-4 shrink-0 items-center rounded-md px-1.5 text-[10px] font-semibold tabular-nums ${ws === "expired" ? "bg-destructive/10 text-destructive" : ws === "soon" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"}`}>
+                            {ws === "expired" ? "Expirée" : ws === "soon" ? `${d} j` : "Active"}
+                          </span>
+                        </span>
+                      </p>
+                    );
+                  })}
+                </div>
+              </li>
+            );
+          };
 
   return (
     <main className="mx-auto max-w-4xl px-5 py-12">
@@ -223,10 +263,14 @@ function AppPage() {
         <div className="mt-8 rounded-lg border border-accent/40 bg-accent/10 p-4">
           <p className="flex items-center gap-2 text-sm font-medium"><Bell className="h-4 w-4 text-accent" />Rappels de garantie</p>
           <ul className="mt-2 space-y-1 text-sm">
-            {firstYearItems.map((i) => <li key={`${i.id}-first-year`}><Link to="/objet/$id" params={{ id: i.id }} className="hover:underline">{i.name} · Fin de la première année aujourd’hui</Link></li>)}
-            {[...new Map(upcoming.map((u) => [u.item.id + u.label, u])).values()].map((u) => (
-              <li key={u.item.id + u.label}>{u.item.name} · {u.label} — fin le {fmt(u.end)} ({daysLeft(u.end, today)} j)</li>
-            ))}
+            {[...new Set([...firstYearItems.map((i) => i.id), ...upcoming.map((u) => u.item.id)])].map((id) => {
+              const it = items.find((i) => i.id === id)!;
+              const parts = [
+                ...(firstYearItems.some((i) => i.id === id) ? ["Fin de la première année aujourd’hui"] : []),
+                ...[...new Map(upcoming.filter((u) => u.item.id === id).map((u) => [u.label, u])).values()].map((u) => `${u.label} — fin le ${fmt(u.end)} (${daysLeft(u.end, today)} j)`),
+              ];
+              return <li key={id}><Link to="/objet/$id" params={{ id }} className="hover:underline"><span className="font-medium">{it.name}</span> · {parts.join(" ; ")}</Link></li>;
+            })}
           </ul>
         </div>
       )}
@@ -240,44 +284,17 @@ function AppPage() {
           </div>
         ) : <p className="mt-16 text-center text-muted-foreground">Aucun objet pour l'instant. Ajoutez votre premier achat.</p>
       ) : (
-        <ul className="mt-8 space-y-3">
-          {items.map((i) => {
-            const catImg = categoryImage(i.category);
-            return (
-              <li key={i.id} className={`rounded-lg border-2 bg-card p-4 ${memberBorderClass(i.user_id)}`}>
-                <div className="flex items-start gap-3">
-                  <div className="min-w-0 flex-1">
-                    <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
-                    {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
-                    <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-accent">{catImg && <img src={catImg} alt="" loading="lazy" width={14} height={14} className="h-3.5 w-3.5 rounded object-cover" />}{i.category}
-                      {i.price != null && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· {formatPrice(i.price)}</span>}
-                      {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => del(i.id)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
-                <div className="mt-3 space-y-1.5 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5">
-                  {itemWarranties(i).map((w) => {
-                    const ws = status(w.end, today);
-                    const d = daysLeft(w.end, today);
-                    return (
-                      <p key={w.key} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-                        <WarrantyMarker warrantyKey={w.key} />
-                        <span className="min-w-0 flex-1 truncate">{w.label}</span>
-                        <span className="flex w-full items-center gap-2 pl-8 sm:w-auto sm:pl-0">
-                          <span className="text-muted-foreground tabular-nums">jusqu’au {fmt(w.end)}</span>
-                          <span className={`inline-flex h-4 shrink-0 items-center rounded-md px-1.5 text-[10px] font-semibold tabular-nums ${ws === "expired" ? "bg-destructive/10 text-destructive" : ws === "soon" ? "bg-warning/10 text-warning" : "bg-success/10 text-success"}`}>
-                            {ws === "expired" ? "Expirée" : ws === "soon" ? `${d} j` : "Active"}
-                          </span>
-                        </span>
-                      </p>
-                    );
-                  })}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <>
+          <ul className="mt-8 space-y-3">{activeItems.map(renderItem)}</ul>
+          {activeItems.length === 0 && <p className="mt-8 text-center text-sm text-muted-foreground">Tous ces objets sont classés.</p>}
+          {archivedItems.length > 0 && (
+            <div className="mt-10">
+              <Rubrique title={`Affaires classées (${archivedItems.length})`} hint="objets dont toutes les garanties sont expirées" open={archiveOpen} onOpenChange={setArchiveOpen} contentClassName="mt-4">
+                <ul className="space-y-3 opacity-80">{archivedItems.map(renderItem)}</ul>
+              </Rubrique>
+            </div>
+          )}
+        </>
       )}
     </main>
   );

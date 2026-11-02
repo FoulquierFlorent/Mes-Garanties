@@ -244,7 +244,9 @@ function ItemPage() {
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
       <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
 
-      <section className="mt-6 border-y py-6">
+      <ItemPhotos itemId={item.id} />
+
+      <section className="border-y py-6">
         <h2 className="text-2xl">Descriptif de l’objet</h2>
         <div className="mt-4 space-y-1.5">
           <Label htmlFor="item-description">Descriptif (facultatif)</Label>
@@ -252,8 +254,6 @@ function ItemPage() {
         </div>
         <Button className="mt-3" disabled={savingDescription} onClick={saveDescription}>{savingDescription ? "Enregistrement…" : "Enregistrer le descriptif"}</Button>
       </section>
-
-      <ItemPhotos itemId={item.id} />
 
       <section className="mt-6 border-y py-6">
         <h2 className="text-2xl">Prix</h2>
