@@ -29,7 +29,7 @@ export function matchesSearch(item: { name: string; brand?: string | null; store
   return q.split(/\s+/).every((t) => hay.includes(t));
 }
 
-/** Étape en cours du guide de démarches, selon l'état enregistré. 4 = toutes faites. */
+/** Étape en cours du guide de démarches, selon l'état enregistré. */
 export function currentReturnStep(hasSavedLetter: boolean, sentDate: string | null | undefined, drafting: boolean): 1 | 2 | 3 {
   if (hasSavedLetter) return 3;
   return drafting ? 2 : 1;
