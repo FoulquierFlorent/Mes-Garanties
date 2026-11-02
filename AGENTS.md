@@ -18,3 +18,4 @@
 - Replacement letters are explicitly saved on the item as JSON; return-flow utilities require a saved letter and persisted sent date before exposing tracking, so household views and reloads share the same state.
 - Letter generation uses the selected warranty's deadline and recipient; legal conformity rules apply only to the legal template, while store and brand templates defer to their commercial warranty contracts.
 - Receipt OCR is dynamically loaded in browser actions only; extracted text is stored as a text sidecar in the same private item folder to preserve household access restrictions.
+- Secondary content on the item page and in the add-item form is grouped behind src/components/Rubrique.tsx, a small controlled disclosure, instead of Radix Accordion/Collapsible: Radix's presence machinery makes jsdom renders seconds slower and test timeouts flaky.
