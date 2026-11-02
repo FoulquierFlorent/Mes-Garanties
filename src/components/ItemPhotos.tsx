@@ -15,7 +15,7 @@ export function PhotoPicker({ files, onChange, disabled = false }: { files: File
     return () => next.forEach((p) => URL.revokeObjectURL(p.url));
   }, [files]);
   return <div className="space-y-3">
-    <Button type="button" variant="outline" disabled={disabled} onClick={() => input.current?.click()}><ImagePlus className="h-4 w-4" />Photos de l’objet (facultatif)</Button>
+    <Button type="button" variant="outline" disabled={disabled} onClick={() => input.current?.click()}><ImagePlus className="h-4 w-4" />Photos de l’objet</Button>
     <input ref={input} aria-label="Photos de l’objet" type="file" accept="image/*" multiple hidden disabled={disabled} onChange={(e) => { onChange([...files, ...Array.from(e.target.files ?? []).filter((f) => f.type.startsWith("image/"))]); e.target.value = ""; }} />
     {previews.length > 0 && <ul className="grid grid-cols-3 gap-2">{previews.map((p, i) => <li key={p.url} className="relative aspect-square overflow-hidden rounded-md border"><img src={p.url} alt={p.file.name} className="h-full w-full object-cover" /><Button type="button" variant="secondary" size="icon" className="absolute right-1 top-1" disabled={disabled} aria-label={`Retirer la photo ${p.file.name}`} onClick={() => onChange(files.filter((_, k) => k !== i))}><Trash2 className="h-4 w-4" /></Button></li>)}</ul>}
   </div>;

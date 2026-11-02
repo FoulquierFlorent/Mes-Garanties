@@ -34,3 +34,26 @@ export function currentReturnStep(hasSavedLetter: boolean, sentDate: string | nu
   if (hasSavedLetter) return 3;
   return drafting ? 2 : 1;
 }
+
+export type ItemDeadlines = { id: string; name: string; date: string; entries: Deadline[] };
+
+/** Regroupe des échéances par objet (une ligne par objet), dans l'ordre de leur première date. */
+export function groupByItem(ds: Deadline[]): ItemDeadlines[] {
+  const map = new Map<string, ItemDeadlines>();
+  for (const d of [...ds].sort((a, b) => a.date.localeCompare(b.date))) {
+    const g = map.get(d.id);
+    if (g) g.entries.push(d);
+    else map.set(d.id, { id: d.id, name: d.name, date: d.date, entries: [d] });
+  }
+  return [...map.values()];
+}
+
+/** Prochaines échéances, une ligne par objet. */
+export function upcomingByItem(items: DeadlineItem[], today: string, limit = 5): ItemDeadlines[] {
+  return groupByItem(upcomingDeadlines(items, today, Infinity)).slice(0, limit);
+}
+
+/** Objet classé : toutes ses garanties sont expirées. */
+export function isArchived(item: WarrantyItem, today: string) {
+  return itemWarranties(item).every((w) => w.end < today);
+}
