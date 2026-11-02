@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Rubrique } from "@/components/Rubrique";
+import { currentReturnStep } from "@/lib/deadlines";
 
 export const Route = createFileRoute("/_authenticated/objet/$id")({
   head: () => ({ meta: [{ title: "Objet — Mes garanties" }, { name: "description", content: "Détail, réclamation et suivi de retour." }, { property: "og:title", content: "Objet — Mes garanties" }, { property: "og:description", content: "Factures, lettre de conformité et suivi des retours de votre objet." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -298,6 +299,24 @@ function ItemPage() {
             onOpenChange={(o) => setSection("steps", o)}
             contentClassName="space-y-6 pb-6 pt-2"
           >
+            {(() => {
+              const step = currentReturnStep(Boolean(savedLetter), item.return_sent_date, letterOpen);
+              const steps = ["Signaler le problème", "Rédiger et enregistrer la lettre", "Envoyer et suivre le retour"];
+              return (
+                <ol aria-label="Guide des démarches" className="grid gap-2 sm:grid-cols-3">
+                  {steps.map((s, k) => {
+                    const n = k + 1;
+                    const state = n < step ? "done" : n === step ? "current" : "todo";
+                    return (
+                      <li key={s} aria-current={state === "current" ? "step" : undefined} className={`flex items-center gap-2.5 rounded-md border px-3 py-2 text-sm ${state === "current" ? "border-primary bg-secondary font-medium" : "text-muted-foreground"}`}>
+                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${state === "todo" ? "border" : "bg-primary text-primary-foreground"}`}>{state === "done" ? "✓" : n}</span>
+                        <span className="min-w-0">{s}{n === 3 && state === "current" && <span className="block text-xs font-normal text-muted-foreground">{item.return_sent_date ? `Envoyé le ${fmt(item.return_sent_date)}` : "Indiquez la date d’envoi"}</span>}</span>
+                      </li>
+                    );
+                  })}
+                </ol>
+              );
+            })()}
             <section className="border-y py-5">
               <h2 className="text-2xl">Que se passe-t-il avec cet objet ?</h2>
               <RightBanner variant="whisper" offset={8} className="mt-2" />
