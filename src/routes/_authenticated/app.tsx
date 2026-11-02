@@ -199,7 +199,7 @@ function AppPage() {
           <Input type="search" aria-label="Rechercher un objet" placeholder="Rechercher : nom, marque, magasin, catégorie…" value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9" />
         </div>
       )}
-      {usedCats.length > 0 && (cat === null ? (
+      {usedCats.length > 0 && (cat === null ? (query.trim() ? null : (
         <div className="mt-6">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Choisir une catégorie</p>
           <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5">

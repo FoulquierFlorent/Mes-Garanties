@@ -57,7 +57,7 @@ function CalendarPage() {
                 <Link to="/objet/$id" params={{ id: e.id }} className="flex items-center gap-3 py-2 text-sm hover:text-accent">
                   <span className="flex w-10 shrink-0 items-center gap-1">{e.kind !== "end" && <ReminderMarker />}<WarrantyMarker warrantyKey={e.warrantyKey} /></span>
                   <span className="w-14 shrink-0 text-xs text-muted-foreground tabular-nums">{new Date(e.date + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</span>
-                  <span className="min-w-0 flex-1"><span className="block truncate">{e.name}</span><span className="block truncate text-xs text-muted-foreground">{e.warranty} · {e.label}</span></span>
+                  <span className="min-w-0 flex-1"><span className="block truncate">{e.name}</span><span className="block text-xs text-muted-foreground">{e.warranty} · {e.label}</span></span>
                   <ArrowUpRight className="h-4 w-4 shrink-0" />
                 </Link>
               </li>
