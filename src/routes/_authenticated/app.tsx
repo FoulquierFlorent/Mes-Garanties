@@ -21,6 +21,7 @@ import { useUserId } from "@/hooks/useUserId";
 import { memberBorderClass } from "@/lib/members";
 import { categoryImage } from "@/lib/category-images";
 import { ReceiptScanner } from "@/components/ReceiptScanner";
+import { Rubrique } from "@/components/Rubrique";
 import { uploadReceipt } from "@/lib/receipt-upload";
 
 export const Route = createFileRoute("/_authenticated/app")({
@@ -33,6 +34,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const qc = useQueryClient();
   const [category, setCategory] = useState("Électronique");
   const [open, setOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [f, setF] = useState({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 });
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
   const [storeYears, setStoreYears] = useState<number | null>(null);
@@ -67,6 +69,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["items"] });
       setOpen(false);
+      setDetailsOpen(false);
       setStoreYears(null);
       setBrandYears(null);
       setConstructorYears(null);
@@ -81,11 +84,11 @@ function AddItem({ householdId }: { householdId: string | null }) {
     },
     onError: (error) => {
       qc.invalidateQueries({ queryKey: ["items"] });
-      toast.error(error.message === "photos" ? "Objet enregistré, mais certaines photos ont échoué. Réessayez l’envoi ou fermez pour les ajouter plus tard." : "Impossible d'ajouter l'objet");
+      if (error.message === "photos") { setDetailsOpen(true); toast.error("Objet enregistré, mais certaines photos ont échoué. Réessayez l’envoi ou fermez pour les ajouter plus tard."); } else { toast.error("Impossible d'ajouter l'objet"); }
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -121,34 +124,37 @@ function AddItem({ householdId }: { householdId: string | null }) {
               </div>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5"><Label>Marque</Label><Input value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
-            <div className="space-y-1.5"><Label>Magasin</Label><Input value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>
-          </div>
-          <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
-          <WarrantyYearSelect id="primary-years" label="Garantie légale" warrantyKey="base" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
-
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <WarrantyYearSelect id="store-years" label="Garantie magasin" warrantyKey="store" value={storeYears} onChange={setStoreYears} />
-            <WarrantyYearSelect id="brand-years" label="Garantie de marque" warrantyKey="brand" value={brandYears} onChange={setBrandYears} />
-            <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" warrantyKey="constructor" value={constructorYears} onChange={setConstructorYears} />
-            <WarrantyYearSelect id="extension-years" label="Garantie d’extension" warrantyKey="extension" value={extensionYears} onChange={setExtensionYears} />
-            <WarrantyYearSelect id="repair-years" label="Garantie de réparation" warrantyKey="repair" value={repairYears} onChange={setRepairYears} />
-          </div>
-          <div className="space-y-2">
-            <Label>Alertes</Label>
-            <label className="flex items-center gap-2 text-sm"><Checkbox checked disabled />Fin de la première année</label>
-            {ALERT_OPTIONS.map((o) => (
-              <label key={o.key} className="flex items-center gap-2 text-sm">
-                <Checkbox checked={alerts.includes(o.key)} onCheckedChange={(c) => setAlerts(c ? [...alerts, o.key] : alerts.filter((a) => a !== o.key))} />
-                {o.label}
-              </label>
-            ))}
-          </div>
+          <p className="text-xs text-muted-foreground">Garantie légale : 2 ans par défaut pour tout achat. Modifiez-la dans les détails facultatifs.</p>
           </fieldset>
-          <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
+          <Rubrique compact title="Détails facultatifs" hint="marque, magasin, prix, garanties, alertes, photos" open={detailsOpen} onOpenChange={setDetailsOpen} contentClassName="mt-4 space-y-4">
+              <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
+                <WarrantyYearSelect id="primary-years" label="Garantie légale" warrantyKey="base" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5"><Label>Marque</Label><Input value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
+                  <div className="space-y-1.5"><Label>Magasin</Label><Input value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>
+                </div>
+                <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <WarrantyYearSelect id="store-years" label="Garantie magasin" warrantyKey="store" value={storeYears} onChange={setStoreYears} />
+                  <WarrantyYearSelect id="brand-years" label="Garantie de marque" warrantyKey="brand" value={brandYears} onChange={setBrandYears} />
+                  <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" warrantyKey="constructor" value={constructorYears} onChange={setConstructorYears} />
+                  <WarrantyYearSelect id="extension-years" label="Garantie d’extension" warrantyKey="extension" value={extensionYears} onChange={setExtensionYears} />
+                  <WarrantyYearSelect id="repair-years" label="Garantie de réparation" warrantyKey="repair" value={repairYears} onChange={setRepairYears} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Alertes</Label>
+                  <label className="flex items-center gap-2 text-sm"><Checkbox checked disabled />Fin de la première année</label>
+                  {ALERT_OPTIONS.map((o) => (
+                    <label key={o.key} className="flex items-center gap-2 text-sm">
+                      <Checkbox checked={alerts.includes(o.key)} onCheckedChange={(c) => setAlerts(c ? [...alerts, o.key] : alerts.filter((a) => a !== o.key))} />
+                      {o.label}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
+          </Rubrique>
           <Button className="w-full" disabled={m.isPending}>{m.isPending ? "Enregistrement…" : savedItemId ? "Réessayer l’envoi des photos" : "Enregistrer"}</Button>
         </form>
       </DialogContent>
