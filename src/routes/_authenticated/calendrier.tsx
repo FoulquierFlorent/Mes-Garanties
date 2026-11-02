@@ -7,6 +7,7 @@ import { itemsQuery, todayISO, fmt } from "@/lib/items";
 import { ALERT_OPTIONS, alertDate, firstYearReminder, itemWarranties, toISO, type AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
 import { ReminderMarker, WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
+import { upcomingDeadlines } from "@/lib/deadlines";
 
 export const Route = createFileRoute("/_authenticated/calendrier")({
   head: () => ({ meta: [{ title: "Calendrier des garanties — Mes garanties" }, { name: "description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:title", content: "Calendrier des garanties — Mes garanties" }, { property: "og:description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -39,6 +40,7 @@ function CalendarPage() {
   const cells = Array.from({ length: offset + days }, (_, k) => (k < offset ? null : toISO(new Date(Date.UTC(ym.y, ym.m, k - offset + 1)))));
   const shift = (d: number) => { setSelected(null); setYm(({ y, m }) => ({ y: m + d < 0 ? y - 1 : m + d > 11 ? y + 1 : y, m: (m + d + 12) % 12 })); };
   const today = todayISO();
+  const nextDeadlines = upcomingDeadlines(items, today, 5);
   const monthEvents = [...events.entries()].filter(([d]) => d.startsWith(`${ym.y}-${String(ym.m + 1).padStart(2, "0")}`)).sort();
   const visibleEvents = selected ? monthEvents.filter(([d]) => d === selected) : monthEvents;
 
@@ -46,6 +48,23 @@ function CalendarPage() {
     <main className="mx-auto max-w-4xl px-5 py-12">
       <h1 className="text-4xl sm:text-5xl">Calendrier des garanties</h1>
       <RightBanner variant="whisper" offset={7} className="mt-3" />
+      <section aria-labelledby="next-deadlines" className="mt-6 rounded-lg border bg-card p-4">
+        <h2 id="next-deadlines" className="text-xl">Prochaines échéances</h2>
+        {nextDeadlines.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">Aucune échéance à venir.</p> : (
+          <ul className="mt-2 divide-y">
+            {nextDeadlines.map((e, j) => (
+              <li key={e.id + e.date + e.kind + e.warrantyKey + j}>
+                <Link to="/objet/$id" params={{ id: e.id }} className="flex items-center gap-3 py-2 text-sm hover:text-accent">
+                  <span className="flex w-10 shrink-0 items-center gap-1">{e.kind !== "end" && <ReminderMarker />}<WarrantyMarker warrantyKey={e.warrantyKey} /></span>
+                  <span className="w-14 shrink-0 text-xs text-muted-foreground tabular-nums">{new Date(e.date + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</span>
+                  <span className="min-w-0 flex-1"><span className="block truncate">{e.name}</span><span className="block text-xs text-muted-foreground">{e.warranty} · {e.label}</span></span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
       <div className="mt-6 flex items-center justify-between gap-3">
         <h2 className="text-2xl capitalize sm:text-3xl">{first.toLocaleDateString("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" })}</h2>
         <div className="flex gap-1">

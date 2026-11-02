@@ -3,7 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Bell, CalendarDays } from "lucide-react";
+import { Plus, Trash2, Bell, CalendarDays, Search } from "lucide-react";
+import { matchesSearch } from "@/lib/deadlines";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt, formatPrice } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -167,7 +168,8 @@ function AppPage() {
   const { data: household } = useSuspenseQuery(householdQuery);
   const me = useUserId();
   const [cat, setCat] = useState<string | null>(null);
-  const items = cat ? allItems.filter((i) => i.category === cat) : allItems;
+  const [query, setQuery] = useState("");
+  const items = allItems.filter((i) => (!cat || i.category === cat) && matchesSearch(i, query));
   const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
   const qc = useQueryClient();
   const today = todayISO();
@@ -191,7 +193,13 @@ function AppPage() {
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} /></div>
       </div>
       <RightBanner variant="whisper" offset={6} className="mt-4" />
-      {usedCats.length > 0 && (cat === null ? (
+      {allItems.length > 0 && (
+        <div className="relative mt-6">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input type="search" aria-label="Rechercher un objet" placeholder="Rechercher : nom, marque, magasin, catégorie…" value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9" />
+        </div>
+      )}
+      {usedCats.length > 0 && (cat === null ? (query.trim() ? null : (
         <div className="mt-6">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Choisir une catégorie</p>
           <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5">
@@ -204,7 +212,7 @@ function AppPage() {
             ))}
           </div>
         </div>
-      ) : (
+      )) : (
         <div className="mt-6 flex items-center gap-2">
           <Button size="sm" variant="outline" className="rounded-full" onClick={() => setCat(null)}>← Toutes les catégories</Button>
           <span className="flex items-center gap-1.5 text-sm font-medium"><img src={categoryImage(cat) ?? ""} alt="" width={18} height={18} className="h-[18px] w-[18px] rounded-full object-cover" />{cat} · {items.length}</span>
@@ -225,7 +233,12 @@ function AppPage() {
 
       <RightBanner offset={0} className="mt-8" />
       {items.length === 0 ? (
-        <p className="mt-16 text-center text-muted-foreground">Aucun objet pour l'instant. Ajoutez votre premier achat.</p>
+        allItems.length > 0 ? (
+          <div className="mt-12 text-center text-muted-foreground">
+            <p>Aucun objet ne correspond{query.trim() ? <> à « {query.trim()} »</> : null}{cat ? <> dans {cat}</> : null}.</p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => { setQuery(""); setCat(null); }}>Effacer la recherche</Button>
+          </div>
+        ) : <p className="mt-16 text-center text-muted-foreground">Aucun objet pour l'instant. Ajoutez votre premier achat.</p>
       ) : (
         <ul className="mt-8 space-y-3">
           {items.map((i) => {
