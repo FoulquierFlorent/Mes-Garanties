@@ -212,7 +212,7 @@ function AppPage() {
             ))}
           </div>
         </div>
-      ) : (
+      )) : (
         <div className="mt-6 flex items-center gap-2">
           <Button size="sm" variant="outline" className="rounded-full" onClick={() => setCat(null)}>← Toutes les catégories</Button>
           <span className="flex items-center gap-1.5 text-sm font-medium"><img src={categoryImage(cat) ?? ""} alt="" width={18} height={18} className="h-[18px] w-[18px] rounded-full object-cover" />{cat} · {items.length}</span>
