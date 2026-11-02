@@ -14,7 +14,7 @@ describe("upcomingDeadlines", () => {
     expect(r).toHaveLength(5);
     expect(r.map((d) => d.date)).toEqual(["2026-01-10", "2026-06-01", "2027-01-10", "2027-05-01", "2027-06-01"]);
     expect(r.some((d) => d.id === "b")).toBe(false);
-    expect(r[2].warrantyKey).toBe("base");
+    expect(r[2]?.warrantyKey).toBe("base");
   });
 });
 
