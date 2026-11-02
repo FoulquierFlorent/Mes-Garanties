@@ -14,7 +14,7 @@ const { household, items } = vi.hoisted(() => ({
   },
   items: [
     { id: "i1", user_id: "u1", name: "Lave-linge", category: "Électroménager", purchase_date: "2025-01-15", warranty_months: 24, alerts: ["1m"], return_status: "none", household_id: "h1" },
-    { id: "i2", user_id: "u2", name: "Vélo", category: "Sport", purchase_date: "2025-06-01", warranty_months: 12, alerts: ["1m"], return_status: "none", household_id: "h1" },
+    { id: "i2", user_id: "u2", name: "Vélo", category: "Sport", purchase_date: "2025-06-01", warranty_months: 24, alerts: ["1m"], return_status: "none", household_id: "h1" },
   ],
 }));
 
