@@ -19,3 +19,4 @@
 - Letter generation uses the selected warranty's deadline and recipient; legal conformity rules apply only to the legal template, while store and brand templates defer to their commercial warranty contracts.
 - Receipt OCR is dynamically loaded in browser actions only; extracted text is stored as a text sidecar in the same private item folder to preserve household access restrictions.
 - Secondary content on the item page and in the add-item form is grouped behind src/components/Rubrique.tsx, a small controlled disclosure, instead of Radix Accordion/Collapsible: Radix's presence machinery makes jsdom renders seconds slower and test timeouts flaky.
+- Upcoming-deadline lists, item search matching and the démarches step guide come from src/lib/deadlines.ts, built on the shared warranty utilities, so calendar, list and item page stay consistent.
