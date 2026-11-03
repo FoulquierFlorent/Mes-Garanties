@@ -33,4 +33,7 @@ describe("numéro de commande dans la lettre", () => {
   it("n'ajoute rien sans numéro", () => {
     expect(buildLetter(base)).not.toContain("Référence de la commande");
   });
+  it("reprend la date d'achat enregistrée", () => {
+    expect(buildLetter({ ...base, warrantyType: "brand" })).toContain("Le 14 mars 2025, j'ai acheté auprès de Boulanger");
+  });
 });
