@@ -43,10 +43,10 @@ describe("lecture d'un justificatif", () => {
   });
 });
 
-import { parseReceiptText as _p } from "@/lib/scan";
+
 describe("numéro de facture lu sur le ticket", () => {
   it("repère le numéro et la date de facture", () => {
-    const r = _p("DARTY\nFacture N° FA-2025-0142\nDate 12/03/2025\nCasque Sony 99,00 €");
+    const r = parseReceipt("DARTY\nFacture N° FA-2025-0142\nDate 12/03/2025\nCasque Sony 99,00 €");
     expect(r.order_number).toBe("FA-2025-0142");
     expect(r.order_date).toBe("2025-03-12");
   });
