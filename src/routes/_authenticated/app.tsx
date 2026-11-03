@@ -169,7 +169,6 @@ function AppPage() {
   const me = useUserId();
   const [cat, setCat] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [archiveOpen, setArchiveOpen] = useState(false);
   const items = allItems.filter((i) => (!cat || i.category === cat) && matchesSearch(i, query));
   const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
   const qc = useQueryClient();
@@ -288,11 +287,7 @@ function AppPage() {
           <ul className="mt-8 space-y-3">{activeItems.map(renderItem)}</ul>
           {activeItems.length === 0 && <p className="mt-8 text-center text-sm text-muted-foreground">Tous ces objets sont classés.</p>}
           {archivedItems.length > 0 && (
-            <div className="mt-10">
-              <Rubrique title={`Affaires classées (${archivedItems.length})`} hint="objets dont toutes les garanties sont expirées" open={archiveOpen} onOpenChange={setArchiveOpen} contentClassName="mt-4">
-                <ul className="space-y-3 opacity-80">{archivedItems.map(renderItem)}</ul>
-              </Rubrique>
-            </div>
+            <div className="mt-10 text-center"><Button asChild variant="outline"><Link to="/affaires-classees">Affaires classées ({archivedItems.length})</Link></Button></div>
           )}
         </>
       )}
