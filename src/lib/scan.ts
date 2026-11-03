@@ -68,7 +68,7 @@ export function findOrderNumber(text: string): string | undefined {
   const re = /(?:n[°o]\s*|num[ée]ro\s*(?:de\s*)?)?(?:facture|commande|ticket|order|invoice)\s*(?:n[°o]|num[ée]ro|#)?\s*[:#.]?\s*([A-Z0-9][A-Z0-9\-\/]{2,24})/i;
   const m = text.match(re);
   if (!m) return undefined;
-  const v = m[1].replace(/[.\-\/]+$/, "");
+  const v = (m[1] ?? "").replace(/[.\-\/]+$/, "");
   return /\d/.test(v) ? v : undefined;
 }
 
