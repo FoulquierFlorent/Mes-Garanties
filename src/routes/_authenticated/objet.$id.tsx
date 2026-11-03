@@ -78,6 +78,13 @@ function ItemPage() {
   useEffect(() => {
     setDescription(item?.description ?? "");
   }, [item?.id, item?.description]);
+  const [orderNumber, setOrderNumber] = useState(item?.order_number ?? "");
+  const [purchaseDate, setPurchaseDate] = useState(item?.purchase_date ?? "");
+  const [savingPurchase, setSavingPurchase] = useState(false);
+  useEffect(() => {
+    setOrderNumber(item?.order_number ?? "");
+    setPurchaseDate(item?.purchase_date ?? "");
+  }, [item?.id, item?.order_number, item?.purchase_date]);
   const [damagePhotos, setDamagePhotos] = useState<File[]>([]);
   const [uploadingDamage, setUploadingDamage] = useState(false);
   const { data: photoNames = [] } = useQuery({
@@ -133,7 +140,7 @@ function ItemPage() {
         : yearsLabel(yearsByWarranty[w.key] ?? 1),
   }));
   const chosenWarranty = warrantyRows.find((w) => w.key === letterWarranty);
-  const letter = buildLetter({ ...l, warrantyType: letterWarranty, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), warrantyEnd: chosenWarranty ? fmt(chosenWarranty.end) : "[Garantie non renseignée]", today: fmt(todayISO()), photoCount: photoNames.length });
+  const letter = buildLetter({ ...l, warrantyType: letterWarranty, store: item.store ?? "", itemName: item.name, brand: item.brand, purchaseDate: fmt(item.purchase_date), orderNumber: item.order_number, warrantyEnd: chosenWarranty ? fmt(chosenWarranty.end) : "[Garantie non renseignée]", today: fmt(todayISO()), photoCount: photoNames.length });
   const showReturn = canShowReturnTracking(item.replacement_letter, item.return_sent_date);
 
   async function saveLetter() {
@@ -180,6 +187,17 @@ function ItemPage() {
       toast.success("Descriptif enregistré");
     } catch { toast.error("Impossible d’enregistrer le descriptif"); }
     finally { setSavingDescription(false); }
+  }
+  async function savePurchase() {
+    if (!purchaseDate) { toast.error("La date d’achat est obligatoire"); return; }
+    setSavingPurchase(true);
+    try {
+      const { error } = await supabase.from("items").update({ order_number: orderNumber.trim() || null, purchase_date: purchaseDate }).eq("id", id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success("Informations d’achat enregistrées");
+    } catch { toast.error("Impossible d’enregistrer les informations d’achat"); }
+    finally { setSavingPurchase(false); }
   }
   async function savePrice() {
     const trimmed = price.trim().replace(",", ".");
@@ -253,6 +271,16 @@ function ItemPage() {
           <Textarea id="item-description" placeholder="Ex. modèle, couleur, numéro de série, état…" value={description} onChange={(e) => setDescription(e.target.value)} />
         </div>
         <Button className="mt-3" disabled={savingDescription} onClick={saveDescription}>{savingDescription ? "Enregistrement…" : "Enregistrer le descriptif"}</Button>
+      </section>
+
+      <section className="mt-6 border-y py-6">
+        <h2 className="text-2xl">Achat</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5"><Label htmlFor="item-order">N° de commande ou de facture</Label><Input id="item-order" placeholder="Ex. FA-2025-0142" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label htmlFor="item-purchase-date">Date d’achat</Label><Input id="item-purchase-date" type="date" required value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} /></div>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">Repris automatiquement dans la lettre de renvoi.</p>
+        <Button className="mt-3" disabled={savingPurchase} onClick={savePurchase}>{savingPurchase ? "Enregistrement…" : "Enregistrer"}</Button>
       </section>
 
       <section className="mt-6 border-y py-6">
