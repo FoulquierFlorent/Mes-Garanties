@@ -25,3 +25,12 @@ describe("pièces jointes de la lettre", () => {
     expect(letter).not.toContain("photo de l'objet endommagé");
   });
 });
+
+describe("numéro de commande dans la lettre", () => {
+  it("reprend le numéro de commande ou facture enregistré", () => {
+    expect(buildLetter({ ...base, orderNumber: "FA-123" })).toContain("Référence de la commande ou de la facture : FA-123.");
+  });
+  it("n'ajoute rien sans numéro", () => {
+    expect(buildLetter(base)).not.toContain("Référence de la commande");
+  });
+});
