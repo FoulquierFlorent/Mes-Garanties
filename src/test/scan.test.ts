@@ -42,3 +42,12 @@ describe("lecture d'un justificatif", () => {
     expect(parseReceipt("   \n  ")).toEqual({});
   });
 });
+
+
+describe("numéro de facture lu sur le ticket", () => {
+  it("repère le numéro et la date de facture", () => {
+    const r = parseReceipt("DARTY\nFacture N° FA-2025-0142\nDate 12/03/2025\nCasque Sony 99,00 €");
+    expect(r.order_number).toBe("FA-2025-0142");
+    expect(r.order_date).toBe("2025-03-12");
+  });
+});
