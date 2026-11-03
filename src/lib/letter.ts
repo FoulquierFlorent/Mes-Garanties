@@ -8,6 +8,7 @@ export type LetterInput = {
   itemName: string;
   brand?: string | null;
   purchaseDate: string; // formatted
+  orderNumber?: string | null;
   warrantyEnd: string; // formatted
   problem: "panne" | "casse" | "hs";
   details: string;
@@ -101,7 +102,7 @@ Objet : demande de remplacement ou de réparation — ${warranty}
 
 Madame, Monsieur,
 
-${boughtLine} La date de fin de la ${warranty} renseignée dans mon dossier est le ${i.warrantyEnd}.
+${boughtLine}${i.orderNumber ? ` Référence de la commande ou de la facture : ${i.orderNumber}.` : ""} La date de fin de la ${warranty} renseignée dans mon dossier est le ${i.warrantyEnd}.
 
 Or, ce produit ${PROBLEMS[i.problem]}.${i.details ? `\n\n${i.details}` : ""}
 
