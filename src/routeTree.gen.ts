@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as TarifsRouteImport } from './routes/tarifs'
+import { Route as AuthenticatedAffairesClasseesRouteImport } from './routes/_authenticated/affaires-classees'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedCalendrierRouteImport } from './routes/_authenticated/calendrier'
 import { Route as AuthenticatedFoyerRouteImport } from './routes/_authenticated/foyer'
@@ -38,6 +39,12 @@ const TarifsRoute = TarifsRouteImport.update({
   path: '/tarifs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAffairesClasseesRoute =
+  AuthenticatedAffairesClasseesRouteImport.update({
+    id: '/affaires-classees',
+    path: '/affaires-classees',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -68,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/tarifs': typeof TarifsRoute
+  '/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/app': typeof AuthenticatedAppRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
   '/foyer': typeof AuthenticatedFoyerRoute
@@ -78,6 +86,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/tarifs': typeof TarifsRoute
+  '/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/app': typeof AuthenticatedAppRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
   '/foyer': typeof AuthenticatedFoyerRoute
@@ -90,6 +99,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/tarifs': typeof TarifsRoute
+  '/_authenticated/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/calendrier': typeof AuthenticatedCalendrierRoute
   '/_authenticated/foyer': typeof AuthenticatedFoyerRoute
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/tarifs'
+    | '/affaires-classees'
     | '/app'
     | '/calendrier'
     | '/foyer'
@@ -112,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/tarifs'
+    | '/affaires-classees'
     | '/app'
     | '/calendrier'
     | '/foyer'
@@ -123,6 +135,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/tarifs'
+    | '/_authenticated/affaires-classees'
     | '/_authenticated/app'
     | '/_authenticated/calendrier'
     | '/_authenticated/foyer'
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TarifsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/affaires-classees': {
+      id: '/_authenticated/affaires-classees'
+      path: '/affaires-classees'
+      fullPath: '/affaires-classees'
+      preLoaderRoute: typeof AuthenticatedAffairesClasseesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app': {
       id: '/_authenticated/app'
       path: '/app'
@@ -206,6 +226,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAffairesClasseesRoute: typeof AuthenticatedAffairesClasseesRoute
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedCalendrierRoute: typeof AuthenticatedCalendrierRoute
   AuthenticatedFoyerRoute: typeof AuthenticatedFoyerRoute
@@ -214,6 +235,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAffairesClasseesRoute: AuthenticatedAffairesClasseesRoute,
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedCalendrierRoute: AuthenticatedCalendrierRoute,
   AuthenticatedFoyerRoute: AuthenticatedFoyerRoute,
