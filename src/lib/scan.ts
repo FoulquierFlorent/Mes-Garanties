@@ -5,6 +5,8 @@ export type ScanFields = {
   brand?: string;
   store?: string;
   purchase_date?: string;
+  order_number?: string;
+  order_date?: string;
   category?: string;
 };
 
@@ -61,6 +63,15 @@ function findDate(text: string): string | undefined {
   return undefined;
 }
 
+/** Numéro de facture, de commande ou de ticket repéré après son libellé. */
+export function findOrderNumber(text: string): string | undefined {
+  const re = /(?:n[°o]\s*|num[ée]ro\s*(?:de\s*)?)?(?:facture|commande|ticket|order|invoice)\s*(?:n[°o]|num[ée]ro|#)?\s*[:#.]?\s*([A-Z0-9][A-Z0-9\-\/]{2,24})/i;
+  const m = text.match(re);
+  if (!m) return undefined;
+  const v = m[1].replace(/[.\-\/]+$/, "");
+  return /\d/.test(v) ? v : undefined;
+}
+
 /** Enlève prix, étoiles et espaces superflus d'une ligne de ticket. */
 function cleanLine(line: string) {
   return line
@@ -78,7 +89,10 @@ export function parseReceipt(text: string): ScanFields {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 1);
 
   const date = findDate(text);
-  if (date) out.purchase_date = date;
+  if (date) { out.purchase_date = date; out.order_date = date; }
+
+  const order = findOrderNumber(text);
+  if (order) out.order_number = order;
 
   const store = STORES.find((s) => folded.includes(fold(s)));
   if (store) out.store = store;

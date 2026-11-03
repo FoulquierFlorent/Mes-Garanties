@@ -36,7 +36,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
   const [category, setCategory] = useState("Électronique");
   const [open, setOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [f, setF] = useState({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 });
+  const [f, setF] = useState({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 });
   const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
   const [storeYears, setStoreYears] = useState<number | null>(null);
   const [brandYears, setBrandYears] = useState<number | null>(null);
@@ -51,7 +51,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
     mutationFn: async () => {
       let itemId = savedItemId;
       if (!itemId) {
-        const { data, error } = await supabase.from("items").insert({ ...f, price: f.price.trim() ? Number(f.price.replace(",", ".")) : null, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears, constructor_warranty_years: constructorYears, extension_warranty_years: extensionYears, repair_warranty_years: repairYears }).select("id").single();
+        const { data, error } = await supabase.from("items").insert({ ...f, order_number: f.order_number.trim() || null, order_date: f.order_date || null, price: f.price.trim() ? Number(f.price.replace(",", ".")) : null, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears, constructor_warranty_years: constructorYears, extension_warranty_years: extensionYears, repair_warranty_years: repairYears }).select("id").single();
         if (error) throw error;
         itemId = data.id;
         setSavedItemId(itemId);
@@ -80,7 +80,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
       setSavedItemId(null);
       setScanFile(null);
       setScanText("");
-      setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 });
+      setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 });
       toast.success("Objet ajouté");
     },
     onError: (error) => {
@@ -89,7 +89,7 @@ function AddItem({ householdId }: { householdId: string | null }) {
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
       <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -105,6 +105,8 @@ function AddItem({ householdId }: { householdId: string | null }) {
                 brand: fields.brand || prev.brand,
                 store: fields.store || prev.store,
                 purchase_date: fields.purchase_date || prev.purchase_date,
+                order_number: fields.order_number || prev.order_number,
+                order_date: fields.order_date || prev.order_date,
                 warranty_months: prev.warranty_months,
               }));
               if (fields.category) setCategory(fields.category);
@@ -126,6 +128,8 @@ function AddItem({ householdId }: { householdId: string | null }) {
             )}
           </div>
           <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label htmlFor="new-order">N° de facture ou de commande</Label><Input id="new-order" placeholder="Rempli par le ticket, ou à saisir" value={f.order_number} onChange={(e) => setF({ ...f, order_number: e.target.value })} /></div>
+          <div className="space-y-1.5"><Label htmlFor="new-order-date">Date de la facture ou de la commande</Label><Input id="new-order-date" type="date" value={f.order_date} onChange={(e) => setF({ ...f, order_date: e.target.value })} /></div>
           <p className="text-xs text-muted-foreground">Garantie légale : 2 ans par défaut pour tout achat. Modifiez-la dans les détails facultatifs.</p>
           </fieldset>
           <Rubrique compact title="Détails facultatifs" hint="marque, magasin, prix, garanties, alertes, photos" open={detailsOpen} onOpenChange={setDetailsOpen} contentClassName="mt-4 space-y-4">

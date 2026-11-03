@@ -80,11 +80,13 @@ function ItemPage() {
   }, [item?.id, item?.description]);
   const [orderNumber, setOrderNumber] = useState(item?.order_number ?? "");
   const [purchaseDate, setPurchaseDate] = useState(item?.purchase_date ?? "");
+  const [orderDate, setOrderDate] = useState(item?.order_date ?? "");
   const [savingPurchase, setSavingPurchase] = useState(false);
   useEffect(() => {
     setOrderNumber(item?.order_number ?? "");
     setPurchaseDate(item?.purchase_date ?? "");
-  }, [item?.id, item?.order_number, item?.purchase_date]);
+    setOrderDate(item?.order_date ?? "");
+  }, [item?.id, item?.order_number, item?.purchase_date, item?.order_date]);
   const [damagePhotos, setDamagePhotos] = useState<File[]>([]);
   const [uploadingDamage, setUploadingDamage] = useState(false);
   const { data: photoNames = [] } = useQuery({
@@ -192,7 +194,7 @@ function ItemPage() {
     if (!purchaseDate) { toast.error("La date d’achat est obligatoire"); return; }
     setSavingPurchase(true);
     try {
-      const { error } = await supabase.from("items").update({ order_number: orderNumber.trim() || null, purchase_date: purchaseDate }).eq("id", id);
+      const { error } = await supabase.from("items").update({ order_number: orderNumber.trim() || null, order_date: orderDate || null, purchase_date: purchaseDate }).eq("id", id);
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["items"] });
       toast.success("Informations d’achat enregistrées");
@@ -277,6 +279,7 @@ function ItemPage() {
         <h2 className="text-2xl">Achat</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5"><Label htmlFor="item-order">N° de commande ou de facture</Label><Input id="item-order" placeholder="Ex. FA-2025-0142" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label htmlFor="item-order-date">Date de la facture ou de la commande</Label><Input id="item-order-date" type="date" value={orderDate} onChange={(e) => setOrderDate(e.target.value)} /></div>
           <div className="space-y-1.5"><Label htmlFor="item-purchase-date">Date d’achat</Label><Input id="item-purchase-date" type="date" required value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} /></div>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">Repris automatiquement dans la lettre de renvoi.</p>
