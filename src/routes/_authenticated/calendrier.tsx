@@ -7,7 +7,7 @@ import { itemsQuery, todayISO, fmt } from "@/lib/items";
 import { ALERT_OPTIONS, alertDate, firstYearReminder, itemWarranties, toISO, type AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
 import { ReminderMarker, WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
-import { groupByItem, upcomingByItem, type Deadline, type ItemDeadlines } from "@/lib/deadlines";
+import { groupByItem, type Deadline, type ItemDeadlines } from "@/lib/deadlines";
 
 export const Route = createFileRoute("/_authenticated/calendrier")({
   head: () => ({ meta: [{ title: "Calendrier des garanties — Mes garanties" }, { name: "description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:title", content: "Calendrier des garanties — Mes garanties" }, { property: "og:description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -58,7 +58,6 @@ function CalendarPage() {
   const cells = Array.from({ length: offset + days }, (_, k) => (k < offset ? null : toISO(new Date(Date.UTC(ym.y, ym.m, k - offset + 1)))));
   const shift = (d: number) => { setSelected(null); setYm(({ y, m }) => ({ y: m + d < 0 ? y - 1 : m + d > 11 ? y + 1 : y, m: (m + d + 12) % 12 })); };
   const today = todayISO();
-  const nextDeadlines = upcomingByItem(items, today, 5);
   const monthEvents = [...events.entries()].filter(([d]) => d.startsWith(`${ym.y}-${String(ym.m + 1).padStart(2, "0")}`)).sort();
   const visibleEvents = selected ? monthEvents.filter(([d]) => d === selected) : monthEvents;
   const visibleGroups = groupByItem(visibleEvents.flatMap(([date, evs]) => evs.map((e): Deadline => ({ ...e, date, label: kindLabel(e.kind) }))));
@@ -105,14 +104,6 @@ function CalendarPage() {
           );
         })}
       </div>
-      <section aria-labelledby="next-deadlines" className="mt-8 rounded-lg border bg-card p-4">
-        <h2 id="next-deadlines" className="text-xl">Prochaines échéances</h2>
-        {nextDeadlines.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">Aucune échéance à venir.</p> : (
-          <ul className="mt-2 divide-y">
-            {nextDeadlines.map((g) => <li key={g.id}><ItemLine g={g} showDates /></li>)}
-          </ul>
-        )}
-      </section>
       <div className="mt-8 space-y-2">
         <div className="flex items-center justify-between gap-3"><h2 className="text-2xl">{selected ? fmt(selected) : "Échéances du mois"}</h2>{selected && <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>Tout le mois</Button>}</div>
         {visibleEvents.length === 0 && <p className="text-sm text-muted-foreground">{selected ? "Aucune échéance ce jour." : "Aucune échéance ce mois-ci."}</p>}
