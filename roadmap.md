@@ -7,4 +7,4 @@
 - [x] Vérifier à l'écran sur téléphone que le n° et la date de facture/commande sont bien sous la date d'achat
 - [x] Tester le scan d'un ticket/facture : le n° et la date de facture doivent se remplir seuls
 - [x] Nouvelle maquette Tarifs : bascule mensuel/annuel, Solo, Famille, section professionnels Titane
-- [ ] Vérifier à l'écran sur téléphone la nouvelle page Tarifs (bascule, cartes, section pro)
+- [x] Vérifier à l'écran sur téléphone la nouvelle page Tarifs (bascule, cartes, section pro)
