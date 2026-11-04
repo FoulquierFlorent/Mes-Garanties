@@ -93,10 +93,11 @@ function referenceCandidates(line: string): string[] {
 export function findOrderNumber(text: string): string | undefined {
   const lines = text.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
-    if (!ORDER_KEYWORD.test(lines[i])) continue;
+    const line = lines[i] ?? "";
+    if (!ORDER_KEYWORD.test(line)) continue;
     const found =
-      referenceCandidates(lines[i])[0] ??
-      (i + 1 < lines.length ? referenceCandidates(lines[i + 1])[0] : undefined);
+      referenceCandidates(line)[0] ??
+      (i + 1 < lines.length ? referenceCandidates(lines[i + 1] ?? "")[0] : undefined);
     if (found) return found;
   }
   return undefined;
