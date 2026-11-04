@@ -47,12 +47,12 @@ const PLANS: PlanSpec[] = [
     recommended: true,
   },
   {
-    name: "Mes Garan Titi et Grominet",
+    name: "Mes garanties Duo",
     monthly: "3,49 €",
     yearly: "34,99 €",
     description: "Pour deux personnes qui partagent un même espace pour suivre leurs achats et leurs garanties.",
     items: ["2 comptes reliés", "Objets partagés à deux", "Rappels pour les deux", "Scans illimités"],
-    cta: "Choisir Titi et Grominet",
+    cta: "Choisir Duo",
     soon: true,
   },
   {
