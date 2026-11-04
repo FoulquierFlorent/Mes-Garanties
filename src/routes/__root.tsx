@@ -35,8 +35,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   useEffect(() => {
     const msg = String((error as Error | undefined)?.message ?? "");
-    const recover = (window as { __chunkRecover?: (m: string) => boolean }).__chunkRecover;
-    if (recover?.(msg)) return;
+    const recover = (window as { __chunkRecover?: (m: string, f?: string) => boolean }).__chunkRecover;
+    if (recover?.(msg, String((error as Error | undefined)?.stack ?? ""))) return;
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
@@ -82,7 +82,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 // (Safari : « Importing a module script failed »), on recharge jusqu'à 3 fois,
 // puis on affiche un bouton de rechargement au lieu d'un écran vide.
 const CHUNK_GUARD = `(function(){
-var RE=/Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module/i;
+var RE=/Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module|Loading chunk \\S+ failed/i;
+var TE=/undefined is not an object|is not a function|Cannot read properties of undefined|Cannot read property/i;
+var HASHED=/\\.[A-Za-z0-9_-]{6,}\\.(?:js|mjs)(?:\\?|$)|\\/(?:assets|_build)\\/[^\\s?]*\\.js/i;
+window.__chunkIsLoadFailure=function(msg,file){
+var m=String(msg||"");var f=String(file||"");
+if(RE.test(m))return true;
+return TE.test(m)&&HASHED.test(f);
+};
 function showFallback(){
 function render(){
 if(document.getElementById("chunk-fallback"))return;
@@ -93,16 +100,16 @@ document.body.appendChild(d);
 }
 if(document.body)render();else document.addEventListener("DOMContentLoaded",render);
 }
-window.__chunkRecover=function(msg){
-if(!RE.test(String(msg)))return false;
+window.__chunkRecover=function(msg,file){
+if(!window.__chunkIsLoadFailure(msg,file))return false;
 var n=0;try{n=Number(sessionStorage.getItem("chunk-reloads")||0);}catch(e){}
 if(n<3){try{sessionStorage.setItem("chunk-reloads",String(n+1));}catch(e){}
 location.reload();return true;}
 showFallback();return false;
 };
-window.addEventListener("error",function(e){window.__chunkRecover(e.message);},true);
-window.addEventListener("unhandledrejection",function(e){var r=e.reason;window.__chunkRecover(r&&r.message?r.message:String(r));});
-window.addEventListener("vite:preloadError",function(e){e.preventDefault();window.__chunkRecover("Failed to fetch dynamically imported module");});
+window.addEventListener("error",function(e){window.__chunkRecover(e.message,e.filename);},true);
+window.addEventListener("unhandledrejection",function(e){var r=e.reason;window.__chunkRecover(r&&r.message?r.message:String(r),r&&r.stack?String(r.stack):String(r));});
+window.addEventListener("vite:preloadError",function(e){e.preventDefault();window.__chunkRecover("Failed to fetch dynamically imported module","/assets/vite-preload.js");});
 window.addEventListener("load",function(){setTimeout(function(){try{sessionStorage.removeItem("chunk-reloads");}catch(e){}},5000);});
 })();`;
 

@@ -63,13 +63,44 @@ function findDate(text: string): string | undefined {
   return undefined;
 }
 
-/** Numéro de facture, de commande ou de ticket repéré après son libellé. */
+/** Ligne qui annonce un numéro : facture, commande, ticket… */
+const ORDER_KEYWORD = /facture|commande|ticket|order|invoice|re[çc]episs?/i;
+/** Numéro collé derrière son libellé ("n° 004512", "n FA-2025-0187", "ref 45218"). */
+const ORDER_LABELED = /\b(?:n[°ºo#]?|num[ée]ro|no|ref[ée]rence|ref)\s*[:#]?\s*([A-Z0-9][A-Z0-9\-\/]{2,24})/i;
+
+/** Une référence contient un chiffre et n'est pas une date. */
+function isReference(v: string) {
+  return (
+    /\d/.test(v) &&
+    !/^\d{1,4}[/\-.]\d{1,2}[/\-.]\d{2,4}$/.test(v) &&
+    !/^\d{4}-\d{2}-\d{2}$/.test(v)
+  );
+}
+
+/** Candidats d'une ligne, du plus fiable au moins fiable. Les montants ("349", "2 499,00") sont écartés. */
+function referenceCandidates(line: string): string[] {
+  const out: string[] = [];
+  const labeled = line.match(ORDER_LABELED);
+  if (labeled?.[1]) out.push(labeled[1]);
+  for (const raw of line.match(/[A-Za-z0-9][A-Za-z0-9\-\/_.]{2,24}/g) ?? []) {
+    const v = raw.replace(/[.\-\/_]+$/, "");
+    if (v.length >= 3 && (/[A-Za-z]/.test(v) || /[-\/]/.test(v))) out.push(v);
+  }
+  return [...new Set(out)].filter(isReference);
+}
+
+/** Numéro de facture, de commande ou de ticket repéré sur son libellé, ou juste en dessous. */
 export function findOrderNumber(text: string): string | undefined {
-  const re = /(?:n[°o]\s*|num[ée]ro\s*(?:de\s*)?)?(?:facture|commande|ticket|order|invoice)\s*(?:n[°o]|num[ée]ro|#)?\s*[:#.]?\s*([A-Z0-9][A-Z0-9\-\/]{2,24})/i;
-  const m = text.match(re);
-  if (!m) return undefined;
-  const v = (m[1] ?? "").replace(/[.\-\/]+$/, "");
-  return /\d/.test(v) ? v : undefined;
+  const lines = text.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] ?? "";
+    if (!ORDER_KEYWORD.test(line)) continue;
+    const found =
+      referenceCandidates(line)[0] ??
+      (i + 1 < lines.length ? referenceCandidates(lines[i + 1] ?? "")[0] : undefined);
+    if (found) return found;
+  }
+  return undefined;
 }
 
 /** Enlève prix, étoiles et espaces superflus d'une ligne de ticket. */

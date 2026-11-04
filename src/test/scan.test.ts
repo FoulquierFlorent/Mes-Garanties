@@ -50,4 +50,25 @@ describe("numéro de facture lu sur le ticket", () => {
     expect(r.order_number).toBe("FA-2025-0142");
     expect(r.order_date).toBe("2025-03-12");
   });
+
+  it("repère le numéro quand l'OCR perd le signe ° après le n", () => {
+    const r = parseReceipt("MAGASIN BOULANGER\nFacture n FA-2025-0187\nDate : 12/03/2025\nSONY Casque WH-1000XM5");
+    expect(r.order_number).toBe("FA-2025-0187");
+    expect(r.order_date).toBe("2025-03-12");
+  });
+
+  it("prend le numéro quand il est sur la ligne suivante", () => {
+    const r = parseReceipt("CARREFOUR\nFacture\nN° 004512\n14/03/2025");
+    expect(r.order_number).toBe("004512");
+  });
+
+  it("ne confond pas un montant avec un numéro de facture", () => {
+    const r = parseReceipt("LEROY MERLIN\nFacture\nTOTAL 349,99\n14/03/2025");
+    expect(r.order_number).toBeUndefined();
+  });
+
+  it("ignore la date quand le numéro est sur la même ligne", () => {
+    const r = parseReceipt("DARTY\nFacture du 12/03/2025 n° FA-2025-0187");
+    expect(r.order_number).toBe("FA-2025-0187");
+  });
 });
