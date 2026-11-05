@@ -33,6 +33,11 @@ export function buildInsuranceRows(items: Item[], today: string, names: Record<s
 
 export const STATUS_TEXT: Record<Status, string> = { active: "Couverte", soon: "Bientôt expirée", expired: "Expirée" };
 
+/** Garde les objets dont la date d'achat est dans la période (bornes incluses, null = pas de borne). */
+export function filterItemsByPeriod(items: Item[], from: string | null, to: string | null): Item[] {
+  return items.filter((i) => (!from || i.purchase_date >= from) && (!to || i.purchase_date <= to));
+}
+
 /** Les polices PDF standard ne connaissent pas certains espaces/caractères. */
 const clean = (s: string) =>
   s.replace(/[\u202F\u00A0]/g, " ").replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[^\x20-\x7E\u00A0-\u00FF€'"–—…°]/g, "");
