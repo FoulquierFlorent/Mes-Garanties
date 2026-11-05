@@ -38,6 +38,13 @@ export function filterItemsByPeriod(items: Item[], from: string | null, to: stri
   return items.filter((i) => (!from || i.purchase_date >= from) && (!to || i.purchase_date <= to));
 }
 
+/** Nom de fichier du dossier : offre, période et date du jour, sans accents ni espaces. */
+export function insuranceFileName(plan: string, periodLabel: string, today: string): string {
+  const slug = (s: string) =>
+    s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return `dossier-assurance-${slug(plan)}-${slug(periodLabel)}-${today}.pdf`;
+}
+
 /** Les polices PDF standard ne connaissent pas certains espaces/caractères. */
 const clean = (s: string) =>
   s.replace(/[\u202F\u00A0]/g, " ").replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[^\x20-\x7E\u00A0-\u00FF€'"–—…°]/g, "");
