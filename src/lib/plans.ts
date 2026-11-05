@@ -103,3 +103,12 @@ export function savingsPercent(plan: PlanSpec): number {
 export function bestSavingsPercent(plans: PlanSpec[] = [...INDIVIDUAL_PLANS, ...PRO_PLANS]): number {
   return plans.reduce((best, plan) => Math.max(best, savingsPercent(plan)), 0);
 }
+
+/** Nombre maximal d'objets avec l'offre Gratuit. */
+export const FREE_ITEM_LIMIT = 5;
+
+/** Vrai si l'offre permet d'ajouter un objet de plus. */
+export function canAddItem(plan: string | null | undefined, count: number): boolean {
+  if (plan && plan !== "gratuit") return true;
+  return count < FREE_ITEM_LIMIT;
+}

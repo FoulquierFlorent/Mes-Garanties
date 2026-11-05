@@ -47,3 +47,10 @@ describe("formules et prix de la page Tarifs", () => {
     expect(SOLO_PLAN.items).toContain("Scan OCR automatique des factures");
   });
 });
+
+import { canAddItem as _canAdd } from "@/lib/plans";
+describe("plafond Gratuit", () => {
+  it("autorise le 5e objet", () => expect(_canAdd("gratuit", 4)).toBe(true));
+  it("bloque le 6e objet", () => expect(_canAdd("gratuit", 5)).toBe(false));
+  it("Solo illimité", () => expect(_canAdd("solo", 50)).toBe(true));
+});

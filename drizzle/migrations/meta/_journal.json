@@ -120,6 +120,13 @@
       "when": 1793838298237,
       "tag": "0016_add_household_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1793896238172,
+      "tag": "0017_free_plan_item_limit",
+      "breakpoints": true
     }
   ]
 }
