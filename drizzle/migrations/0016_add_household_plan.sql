@@ -1,0 +1,2 @@
+ALTER TABLE public.households ADD COLUMN plan text NOT NULL DEFAULT 'gratuit';
+ALTER TABLE public.households ADD CONSTRAINT households_plan_check CHECK (plan IN ('gratuit', 'solo', 'famille', 'titane'));
