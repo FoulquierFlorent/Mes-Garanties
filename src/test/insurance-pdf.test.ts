@@ -9,6 +9,6 @@ describe("dossier assurance", () => {
   });
   it("un objet dont toutes les garanties sont passées est expiré", () => {
     const r = buildInsuranceRows([{ ...base, price: 1, purchase_date: "2020-01-01" }], "2026-11-05");
-    expect(r.rows[0].overall).toBe("expired");
+    expect(r.rows[0]?.overall).toBe("expired");
   });
 });

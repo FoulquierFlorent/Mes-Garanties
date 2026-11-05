@@ -67,9 +67,9 @@ export async function makeInsurancePdf(opts: {
   if (unpriced) { text(`${unpriced} objet(s) sans prix renseigné.`, M, 9, font, muted); y -= 14; }
   y -= 10;
 
-  const cols = [M, M + 170, M + 260, M + 335, M + 410];
+  const cols: number[] = [M, M + 170, M + 260, M + 335, M + 410];
   const header = () => {
-    ["Objet", "Date d'achat", "Valeur", "Justificatifs", "Garanties"].forEach((h, i) => text(h, cols[i], 9, bold, muted));
+    ["Objet", "Date d'achat", "Valeur", "Justificatifs", "Garanties"].forEach((h, i) => text(h, cols[i]!, 9, bold, muted));
     y -= 6; page.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: 0.5, color: muted }); y -= 14;
   };
   header();
@@ -79,15 +79,15 @@ export async function makeInsurancePdf(opts: {
     ensure(lines * 11 + 10);
     if (y === H - M) header();
     const top = y;
-    text(fit(r.name, 165, 10, bold), cols[0], 10, bold); y -= 11;
-    text(fit([r.category, r.brand, r.owner].filter(Boolean).join(" · "), 165, 8), cols[0], 8, font, muted);
-    if (r.orderNumber) { y -= 10; text(fit(`N° ${r.orderNumber}`, 165, 8), cols[0], 8, font, muted); }
+    text(fit(r.name, 165, 10, bold), cols[0]!, 10, bold); y -= 11;
+    text(fit([r.category, r.brand, r.owner].filter(Boolean).join(" · "), 165, 8), cols[0]!, 8, font, muted);
+    if (r.orderNumber) { y -= 10; text(fit(`N° ${r.orderNumber}`, 165, 8), cols[0]!, 8, font, muted); }
     const bottom = y; y = top;
-    text(date(r.purchaseDate), cols[1]);
-    text(r.price == null ? "—" : euro(r.price), cols[2]);
-    text(files.length ? `${files.length} en annexe` : "Aucun", cols[3]);
+    text(date(r.purchaseDate), cols[1]!);
+    text(r.price == null ? "—" : euro(r.price), cols[2]!);
+    text(files.length ? `${files.length} en annexe` : "Aucun", cols[3]!);
     r.warranties.forEach((w) => {
-      text(fit(`${w.label.replace("Garantie ", "")} : ${STATUS_TEXT[w.status]} (${date(w.end)})`, W - M - cols[4], 8), cols[4], 8, font, w.status === "expired" ? muted : ink);
+      text(fit(`${w.label.replace("Garantie ", "")} : ${STATUS_TEXT[w.status]} (${date(w.end)})`, W - M - cols[4]!, 8), cols[4]!, 8, font, w.status === "expired" ? muted : ink);
       y -= 11;
     });
     y = Math.min(y, bottom - 11) - 6;
