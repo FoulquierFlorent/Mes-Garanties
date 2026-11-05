@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildInsuranceRows } from "@/lib/insurance-pdf";
+import { buildInsuranceRows, filterItemsByPeriod, insuranceFileName } from "@/lib/insurance-pdf";
 const base = { id: "a", name: "TV", category: "Électronique", brand: null, user_id: "u", order_number: null, warranty_months: 24 } as any;
 describe("dossier assurance", () => {
   it("additionne les valeurs d'achat et compte les objets sans prix", () => {
