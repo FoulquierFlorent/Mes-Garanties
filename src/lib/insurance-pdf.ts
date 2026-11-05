@@ -33,6 +33,18 @@ export function buildInsuranceRows(items: Item[], today: string, names: Record<s
 
 export const STATUS_TEXT: Record<Status, string> = { active: "Couverte", soon: "Bientôt expirée", expired: "Expirée" };
 
+/** Garde les objets dont la date d'achat est dans la période (bornes incluses, null = pas de borne). */
+export function filterItemsByPeriod(items: Item[], from: string | null, to: string | null): Item[] {
+  return items.filter((i) => (!from || i.purchase_date >= from) && (!to || i.purchase_date <= to));
+}
+
+/** Nom de fichier du dossier : offre, période et date du jour, sans accents ni espaces. */
+export function insuranceFileName(plan: string, periodLabel: string, today: string): string {
+  const slug = (s: string) =>
+    s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return `dossier-assurance-${slug(plan)}-${slug(periodLabel)}-${today}.pdf`;
+}
+
 /** Les polices PDF standard ne connaissent pas certains espaces/caractères. */
 const clean = (s: string) =>
   s.replace(/[\u202F\u00A0]/g, " ").replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[^\x20-\x7E\u00A0-\u00FF€'"–—…°]/g, "");
@@ -42,7 +54,7 @@ const date = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("fr-FR"
 export type ReceiptFile = { itemId: string; name: string; blob: Blob };
 
 export async function makeInsurancePdf(opts: {
-  owner: string; items: Item[]; names: Record<string, string>; today: string; receipts: ReceiptFile[];
+  owner: string; items: Item[]; names: Record<string, string>; today: string; receipts: ReceiptFile[]; periodLabel?: string;
 }): Promise<Blob> {
   const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
   const doc = await PDFDocument.create();
@@ -62,7 +74,7 @@ export async function makeInsurancePdf(opts: {
   const ensure = (h: number) => { if (y - h < M) { page = doc.addPage([W, H]); y = H - M; } };
 
   text("Dossier d'assurance — Mes garanties", M, 20, bold); y -= 22;
-  text(`Établi pour ${opts.owner} le ${date(opts.today)}`, M, 10, font, muted); y -= 26;
+  text(`Établi pour ${opts.owner} le ${date(opts.today)} — ${opts.periodLabel ?? "Toutes les dates"}`, M, 10, font, muted); y -= 26;
   text(`${rows.length} objet(s) enregistré(s) · Valeur d'achat totale : ${euro(total)}`, M, 12, bold); y -= 16;
   if (unpriced) { text(`${unpriced} objet(s) sans prix renseigné.`, M, 9, font, muted); y -= 14; }
   y -= 10;
@@ -92,6 +104,24 @@ export async function makeInsurancePdf(opts: {
     });
     y = Math.min(y, bottom - 11) - 8;
     page.drawLine({ start: { x: M, y: y + 12 }, end: { x: W - M, y: y + 12 }, thickness: 0.2, color: rgb(0.85, 0.85, 0.85) });
+  }
+
+  // Biens sans justificatif : valeur déclarée et informations disponibles.
+  const noProof = rows.filter((r) => !opts.receipts.some((f) => f.itemId === r.id));
+  if (noProof.length) {
+    ensure(90); y -= 14;
+    text("Biens sans justificatif", M, 14, bold); y -= 16;
+    text("Ces biens n'ont ni facture ni ticket en annexe. Les informations ci-dessous sont déclaratives.", M, 9, font, muted); y -= 18;
+    for (const r of noProof) {
+      ensure(30);
+      text(fit(r.name, 260, 10, bold), M, 10, bold);
+      text(r.price == null ? "Valeur non renseignée" : `Valeur déclarée : ${euro(r.price)}`, M + 270, 10);
+      y -= 11;
+      const info = [`Acheté le ${date(r.purchaseDate)}`, r.brand, r.orderNumber ? `N° ${r.orderNumber}` : null, `Membre : ${r.owner}`].filter(Boolean).join(" · ");
+      text(fit(info, W - 2 * M, 8), M, 8, font, muted); y -= 14;
+    }
+    const declared = Math.round(noProof.reduce((s, r) => s + (r.price ?? 0), 0) * 100) / 100;
+    if (declared > 0) { text(`Valeur déclarée totale sans justificatif : ${euro(declared)}`, M, 10, bold); y -= 14; }
   }
 
   // Annexes : chaque justificatif à la suite, rattaché à son objet.

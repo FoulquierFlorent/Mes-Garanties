@@ -8,3 +8,7 @@
 - [x] Tester le scan d'un ticket/facture : le n° et la date de facture doivent se remplir seuls
 - [x] Nouvelle maquette Tarifs : bascule mensuel/annuel, Solo, Famille, section professionnels Titane
 - [x] Vérifier à l'écran sur téléphone la nouvelle page Tarifs (bascule, cartes, section pro)
+- [ ] Dossier assurance : choix de période (tout / année / dates libres) avant génération
+- [ ] Dossier assurance : section « biens sans justificatif » avec valeur déclarée et infos disponibles
+- [ ] Dossier assurance : nom de fichier PDF avec le nom de l'offre et la période choisie
+- [ ] Abonnements : distinguer les offres Gratuit / Solo / Famille / Titane et réserver l'export du dossier assurance aux offres Solo et Famille
