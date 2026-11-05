@@ -68,6 +68,21 @@ export const INDIVIDUAL_PLANS: PlanSpec[] = [FREE_PLAN, SOLO_PLAN, FAMILY_PLAN];
 /** Offre réservée aux professionnels, présentée dans sa propre section. */
 export const PRO_PLANS: PlanSpec[] = [TITANE_PLAN];
 
+/** Identifiants d'offre enregistrés sur le foyer. */
+export type PlanId = "gratuit" | "solo" | "famille" | "titane";
+
+export const PLAN_LABELS: Record<PlanId, string> = {
+  gratuit: "Gratuit",
+  solo: "Solo",
+  famille: "Famille",
+  titane: "Mes garanties Titane",
+};
+
+/** Le dossier d'assurance complet est réservé aux offres Solo et Famille. */
+export function canExportInsurance(plan: string | null | undefined): boolean {
+  return plan === "solo" || plan === "famille";
+}
+
 export function formatEuro(value: number): string {
   return `${value.toFixed(2).replace(".", ",")} €`;
 }

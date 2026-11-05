@@ -45,11 +45,11 @@ export const CATEGORIES = Object.keys(CATEGORY_TYPES);
 export const householdQuery = queryOptions({
   queryKey: ["household"],
   queryFn: async () => {
-    const { data: m, error } = await supabase.from("household_members").select("household_id, households(id, name, invite_code)").limit(1).maybeSingle();
+    const { data: m, error } = await supabase.from("household_members").select("household_id, households(id, name, invite_code, plan)").limit(1).maybeSingle();
     if (error) throw error;
     if (!m) return null;
     const { data: members } = await supabase.from("household_members").select("user_id, email, display_name, color").eq("household_id", m.household_id);
-    return { ...(m.households as { id: string; name: string; invite_code: string }), members: members ?? [] };
+    return { ...(m.households as { id: string; name: string; invite_code: string; plan: string }), members: members ?? [] };
   },
 });
 
