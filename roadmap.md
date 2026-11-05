@@ -10,3 +10,4 @@
 - [x] Vérifier à l'écran sur téléphone la nouvelle page Tarifs (bascule, cartes, section pro)
 - [ ] Dossier assurance : choix de période (tout / année / dates libres) avant génération
 - [ ] Dossier assurance : section « biens sans justificatif » avec valeur déclarée et infos disponibles
+- [ ] Dossier assurance : nom de fichier PDF avec le nom de l'offre et la période choisie
