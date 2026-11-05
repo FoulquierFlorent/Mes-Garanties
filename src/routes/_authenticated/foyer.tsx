@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { householdQuery, itemsQuery } from "@/lib/items";
+import { PLAN_LABELS, type PlanId } from "@/lib/plans";
 import { useUserId } from "@/hooks/useUserId";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +56,14 @@ function FoyerPage() {
     if (error) { toast.error("Code invalide"); return; }
     toast.success("Vous avez rejoint le foyer"); refresh();
   }
+  async function savePlan(plan: PlanId) {
+    if (!h) return;
+    const { error } = await supabase.from("households").update({ plan }).eq("id", h.id);
+    if (error) { toast.error("Enregistrement impossible"); return; }
+    toast.success("Offre enregistrée");
+    refresh();
+  }
+
   async function leave() {
     const { data } = await supabase.auth.getUser();
     await supabase.from("household_members").delete().eq("household_id", h!.id).eq("user_id", data.user!.id);
@@ -71,6 +80,21 @@ function FoyerPage() {
           <p className="mt-2 font-serif text-5xl tracking-[0.2em] text-accent">{h.invite_code}</p>
           <Button variant="outline" size="sm" className="mt-4" onClick={() => { navigator.clipboard.writeText(h.invite_code); toast.success("Code copié"); }}>Copier</Button>
         </div>
+        <section className="mt-6 rounded-lg border bg-card p-6">
+          <Label htmlFor="household-plan" className="text-sm text-muted-foreground">Offre du foyer</Label>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <select
+              id="household-plan"
+              value={h.plan}
+              onChange={(e) => savePlan(e.target.value as PlanId)}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              {(Object.keys(PLAN_LABELS) as PlanId[]).map((p) => <option key={p} value={p}>{PLAN_LABELS[p]}</option>)}
+            </select>
+            <Link to="/tarifs" className="text-sm text-muted-foreground underline">Voir les tarifs</Link>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Le dossier d'assurance complet est réservé aux offres Solo et Famille.</p>
+        </section>
         <h2 className="mt-10 text-2xl">Membres</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {h.members.map((m) => {
