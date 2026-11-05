@@ -94,6 +94,24 @@ export async function makeInsurancePdf(opts: {
     page.drawLine({ start: { x: M, y: y + 12 }, end: { x: W - M, y: y + 12 }, thickness: 0.2, color: rgb(0.85, 0.85, 0.85) });
   }
 
+  // Biens sans justificatif : valeur déclarée et informations disponibles.
+  const noProof = rows.filter((r) => !opts.receipts.some((f) => f.itemId === r.id));
+  if (noProof.length) {
+    ensure(90); y -= 14;
+    text("Biens sans justificatif", M, 14, bold); y -= 16;
+    text("Ces biens n'ont ni facture ni ticket en annexe. Les informations ci-dessous sont déclaratives.", M, 9, font, muted); y -= 18;
+    for (const r of noProof) {
+      ensure(30);
+      text(fit(r.name, 260, 10, bold), M, 10, bold);
+      text(r.price == null ? "Valeur non renseignée" : `Valeur déclarée : ${euro(r.price)}`, M + 270, 10);
+      y -= 11;
+      const info = [`Acheté le ${date(r.purchaseDate)}`, r.brand, r.orderNumber ? `N° ${r.orderNumber}` : null, `Membre : ${r.owner}`].filter(Boolean).join(" · ");
+      text(fit(info, W - 2 * M, 8), M, 8, font, muted); y -= 14;
+    }
+    const declared = Math.round(noProof.reduce((s, r) => s + (r.price ?? 0), 0) * 100) / 100;
+    if (declared > 0) { text(`Valeur déclarée totale sans justificatif : ${euro(declared)}`, M, 10, bold); y -= 14; }
+  }
+
   // Annexes : chaque justificatif à la suite, rattaché à son objet.
   const byId = new Map(rows.map((r) => [r.id, r.name]));
   for (const f of opts.receipts) {
