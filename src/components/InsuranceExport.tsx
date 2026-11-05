@@ -12,7 +12,7 @@ import { filterItemsByPeriod, insuranceFileName, makeInsurancePdf, type ReceiptF
 type Member = { user_id: string; display_name: string | null };
 type Mode = "all" | "year" | "range";
 
-export function InsuranceExport({ items, members, owner }: { items: Item[]; members: Member[]; owner: string }) {
+export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { items: Item[]; members: Member[]; owner: string; plan?: string }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("all");
   const [year, setYear] = useState<string>("");
@@ -36,10 +36,7 @@ export function InsuranceExport({ items, members, owner }: { items: Item[]; memb
     return { from: null, to: null, label: "Toutes les dates" };
   }, [mode, year, from, to]);
 
-  const filtered = useMemo(
-    () => items.filter((i) => (!period.from || i.purchase_date >= period.from) && (!period.to || i.purchase_date <= period.to)),
-    [items, period],
-  );
+  const filtered = useMemo(() => filterItemsByPeriod(items, period.from, period.to), [items, period]);
 
   const build = async () => {
     setBusy(true);
@@ -67,7 +64,7 @@ export function InsuranceExport({ items, members, owner }: { items: Item[]; memb
     if (!ready) return;
     const url = URL.createObjectURL(ready.blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `dossier-assurance-${todayISO()}.pdf`;
+    a.href = url; a.download = insuranceFileName(plan, ready.label, todayISO());
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
     setReady(null);
