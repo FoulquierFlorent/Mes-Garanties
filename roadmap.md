@@ -11,3 +11,4 @@
 - [ ] Dossier assurance : choix de période (tout / année / dates libres) avant génération
 - [ ] Dossier assurance : section « biens sans justificatif » avec valeur déclarée et infos disponibles
 - [ ] Dossier assurance : nom de fichier PDF avec le nom de l'offre et la période choisie
+- [ ] Abonnements : distinguer les offres Gratuit / Solo / Famille / Titane et réserver l'export du dossier assurance aux offres Solo et Famille
