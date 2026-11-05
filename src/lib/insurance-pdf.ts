@@ -42,7 +42,7 @@ const date = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("fr-FR"
 export type ReceiptFile = { itemId: string; name: string; blob: Blob };
 
 export async function makeInsurancePdf(opts: {
-  owner: string; items: Item[]; names: Record<string, string>; today: string; receipts: ReceiptFile[];
+  owner: string; items: Item[]; names: Record<string, string>; today: string; receipts: ReceiptFile[]; periodLabel?: string;
 }): Promise<Blob> {
   const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
   const doc = await PDFDocument.create();
@@ -62,7 +62,7 @@ export async function makeInsurancePdf(opts: {
   const ensure = (h: number) => { if (y - h < M) { page = doc.addPage([W, H]); y = H - M; } };
 
   text("Dossier d'assurance — Mes garanties", M, 20, bold); y -= 22;
-  text(`Établi pour ${opts.owner} le ${date(opts.today)}`, M, 10, font, muted); y -= 26;
+  text(`Établi pour ${opts.owner} le ${date(opts.today)} — ${opts.periodLabel ?? "Toutes les dates"}`, M, 10, font, muted); y -= 26;
   text(`${rows.length} objet(s) enregistré(s) · Valeur d'achat totale : ${euro(total)}`, M, 12, bold); y -= 16;
   if (unpriced) { text(`${unpriced} objet(s) sans prix renseigné.`, M, 9, font, muted); y -= 14; }
   y -= 10;
