@@ -5,9 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Link } from "@tanstack/react-router";
+import { Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { todayISO, type Item } from "@/lib/items";
 import { filterItemsByPeriod, insuranceFileName, makeInsurancePdf, type ReceiptFile } from "@/lib/insurance-pdf";
+import { canExportInsurance } from "@/lib/plans";
 
 type Member = { user_id: string; display_name: string | null };
 type Mode = "all" | "year" | "range";
@@ -80,6 +83,17 @@ export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { i
       {label}
     </button>
   );
+
+  if (!canExportInsurance(plan)) {
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" disabled><Lock /> Dossier assurance (PDF)</Button>
+        <p className="text-sm text-muted-foreground">
+          Réservé aux offres Solo et Famille — <Link to="/tarifs" className="underline">voir les tarifs</Link>.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setReady(null); }}>
