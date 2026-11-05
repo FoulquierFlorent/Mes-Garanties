@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, Bell, CalendarDays, Search } from "lucide-react";
 import { isArchived, matchesSearch } from "@/lib/deadlines";
 import { supabase } from "@/integrations/supabase/client";
+import { canAddItem, FREE_ITEM_LIMIT } from "@/lib/plans";
 import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt, formatPrice } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/app")({
   component: AppPage,
 });
 
-function AddItem({ householdId }: { householdId: string | null }) {
+function AddItem({ householdId, blocked = false }: { householdId: string | null; blocked?: boolean }) {
   const qc = useQueryClient();
   const [category, setCategory] = useState("Électronique");
   const [open, setOpen] = useState(false);
@@ -86,12 +87,12 @@ function AddItem({ householdId }: { householdId: string | null }) {
     },
     onError: (error) => {
       qc.invalidateQueries({ queryKey: ["items"] });
-      if (error.message === "photos") { setDetailsOpen(true); toast.error("Objet enregistré, mais certaines photos ont échoué. Réessayez l’envoi ou fermez pour les ajouter plus tard."); } else { toast.error("Impossible d'ajouter l'objet"); }
+      if (error.message === "photos") { setDetailsOpen(true); toast.error("Objet enregistré, mais certaines photos ont échoué. Réessayez l’envoi ou fermez pour les ajouter plus tard."); } else { toast.error(error.message.includes("free_plan_limit") ? `L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets. Passez à Solo ou Famille pour en ajouter d’autres.` : "Impossible d'ajouter l'objet"); }
     },
   });
   return (
     <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
-      <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>
+      {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
@@ -234,7 +235,7 @@ function AppPage() {
           <h1 className="text-4xl sm:text-5xl">{household ? household.name : "Mes objets"}</h1>
           {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
         </div>
-        <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} /></div>
+        <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
       </div>
       {allItems.length > 0 && <div className="mt-4"><InsuranceExport items={allItems} members={household?.members ?? []} owner={household ? household.name : "mon foyer"} plan={household?.plan ?? "gratuit"} /></div>}
       <RightBanner variant="whisper" offset={6} className="mt-4" />
