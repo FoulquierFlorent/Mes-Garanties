@@ -105,12 +105,15 @@ function FoyerPage() {
             const n = m.display_name?.trim() || "Membre";
             const count = items.filter((i) => i.user_id === m.user_id).length;
             return (
-              <Link key={m.user_id} to="/membre/$id" params={{ id: m.user_id }} className="relative flex aspect-square flex-col overflow-hidden rounded-3xl border-2 bg-card p-4 shadow-sm transition-transform hover:-translate-y-0.5" style={{ borderColor: frame }}>
-                <span aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: frame }} />
-                <span className="grid h-11 w-11 place-items-center rounded-2xl font-serif text-xl" style={{ background: `color-mix(in oklab, ${frame} 18%, transparent)` }}>{n.charAt(0).toUpperCase()}</span>
-                <span className="mt-auto truncate font-serif text-3xl leading-tight">{n}</span>
-                <span className="text-xs text-muted-foreground">{count} objet{count > 1 ? "s" : ""}{m.user_id === me ? " · Vous" : ""}</span>
-              </Link>
+              <div key={m.user_id}>
+                <Link to="/membre/$id" params={{ id: m.user_id }} className="relative flex aspect-square flex-col overflow-hidden rounded-3xl border-2 bg-card p-4 shadow-sm transition-transform hover:-translate-y-0.5" style={{ borderColor: frame }}>
+                  <span aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: frame }} />
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl font-serif text-xl" style={{ background: `color-mix(in oklab, ${frame} 18%, transparent)` }}>{n.charAt(0).toUpperCase()}</span>
+                  <span className="mt-auto truncate font-serif text-3xl leading-tight">{n}</span>
+                  <span className="text-xs text-muted-foreground">{count} objet{count > 1 ? "s" : ""}{m.user_id === me ? " · Vous" : ""}</span>
+                </Link>
+                {m.user_id !== me && <RemoveMember householdId={h.id} userId={m.user_id} name={n} plan={h.plan} onRemoved={refresh} />}
+              </div>
             );
           })}
         </div>

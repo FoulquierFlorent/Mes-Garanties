@@ -32,6 +32,7 @@ export const Route = createFileRoute("/_authenticated/objet/$id")({
 function ItemPage() {
   const { id } = Route.useParams();
   const { data: items } = useSuspenseQuery(itemsQuery);
+  const { data: household } = useSuspenseQuery(householdQuery);
   const qc = useQueryClient();
   const item = items.find((i) => i.id === id);
   const savedLetter = savedReplacementLetter(item?.replacement_letter);
