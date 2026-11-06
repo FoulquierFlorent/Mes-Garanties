@@ -10,6 +10,10 @@ describe("accès au dossier assurance", () => {
     expect(canExportInsurance(null)).toBe(false);
     expect(canExportInsurance(undefined)).toBe(false);
   });
+  it("retire l'accès quand l'offre redevient Gratuit et le rend avec Titane", () => {
+    const plans = ["titane", "gratuit", "titane", "gratuit"] as const;
+    expect(plans.map(canExportInsurance)).toEqual([true, false, true, false]);
+  });
   it("chaque offre du foyer a un libellé", () => {
     expect(PLAN_LABELS.gratuit).toBe("Gratuit");
     expect(PLAN_LABELS.solo).toBe("Solo");
