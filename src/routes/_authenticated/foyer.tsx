@@ -11,6 +11,8 @@ import { useUserId } from "@/hooks/useUserId";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FamilyInvitations } from "@/components/FamilyInvitations";
+import { RemoveMember } from "@/components/RemoveMember";
 
 export const Route = createFileRoute("/_authenticated/foyer")({
   head: () => ({ meta: [{ title: "Mon foyer — Mes garanties" }, { name: "description", content: "Partagez vos garanties avec votre foyer." }, { property: "og:title", content: "Mon foyer — Mes garanties" }, { property: "og:description", content: "Partagez vos garanties avec les membres de votre maison." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),

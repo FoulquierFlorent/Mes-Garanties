@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { itemsQuery, fmt, todayISO, RETURN_LABELS, formatPrice } from "@/lib/items";
+import { itemsQuery, householdQuery, fmt, todayISO, RETURN_LABELS, formatPrice } from "@/lib/items";
 import { warrantyEnd, itemWarranties, yearsLabel, WARRANTY_LABELS } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
