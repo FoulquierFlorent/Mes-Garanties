@@ -181,6 +181,12 @@ function ItemPage() {
     qc.invalidateQueries({ queryKey: ["items"] });
     toast.success("Suivi enregistré");
   }
+  async function assignMember(userId: string) {
+    const { error } = await supabase.from("items").update({ user_id: userId }).eq("id", id);
+    if (error) { toast.error("Attribution impossible avec cette offre ou ce membre"); return; }
+    await qc.invalidateQueries({ queryKey: ["items"] });
+    toast.success("Objet attribué au membre");
+  }
   async function saveDescription() {
     setSavingDescription(true);
     try {
