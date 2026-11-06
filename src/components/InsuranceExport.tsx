@@ -75,7 +75,7 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" disabled><Lock /> Dossier assurance (PDF)</Button>
         <p className="text-sm text-muted-foreground">
-          Réservé aux offres Solo et Famille — <Link to="/tarifs" className="underline">voir les tarifs</Link>.
+          Réservé aux offres Solo, Famille et Titane — <Link to="/tarifs" className="underline">voir les tarifs</Link>.
         </p>
       </div>
     );
