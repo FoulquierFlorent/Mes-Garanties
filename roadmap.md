@@ -16,3 +16,6 @@
 - [ ] Titane : téléchargement ZIP des justificatifs et export CSV pour l'expert-comptable
 - [ ] Famille : invitations par e-mail et attribution des objets aux membres
 - [ ] Inclure Titane dans l'accès au dossier d'assurance
+- [ ] Famille : renvoyer ou révoquer une invitation, retirer un membre avec confirmation et récapitulatif des accès supprimés
+- [ ] Contrôler que le ZIP contient les justificatifs attendus et que le CSV s'ouvre dans un tableur
+- [ ] Tester l'accès assurance Titane, son blocage Gratuit (écran, URL directe, requête API) et les changements d'offre
