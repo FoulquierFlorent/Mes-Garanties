@@ -293,6 +293,20 @@ function ItemPage() {
         <Button className="mt-3" disabled={savingPurchase} onClick={savePurchase}>{savingPurchase ? "Enregistrement…" : "Enregistrer"}</Button>
       </section>
 
+      {household?.plan === "famille" && (
+        <section className="mt-6 border-y py-6">
+          <h2 className="text-2xl">Attribution</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Choisissez le membre du foyer responsable de cet objet.</p>
+          <div className="mt-4 max-w-sm space-y-1.5">
+            <Label htmlFor="item-member">Objet attribué à</Label>
+            <Select value={item.user_id} onValueChange={assignMember}>
+              <SelectTrigger id="item-member"><SelectValue /></SelectTrigger>
+              <SelectContent>{household.members.map((member) => <SelectItem key={member.user_id} value={member.user_id}>{member.display_name?.trim() || "Membre"}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        </section>
+      )}
+
       <section className="mt-6 border-y py-6">
         <h2 className="text-2xl">Prix</h2>
         <div className="mt-4 flex flex-wrap items-end gap-3">
