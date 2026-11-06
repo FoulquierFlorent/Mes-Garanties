@@ -86,7 +86,7 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
       <DialogTrigger asChild>
         <Button variant="outline" disabled={items.length === 0}><FileDown /> Dossier assurance (PDF)</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-h-[90dvh] max-w-md overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Dossier d'assurance</DialogTitle>
         </DialogHeader>
@@ -135,6 +135,9 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
               {busy ? "Préparation…" : "Préparer le dossier"}
             </Button>
           )}
+          <Button type="button" variant="outline" className="w-full" onClick={() => { setOpen(false); setReady(null); }}>
+            Fermer
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
