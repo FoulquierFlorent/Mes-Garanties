@@ -24,6 +24,7 @@ import { memberBorderClass } from "@/lib/members";
 import { categoryImage } from "@/lib/category-images";
 import { ReceiptScanner } from "@/components/ReceiptScanner";
 import { InsuranceExport } from "@/components/InsuranceExport";
+import { TitaneExports } from "@/components/TitaneExports";
 import { Rubrique } from "@/components/Rubrique";
 import { uploadReceipt } from "@/lib/receipt-upload";
 

@@ -31,6 +31,7 @@ export function buildAccountingCsv(entries: AccountingEntry[]): string {
 }
 
 export type ZipReceipt = {
+  itemId: string;
   itemName: string;
   name: string;
   blob: Blob;

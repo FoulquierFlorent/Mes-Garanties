@@ -19,6 +19,7 @@ import { Route as AuthenticatedCalendrierRouteImport } from './routes/_authentic
 import { Route as AuthenticatedFoyerRouteImport } from './routes/_authenticated/foyer'
 import { Route as AuthenticatedMembreIdRouteImport } from './routes/_authenticated/membre.$id'
 import { Route as AuthenticatedObjetIdRouteImport } from './routes/_authenticated/objet.$id'
+import { Route as ApiExportsTypeRouteImport } from './routes/api/exports/$type'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +71,11 @@ const AuthenticatedObjetIdRoute = AuthenticatedObjetIdRouteImport.update({
   path: '/objet/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiExportsTypeRoute = ApiExportsTypeRouteImport.update({
+  id: '/api/exports/$type',
+  path: '/api/exports/$type',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/foyer': typeof AuthenticatedFoyerRoute
   '/membre/$id': typeof AuthenticatedMembreIdRoute
   '/objet/$id': typeof AuthenticatedObjetIdRoute
+  '/api/exports/$type': typeof ApiExportsTypeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/foyer': typeof AuthenticatedFoyerRoute
   '/membre/$id': typeof AuthenticatedMembreIdRoute
   '/objet/$id': typeof AuthenticatedObjetIdRoute
+  '/api/exports/$type': typeof ApiExportsTypeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/_authenticated/foyer': typeof AuthenticatedFoyerRoute
   '/_authenticated/membre/$id': typeof AuthenticatedMembreIdRoute
   '/_authenticated/objet/$id': typeof AuthenticatedObjetIdRoute
+  '/api/exports/$type': typeof ApiExportsTypeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/foyer'
     | '/membre/$id'
     | '/objet/$id'
+    | '/api/exports/$type'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/foyer'
     | '/membre/$id'
     | '/objet/$id'
+    | '/api/exports/$type'
   id:
     | '__root__'
     | '/'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/_authenticated/foyer'
     | '/_authenticated/membre/$id'
     | '/_authenticated/objet/$id'
+    | '/api/exports/$type'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -148,6 +160,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   TarifsRoute: typeof TarifsRoute
+  ApiExportsTypeRoute: typeof ApiExportsTypeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -222,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedObjetIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/exports/$type': {
+      id: '/api/exports/$type'
+      path: '/api/exports/$type'
+      fullPath: '/api/exports/$type'
+      preLoaderRoute: typeof ApiExportsTypeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -251,6 +271,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   TarifsRoute: TarifsRoute,
+  ApiExportsTypeRoute: ApiExportsTypeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -2,11 +2,11 @@ import { describe, it, expect } from "vitest";
 import { canExportInsurance, PLAN_LABELS } from "@/lib/plans";
 
 describe("accès au dossier assurance", () => {
-  it("est réservé aux offres Solo et Famille", () => {
+  it("est réservé aux offres Solo, Famille et Titane", () => {
     expect(canExportInsurance("solo")).toBe(true);
     expect(canExportInsurance("famille")).toBe(true);
     expect(canExportInsurance("gratuit")).toBe(false);
-    expect(canExportInsurance("titane")).toBe(false);
+    expect(canExportInsurance("titane")).toBe(true);
     expect(canExportInsurance(null)).toBe(false);
     expect(canExportInsurance(undefined)).toBe(false);
   });

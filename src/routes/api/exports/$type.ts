@@ -116,7 +116,7 @@ export const Route = createFileRoute("/api/exports/$type")({
               if (file.name === ".emptyFolderPlaceholder" || file.name.endsWith(".ocr.txt")) continue;
               const { data: blob, error: downloadError } = await supabase.storage.from("receipts").download(`${item.id}/${file.name}`);
               if (downloadError || !blob) return json("justificatif_inaccessible", 500);
-              receipts.push({ itemName: item.name, name: file.name, blob });
+              receipts.push({ itemId: item.id, itemName: item.name, name: file.name, blob });
             }
           }
 

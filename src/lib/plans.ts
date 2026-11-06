@@ -78,9 +78,9 @@ export const PLAN_LABELS: Record<PlanId, string> = {
   titane: "Mes garanties Titane",
 };
 
-/** Le dossier d'assurance complet est réservé aux offres Solo et Famille. */
+/** Le dossier d'assurance complet est réservé aux offres Solo, Famille et Titane. */
 export function canExportInsurance(plan: string | null | undefined): boolean {
-  return plan === "solo" || plan === "famille";
+  return plan === "solo" || plan === "famille" || plan === "titane";
 }
 
 export function formatEuro(value: number): string {

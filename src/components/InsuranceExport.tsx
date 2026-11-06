@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "@tanstack/react-router";
 import { Lock } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { todayISO, type Item } from "@/lib/items";
-import { filterItemsByPeriod, insuranceFileName, makeInsurancePdf, type ReceiptFile } from "@/lib/insurance-pdf";
+import { filterItemsByPeriod, insuranceFileName } from "@/lib/insurance-pdf";
 import { canExportInsurance } from "@/lib/plans";
+import { downloadBlob, fetchAuthenticatedExport } from "@/lib/authenticated-download";
 
 type Member = { user_id: string; display_name: string | null };
 type Mode = "all" | "year" | "range";
