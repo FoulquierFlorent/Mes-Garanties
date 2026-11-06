@@ -124,10 +124,11 @@ export const Route = createFileRoute("/api/exports/$type")({
             return fileResponse(await makeReceiptsZip(receipts), `justificatifs-titane-${today}.zip`);
           }
 
-          const insuranceReceipts: ReceiptFile[] = receipts.map((receipt) => {
-            const item = items.find((candidate) => candidate.name === receipt.itemName);
-            return { itemId: item?.id ?? "", name: receipt.name, blob: receipt.blob };
-          });
+          const insuranceReceipts: ReceiptFile[] = receipts.map((receipt) => ({
+            itemId: receipt.itemId,
+            name: receipt.name,
+            blob: receipt.blob,
+          }));
           const pdf = await makeInsurancePdf({ owner: household.name, items, names, today, receipts: insuranceReceipts, periodLabel: label });
           return fileResponse(pdf, insuranceFileName(PLAN_LABELS[household.plan], label, today));
         } catch (error) {

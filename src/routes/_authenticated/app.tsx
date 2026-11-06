@@ -238,7 +238,7 @@ function AppPage() {
         </div>
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
       </div>
-      {allItems.length > 0 && <div className="mt-4"><InsuranceExport items={allItems} members={household?.members ?? []} owner={household ? household.name : "mon foyer"} plan={household?.plan ?? "gratuit"} /></div>}
+      {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} members={household?.members ?? []} owner={household ? household.name : "mon foyer"} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /></div>}
       <RightBanner variant="whisper" offset={6} className="mt-4" />
       {allItems.length > 0 && (
         <div className="relative mt-6">

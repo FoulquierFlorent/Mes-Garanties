@@ -93,7 +93,7 @@ function FoyerPage() {
             </select>
             <Link to="/tarifs" className="text-sm text-muted-foreground underline">Voir les tarifs</Link>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Le dossier d'assurance complet est réservé aux offres Solo et Famille.</p>
+          <p className="mt-2 text-xs text-muted-foreground">Le dossier d'assurance complet est réservé aux offres Solo, Famille et Titane.</p>
         </section>
         <h2 className="mt-10 text-2xl">Membres</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">

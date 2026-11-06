@@ -44,17 +44,8 @@ export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { i
   const build = async () => {
     setBusy(true);
     try {
-      const receipts: ReceiptFile[] = [];
-      for (const it of filtered) {
-        const { data } = await supabase.storage.from("receipts").list(it.id);
-        for (const f of data ?? []) {
-          if (f.name.endsWith(".ocr.txt")) continue;
-          const { data: blob } = await supabase.storage.from("receipts").download(`${it.id}/${f.name}`);
-          if (blob) receipts.push({ itemId: it.id, name: f.name, blob });
-        }
-      }
-      const names = Object.fromEntries(members.map((m) => [m.user_id, m.display_name ?? "—"]));
-      const blob = await makeInsurancePdf({ owner, items: filtered, names, today: todayISO(), receipts, periodLabel: period.label });
+      const query = period.from && period.to ? `?from=${period.from}&to=${period.to}` : "";
+      const blob = await fetchAuthenticatedExport(`/api/exports/assurance-pdf${query}`);
       setReady({ blob, label: period.label });
     } catch {
       toast.error("Le dossier n'a pas pu être préparé.");
@@ -65,11 +56,7 @@ export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { i
 
   const download = () => {
     if (!ready) return;
-    const url = URL.createObjectURL(ready.blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = insuranceFileName(plan, ready.label, todayISO());
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    downloadBlob(ready.blob, insuranceFileName(plan, ready.label, todayISO()));
     setReady(null);
     setOpen(false);
   };
