@@ -12,10 +12,9 @@ import { filterItemsByPeriod, insuranceFileName } from "@/lib/insurance-pdf";
 import { canExportInsurance } from "@/lib/plans";
 import { downloadBlob, fetchAuthenticatedExport } from "@/lib/authenticated-download";
 
-type Member = { user_id: string; display_name: string | null };
 type Mode = "all" | "year" | "range";
 
-export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { items: Item[]; members: Member[]; owner: string; plan?: string }) {
+export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; plan?: string }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("all");
   const [year, setYear] = useState<string>("");
