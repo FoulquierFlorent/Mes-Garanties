@@ -97,7 +97,7 @@ function FoyerPage() {
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Le dossier d'assurance complet est réservé aux offres Solo, Famille et Titane.</p>
         </section>
-        <FamilyInvitations householdId={h.id} plan={h.plan} />
+        {h.plan === "famille" && <FamilyInvitations householdId={h.id} plan={h.plan} />}
         <h2 className="mt-10 text-2xl">Membres</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {h.members.map((m) => {

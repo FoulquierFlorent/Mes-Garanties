@@ -33,7 +33,13 @@ describe("export comptable Titane", () => {
       { itemId: item.id, itemName: item.name, name: "facture achat.pdf", blob: new Blob(["PDF-TEST"], { type: "application/pdf" }) },
       { itemId: item.id, itemName: item.name, name: "ticket.png", blob: new Blob(["PNG-TEST"], { type: "image/png" }) },
     ]);
-    const zip = await JSZip.loadAsync(await blob.arrayBuffer());
+    const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(blob);
+    });
+    const zip = await JSZip.loadAsync(buffer);
     const names = Object.keys(zip.files);
     expect(names).toHaveLength(3);
     expect(names.some((name) => name.includes("facture-achat.pdf"))).toBe(true);
