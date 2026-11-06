@@ -7,15 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "@tanstack/react-router";
 import { Lock } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { todayISO, type Item } from "@/lib/items";
-import { filterItemsByPeriod, insuranceFileName, makeInsurancePdf, type ReceiptFile } from "@/lib/insurance-pdf";
+import { filterItemsByPeriod, insuranceFileName } from "@/lib/insurance-pdf";
 import { canExportInsurance } from "@/lib/plans";
+import { downloadBlob, fetchAuthenticatedExport } from "@/lib/authenticated-download";
 
-type Member = { user_id: string; display_name: string | null };
 type Mode = "all" | "year" | "range";
 
-export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { items: Item[]; members: Member[]; owner: string; plan?: string }) {
+export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; plan?: string }) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<Mode>("all");
   const [year, setYear] = useState<string>("");
@@ -44,17 +43,8 @@ export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { i
   const build = async () => {
     setBusy(true);
     try {
-      const receipts: ReceiptFile[] = [];
-      for (const it of filtered) {
-        const { data } = await supabase.storage.from("receipts").list(it.id);
-        for (const f of data ?? []) {
-          if (f.name.endsWith(".ocr.txt")) continue;
-          const { data: blob } = await supabase.storage.from("receipts").download(`${it.id}/${f.name}`);
-          if (blob) receipts.push({ itemId: it.id, name: f.name, blob });
-        }
-      }
-      const names = Object.fromEntries(members.map((m) => [m.user_id, m.display_name ?? "—"]));
-      const blob = await makeInsurancePdf({ owner, items: filtered, names, today: todayISO(), receipts, periodLabel: period.label });
+      const query = period.from && period.to ? `?from=${period.from}&to=${period.to}` : "";
+      const blob = await fetchAuthenticatedExport(`/api/exports/assurance-pdf${query}`);
       setReady({ blob, label: period.label });
     } catch {
       toast.error("Le dossier n'a pas pu être préparé.");
@@ -65,11 +55,7 @@ export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { i
 
   const download = () => {
     if (!ready) return;
-    const url = URL.createObjectURL(ready.blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = insuranceFileName(plan, ready.label, todayISO());
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    downloadBlob(ready.blob, insuranceFileName(plan, ready.label, todayISO()));
     setReady(null);
     setOpen(false);
   };
@@ -89,7 +75,7 @@ export function InsuranceExport({ items, members, owner, plan = "gratuit" }: { i
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" disabled><Lock /> Dossier assurance (PDF)</Button>
         <p className="text-sm text-muted-foreground">
-          Réservé aux offres Solo et Famille — <Link to="/tarifs" className="underline">voir les tarifs</Link>.
+          Réservé aux offres Solo, Famille et Titane — <Link to="/tarifs" className="underline">voir les tarifs</Link>.
         </p>
       </div>
     );

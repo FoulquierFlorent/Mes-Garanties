@@ -2,13 +2,17 @@ import { describe, it, expect } from "vitest";
 import { canExportInsurance, PLAN_LABELS } from "@/lib/plans";
 
 describe("accès au dossier assurance", () => {
-  it("est réservé aux offres Solo et Famille", () => {
+  it("est réservé aux offres Solo, Famille et Titane", () => {
     expect(canExportInsurance("solo")).toBe(true);
     expect(canExportInsurance("famille")).toBe(true);
     expect(canExportInsurance("gratuit")).toBe(false);
-    expect(canExportInsurance("titane")).toBe(false);
+    expect(canExportInsurance("titane")).toBe(true);
     expect(canExportInsurance(null)).toBe(false);
     expect(canExportInsurance(undefined)).toBe(false);
+  });
+  it("retire l'accès quand l'offre redevient Gratuit et le rend avec Titane", () => {
+    const plans = ["titane", "gratuit", "titane", "gratuit"] as const;
+    expect(plans.map(canExportInsurance)).toEqual([true, false, true, false]);
   });
   it("chaque offre du foyer a un libellé", () => {
     expect(PLAN_LABELS.gratuit).toBe("Gratuit");

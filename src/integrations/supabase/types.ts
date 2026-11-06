@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      household_invitations: {
+        Row: {
+          accepted_by: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          household_id: string
+          id: string
+          invited_by: string
+          last_sent_at: string | null
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_by?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          household_id: string
+          id?: string
+          invited_by: string
+          last_sent_at?: string | null
+          status?: string
+          token?: string
+        }
+        Update: {
+          accepted_by?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          household_id?: string
+          id?: string
+          invited_by?: string
+          last_sent_at?: string | null
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_invitations_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       household_members: {
         Row: {
           color: string | null
@@ -212,6 +259,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_household_invitation: { Args: { _token: string }; Returns: string }
       can_access_item: {
         Args: { _item: string; _uid: string }
         Returns: boolean

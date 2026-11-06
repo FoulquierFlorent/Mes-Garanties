@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { itemsQuery, fmt, todayISO, RETURN_LABELS, formatPrice } from "@/lib/items";
+import { itemsQuery, householdQuery, fmt, todayISO, RETURN_LABELS, formatPrice } from "@/lib/items";
 import { warrantyEnd, itemWarranties, yearsLabel, WARRANTY_LABELS } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
@@ -25,13 +25,14 @@ import { currentReturnStep } from "@/lib/deadlines";
 
 export const Route = createFileRoute("/_authenticated/objet/$id")({
   head: () => ({ meta: [{ title: "Objet — Mes garanties" }, { name: "description", content: "Détail, réclamation et suivi de retour." }, { property: "og:title", content: "Objet — Mes garanties" }, { property: "og:description", content: "Factures, lettre de conformité et suivi des retours de votre objet." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(itemsQuery),
+  loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(itemsQuery), context.queryClient.ensureQueryData(householdQuery)]),
   component: ItemPage,
 });
 
 function ItemPage() {
   const { id } = Route.useParams();
   const { data: items } = useSuspenseQuery(itemsQuery);
+  const { data: household } = useSuspenseQuery(householdQuery);
   const qc = useQueryClient();
   const item = items.find((i) => i.id === id);
   const savedLetter = savedReplacementLetter(item?.replacement_letter);
@@ -180,6 +181,12 @@ function ItemPage() {
     qc.invalidateQueries({ queryKey: ["items"] });
     toast.success("Suivi enregistré");
   }
+  async function assignMember(userId: string) {
+    const { error } = await supabase.from("items").update({ user_id: userId }).eq("id", id);
+    if (error) { toast.error("Attribution impossible avec cette offre ou ce membre"); return; }
+    await qc.invalidateQueries({ queryKey: ["items"] });
+    toast.success("Objet attribué au membre");
+  }
   async function saveDescription() {
     setSavingDescription(true);
     try {
@@ -285,6 +292,20 @@ function ItemPage() {
         <p className="mt-2 text-xs text-muted-foreground">Repris automatiquement dans la lettre de renvoi.</p>
         <Button className="mt-3" disabled={savingPurchase} onClick={savePurchase}>{savingPurchase ? "Enregistrement…" : "Enregistrer"}</Button>
       </section>
+
+      {household?.plan === "famille" && (
+        <section className="mt-6 border-y py-6">
+          <h2 className="text-2xl">Attribution</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Choisissez le membre du foyer responsable de cet objet.</p>
+          <div className="mt-4 max-w-sm space-y-1.5">
+            <Label htmlFor="item-member">Objet attribué à</Label>
+            <Select value={item.user_id} onValueChange={assignMember}>
+              <SelectTrigger id="item-member"><SelectValue /></SelectTrigger>
+              <SelectContent>{household.members.map((member) => <SelectItem key={member.user_id} value={member.user_id}>{member.display_name?.trim() || "Membre"}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        </section>
+      )}
 
       <section className="mt-6 border-y py-6">
         <h2 className="text-2xl">Prix</h2>

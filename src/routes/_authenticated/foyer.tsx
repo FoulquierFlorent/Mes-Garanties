@@ -11,6 +11,8 @@ import { useUserId } from "@/hooks/useUserId";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FamilyInvitations } from "@/components/FamilyInvitations";
+import { RemoveMember } from "@/components/RemoveMember";
 
 export const Route = createFileRoute("/_authenticated/foyer")({
   head: () => ({ meta: [{ title: "Mon foyer — Mes garanties" }, { name: "description", content: "Partagez vos garanties avec votre foyer." }, { property: "og:title", content: "Mon foyer — Mes garanties" }, { property: "og:description", content: "Partagez vos garanties avec les membres de votre maison." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -93,8 +95,9 @@ function FoyerPage() {
             </select>
             <Link to="/tarifs" className="text-sm text-muted-foreground underline">Voir les tarifs</Link>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Le dossier d'assurance complet est réservé aux offres Solo et Famille.</p>
+          <p className="mt-2 text-xs text-muted-foreground">Le dossier d'assurance complet est réservé aux offres Solo, Famille et Titane.</p>
         </section>
+        {h.plan === "famille" && <FamilyInvitations householdId={h.id} plan={h.plan} />}
         <h2 className="mt-10 text-2xl">Membres</h2>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {h.members.map((m) => {
@@ -102,12 +105,15 @@ function FoyerPage() {
             const n = m.display_name?.trim() || "Membre";
             const count = items.filter((i) => i.user_id === m.user_id).length;
             return (
-              <Link key={m.user_id} to="/membre/$id" params={{ id: m.user_id }} className="relative flex aspect-square flex-col overflow-hidden rounded-3xl border-2 bg-card p-4 shadow-sm transition-transform hover:-translate-y-0.5" style={{ borderColor: frame }}>
-                <span aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: frame }} />
-                <span className="grid h-11 w-11 place-items-center rounded-2xl font-serif text-xl" style={{ background: `color-mix(in oklab, ${frame} 18%, transparent)` }}>{n.charAt(0).toUpperCase()}</span>
-                <span className="mt-auto truncate font-serif text-3xl leading-tight">{n}</span>
-                <span className="text-xs text-muted-foreground">{count} objet{count > 1 ? "s" : ""}{m.user_id === me ? " · Vous" : ""}</span>
-              </Link>
+              <div key={m.user_id}>
+                <Link to="/membre/$id" params={{ id: m.user_id }} className="relative flex aspect-square flex-col overflow-hidden rounded-3xl border-2 bg-card p-4 shadow-sm transition-transform hover:-translate-y-0.5" style={{ borderColor: frame }}>
+                  <span aria-hidden className="absolute inset-x-0 top-0 h-1.5" style={{ background: frame }} />
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl font-serif text-xl" style={{ background: `color-mix(in oklab, ${frame} 18%, transparent)` }}>{n.charAt(0).toUpperCase()}</span>
+                  <span className="mt-auto truncate font-serif text-3xl leading-tight">{n}</span>
+                  <span className="text-xs text-muted-foreground">{count} objet{count > 1 ? "s" : ""}{m.user_id === me ? " · Vous" : ""}</span>
+                </Link>
+                {m.user_id !== me && <RemoveMember householdId={h.id} userId={m.user_id} name={n} plan={h.plan} onRemoved={refresh} />}
+              </div>
             );
           })}
         </div>

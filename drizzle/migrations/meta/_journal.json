@@ -127,6 +127,13 @@
       "when": 1793896238172,
       "tag": "0017_free_plan_item_limit",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1793926968352,
+      "tag": "0018_family_invitations_and_item_attribution",
+      "breakpoints": true
     }
   ]
 }
