@@ -12,3 +12,7 @@
 - [x] Dossier assurance : section « biens sans justificatif » avec valeur déclarée et infos disponibles
 - [x] Dossier assurance : nom de fichier PDF avec le nom de l'offre et la période choisie
 - [x] Abonnements : offre du foyer (Gratuit / Solo / Famille / Titane) modifiable sur la page Foyer ; export du dossier assurance réservé à Solo et Famille
+- [ ] Tester à l'écran avec Gratuit : le 5e objet s'ajoute, le 6e est bloqué
+- [ ] Titane : téléchargement ZIP des justificatifs et export CSV pour l'expert-comptable
+- [ ] Famille : invitations par e-mail et attribution des objets aux membres
+- [ ] Inclure Titane dans l'accès au dossier d'assurance
