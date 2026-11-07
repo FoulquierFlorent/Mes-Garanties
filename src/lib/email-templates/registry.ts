@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { template as warrantyExpirationReminderTemplate } from './warranty-expiration-reminder'
 
 export interface TemplateEntry {
   component: ComponentType<any>
