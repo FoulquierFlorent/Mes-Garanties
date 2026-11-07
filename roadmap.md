@@ -21,7 +21,7 @@
 - [x] Tester l'accès assurance Titane, son blocage Gratuit (écran, URL directe, requête API) et les changements d'offre
 
 - [x] Pages légales (mentions, confidentialité, CGU) avec champs à compléter
-- [ ] Objets : tri par échéance + filtres rapides
-- [ ] Accueil : indicateur de valeur couverte
-- [ ] Valeur protégée : garanties actives seulement + état sans montant
-- [ ] Tests filtres rapides / tri (y compris aucun résultat)
+- [x] Objets : tri par échéance + filtres rapides
+- [x] Accueil : indicateur de valeur couverte
+- [x] Valeur protégée : garanties actives seulement + état sans montant
+- [x] Tests filtres rapides / tri (y compris aucun résultat)
