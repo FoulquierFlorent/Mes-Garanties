@@ -22,6 +22,12 @@ export const Route = createFileRoute("/lovable/email/transactional/preview")({
           return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        const [React, { render }, { TEMPLATES }] = await Promise.all([
+          import('react'),
+          import('@react-email/render'),
+          import('@/lib/email-templates/registry'),
+        ])
+
         const results: Array<{
           templateName: string
           displayName: string
