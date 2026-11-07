@@ -19,3 +19,9 @@
 - [x] Famille : renvoyer ou révoquer une invitation, retirer un membre avec confirmation et récapitulatif des accès supprimés
 - [x] Contrôler que le ZIP contient les justificatifs attendus et que le CSV s'ouvre dans un tableur
 - [x] Tester l'accès assurance Titane, son blocage Gratuit (écran, URL directe, requête API) et les changements d'offre
+
+- [x] Pages légales (mentions, confidentialité, CGU) avec champs à compléter
+- [x] Objets : tri par échéance + filtres rapides
+- [x] Accueil : indicateur de valeur couverte
+- [x] Valeur protégée : garanties actives seulement + état sans montant
+- [x] Tests filtres rapides / tri (y compris aucun résultat)

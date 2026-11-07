@@ -1,3 +1,4 @@
+import { LegalLinks } from "@/components/LegalPage";
 import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -71,7 +72,7 @@ function Index() {
           <RightBanner variant="whisper" offset={11} className="mx-auto my-6 max-w-3xl justify-center py-4" />
         </div>
       </section>
-      <footer className="border-t py-10 text-center text-xs text-muted-foreground">© Mes garanties</footer>
+      <footer className="space-y-3 border-t py-10 text-center text-xs text-muted-foreground"><LegalLinks /><p>© Mes garanties</p></footer>
     </main>
   );
 }

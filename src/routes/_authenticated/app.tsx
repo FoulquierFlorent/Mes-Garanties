@@ -2,6 +2,7 @@ import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { QUICK_FILTERS, applyQuickFilter, protectedValue, sortByDeadline, type QuickFilter } from "@/lib/deadlines";
 import { toast } from "sonner";
 import { Plus, Trash2, Bell, CalendarDays, Search } from "lucide-react";
 import { isArchived, matchesSearch } from "@/lib/deadlines";
@@ -176,7 +177,12 @@ function AppPage() {
   const me = useUserId();
   const [cat, setCat] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const items = allItems.filter((i) => (!cat || i.category === cat) && matchesSearch(i, query));
+  const [quick, setQuick] = useState<QuickFilter>("tous");
+  const [sortDeadline, setSortDeadline] = useState(false);
+  const today0 = todayISO();
+  const filtered = applyQuickFilter(allItems.filter((i) => (!cat || i.category === cat) && matchesSearch(i, query)), quick, today0);
+  const items = sortDeadline ? sortByDeadline(filtered, today0) : filtered;
+  const value = protectedValue(allItems, today0);
   const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
   const qc = useQueryClient();
   const today = todayISO();
@@ -239,6 +245,19 @@ function AppPage() {
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
       </div>
       {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /></div>}
+      {allItems.length > 0 && (
+        <div className="mt-4 rounded-lg border bg-card p-4">
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Valeur protégée</p>
+          {value.priced > 0 ? (
+            <>
+              <p className="mt-1 text-3xl tabular-nums">{formatPrice(value.total)}</p>
+              <p className="text-xs text-muted-foreground">{value.priced} objet(s) sous garantie active{value.unpriced > 0 ? ` · ${value.unpriced} sans prix renseigné` : ""}</p>
+            </>
+          ) : (
+            <p className="mt-1 text-sm text-muted-foreground">{value.active === 0 ? "Aucun objet n’a de garantie active pour le moment." : "Aucun prix renseigné sur vos objets sous garantie : ajoutez-le depuis la fiche de l’objet pour voir la valeur protégée."}</p>
+          )}
+        </div>
+      )}
       <RightBanner variant="whisper" offset={6} className="mt-4" />
       {allItems.length > 0 && (
         <div className="relative mt-6">
@@ -246,7 +265,15 @@ function AppPage() {
           <Input type="search" aria-label="Rechercher un objet" placeholder="Rechercher : nom, marque, magasin, catégorie…" value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9" />
         </div>
       )}
-      {usedCats.length > 0 && (cat === null ? (query.trim() ? null : (
+      {allItems.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {QUICK_FILTERS.map((q) => (
+            <Button key={q.key} size="sm" variant={quick === q.key ? "default" : "outline"} className="rounded-full" aria-pressed={quick === q.key} onClick={() => setQuick(q.key)}>{q.label}</Button>
+          ))}
+          <Button size="sm" variant={sortDeadline ? "default" : "outline"} className="rounded-full" aria-pressed={sortDeadline} onClick={() => setSortDeadline((v) => !v)}>Trier par échéance</Button>
+        </div>
+      )}
+      {usedCats.length > 0 && (cat === null ? (query.trim() || quick !== "tous" ? null : (
         <div className="mt-6">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Choisir une catégorie</p>
           <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5">
@@ -286,8 +313,8 @@ function AppPage() {
       {items.length === 0 ? (
         allItems.length > 0 ? (
           <div className="mt-12 text-center text-muted-foreground">
-            <p>Aucun objet ne correspond{query.trim() ? <> à « {query.trim()} »</> : null}{cat ? <> dans {cat}</> : null}.</p>
-            <Button variant="outline" size="sm" className="mt-3" onClick={() => { setQuery(""); setCat(null); }}>Effacer la recherche</Button>
+            <p>Aucun objet ne correspond{query.trim() ? <> à « {query.trim()} »</> : null}{cat ? <> dans {cat}</> : null}{quick !== "tous" ? <> avec le filtre « {QUICK_FILTERS.find((q) => q.key === quick)?.label} »</> : null}.</p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={() => { setQuery(""); setCat(null); setQuick("tous"); }}>Effacer les filtres</Button>
           </div>
         ) : <p className="mt-16 text-center text-muted-foreground">Aucun objet pour l'instant. Ajoutez votre premier achat.</p>
       ) : (
