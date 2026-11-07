@@ -66,6 +66,8 @@ export type Database = {
           color: string | null
           display_name: string | null
           email: string | null
+          email_alert_lead: string
+          email_alerts_enabled: boolean
           household_id: string
           joined_at: string
           user_id: string
@@ -74,6 +76,8 @@ export type Database = {
           color?: string | null
           display_name?: string | null
           email?: string | null
+          email_alert_lead?: string
+          email_alerts_enabled?: boolean
           household_id: string
           joined_at?: string
           user_id: string
@@ -82,6 +86,8 @@ export type Database = {
           color?: string | null
           display_name?: string | null
           email?: string | null
+          email_alert_lead?: string
+          email_alerts_enabled?: boolean
           household_id?: string
           joined_at?: string
           user_id?: string
