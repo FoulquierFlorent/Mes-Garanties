@@ -60,7 +60,7 @@ const Email = ({ memberName, itemName, itemUrl, leadLabel, warranties }: Props) 
 
 export const template = {
   component: Email,
-  subject: (data) => `Rappel garantie : ${typeof data.itemName === "string" ? data.itemName : "votre objet"}`,
+  subject: (data) => `Rappel garantie : ${typeof data["itemName"] === "string" ? data["itemName"] : "votre objet"}`,
   displayName: "Rappel d’expiration de garantie",
   previewData: {
     memberName: "Florent",

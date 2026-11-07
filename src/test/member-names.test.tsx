@@ -34,6 +34,7 @@ vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     from: () => ({
       delete: () => ({ eq: () => Promise.resolve({}) }),
+      select: () => ({ eq: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: { email_alert_lead: "1m" }, error: null }) }) }) }),
       update: () => ({ eq: () => Promise.resolve({ error: null }) }),
     }),
     auth: { getSession: () => Promise.resolve({ data: { session: null } }) },
