@@ -24,6 +24,7 @@ import { Route as InvitationTokenRouteImport } from './routes/invitation.$token'
 import { Route as AuthenticatedMembreIdRouteImport } from './routes/_authenticated/membre.$id'
 import { Route as AuthenticatedObjetIdRouteImport } from './routes/_authenticated/objet.$id'
 import { Route as ApiExportsTypeRouteImport } from './routes/api/exports/$type'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -100,6 +101,12 @@ const ApiExportsTypeRoute = ApiExportsTypeRouteImport.update({
   path: '/api/exports/$type',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/membre/$id': typeof AuthenticatedMembreIdRoute
   '/objet/$id': typeof AuthenticatedObjetIdRoute
   '/api/exports/$type': typeof ApiExportsTypeRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -132,6 +140,7 @@ export interface FileRoutesByTo {
   '/membre/$id': typeof AuthenticatedMembreIdRoute
   '/objet/$id': typeof AuthenticatedObjetIdRoute
   '/api/exports/$type': typeof ApiExportsTypeRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -150,6 +159,7 @@ export interface FileRoutesById {
   '/_authenticated/membre/$id': typeof AuthenticatedMembreIdRoute
   '/_authenticated/objet/$id': typeof AuthenticatedObjetIdRoute
   '/api/exports/$type': typeof ApiExportsTypeRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/membre/$id'
     | '/objet/$id'
     | '/api/exports/$type'
+    | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/membre/$id'
     | '/objet/$id'
     | '/api/exports/$type'
+    | '/lovable/email/transactional/preview'
   id:
     | '__root__'
     | '/'
@@ -201,6 +213,7 @@ export interface FileRouteTypes {
     | '/_authenticated/membre/$id'
     | '/_authenticated/objet/$id'
     | '/api/exports/$type'
+    | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -213,6 +226,7 @@ export interface RootRouteChildren {
   TarifsRoute: typeof TarifsRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
   ApiExportsTypeRoute: typeof ApiExportsTypeRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -322,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExportsTypeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -356,6 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   TarifsRoute: TarifsRoute,
   InvitationTokenRoute: InvitationTokenRoute,
   ApiExportsTypeRoute: ApiExportsTypeRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
