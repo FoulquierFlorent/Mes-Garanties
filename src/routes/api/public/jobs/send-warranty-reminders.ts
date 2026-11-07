@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EmailAPIError } from "@lovable.dev/email-js";
 import { z } from "zod";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
-import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 import { daysLeft } from "@/lib/warranty";
 import { dueWarrantyAlerts, emailAlertLeadLabel, normalizeEmailAlertLead, warrantyEmailIdempotencyKey, type EmailWarrantyItem } from "@/lib/warranty-email";
 
