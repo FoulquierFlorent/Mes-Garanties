@@ -2,6 +2,7 @@ import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { buildInventoryCsv } from "@/lib/inventory-csv";
 import { QUICK_FILTERS, applyQuickFilter, protectedValue, sortByDeadline, type QuickFilter } from "@/lib/deadlines";
 import { toast } from "sonner";
 import { Plus, Trash2, Bell, CalendarDays, Search } from "lucide-react";
@@ -244,7 +245,7 @@ function AppPage() {
         </div>
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
       </div>
-      {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /></div>}
+      {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /><Button variant="outline" size="sm" onClick={() => { const url = URL.createObjectURL(new Blob([buildInventoryCsv(allItems, today0)], { type: "text/csv;charset=utf-8" })); const a = document.createElement("a"); a.href = url; a.download = `inventaire-garanties-${today0}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }}>Exporter l’inventaire (CSV)</Button></div>}
       {allItems.length > 0 && (
         <div className="mt-4 rounded-lg border bg-card p-4">
           <p className="text-xs uppercase tracking-wider text-muted-foreground">Valeur protégée</p>
