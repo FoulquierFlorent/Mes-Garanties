@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Rétablir l’aperçu et vérifier les pages et interactions sur téléphone après connexion
+
 - [x] Bandeaux d'accroche : style moins formel, plus bandeau d'information, phrases moins slogans
 - [x] Enregistrer mesgaranties.com comme domaine d’envoi et préparer l’infrastructure d’e-mails
 - [ ] Terminer la vérification DNS de mesgaranties.com (propagation en cours, suivi dans More → Emails)
