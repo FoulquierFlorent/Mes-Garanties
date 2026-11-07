@@ -1,7 +1,11 @@
 # Roadmap
 
 - [x] Bandeaux d'accroche : style moins formel, plus bandeau d'information, phrases moins slogans
-- [ ] Reprendre la configuration de l'envoi des alertes et factures par e-mail aux membres du foyer (dépend d'un domaine d'envoi appartenant à Florent — boîte de dialogue de configuration présentée)
+- [x] Enregistrer mesgaranties.com comme domaine d’envoi et préparer l’infrastructure d’e-mails
+- [ ] Terminer la vérification DNS de mesgaranties.com (propagation en cours, suivi dans More → Emails)
+- [ ] Préparer le modèle et l’envoi automatique des alertes d’expiration de garantie
+- [ ] Permettre à chaque membre du foyer de choisir son délai d’alerte e-mail
+- [ ] Programmer et vérifier les alertes sans doublon, puis tester le parcours sur téléphone
 - [x] Alléger la fiche objet : essentiel visible, justificatifs et démarches en rubriques dépliables
 - [x] Simplifier l'ajout d'un objet : ticket, nom, date d'abord, détails facultatifs repliables
 - [x] Vérifier à l'écran sur téléphone que le n° et la date de facture/commande sont bien sous la date d'achat
