@@ -26,7 +26,17 @@ export const Route = createFileRoute("/mentions-legales")({
         <li>Directeur de la publication : <ToFill>prénom et nom</ToFill></li>
       </ul>
       <h2>Hébergement</h2>
-      <p>Application hébergée par Lovable (Lovable Labs Incorporated) et son infrastructure cloud. <ToFill>adresse de l’hébergeur si requise</ToFill></p>
+      <ul>
+        <li>Hébergeur : <ToFill>nom de l’hébergeur</ToFill></li>
+        <li>Adresse de l’hébergeur : <ToFill>adresse postale</ToFill></li>
+        <li>Contact de l’hébergeur : <ToFill>téléphone ou site web</ToFill></li>
+      </ul>
+      <h2>Application</h2>
+      <ul>
+        <li>Nom : Mes garanties</li>
+        <li>Adresse du site : <ToFill>adresse web officielle</ToFill></li>
+        <li>Version des applications mobiles : <ToFill>stores et version, le cas échéant</ToFill></li>
+      </ul>
       <h2>Propriété intellectuelle</h2>
       <p>Les contenus, textes, logos et éléments graphiques de Mes garanties sont la propriété de l’éditeur, sauf mention contraire. Toute reproduction sans autorisation est interdite.</p>
       <h2>Information juridique</h2>

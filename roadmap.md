@@ -20,6 +20,6 @@
 - [x] Contrôler que le ZIP contient les justificatifs attendus et que le CSV s'ouvre dans un tableur
 - [x] Tester l'accès assurance Titane, son blocage Gratuit (écran, URL directe, requête API) et les changements d'offre
 
-- [ ] Pages légales (mentions, confidentialité, CGU)
+- [x] Pages légales (mentions, confidentialité, CGU) avec champs à compléter
 - [ ] Objets : tri par échéance + filtres rapides
 - [ ] Accueil : indicateur de valeur couverte

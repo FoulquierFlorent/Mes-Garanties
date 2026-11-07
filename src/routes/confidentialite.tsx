@@ -26,7 +26,7 @@ export const Route = createFileRoute("/confidentialite")({
       <h2>Finalités et bases légales</h2>
       <p>Fournir le service (exécution du contrat), envoyer des rappels d’échéance, partager les objets au sein du foyer, gérer les abonnements. <ToFill>autres finalités éventuelles (statistiques, newsletter…)</ToFill></p>
       <h2>Destinataires</h2>
-      <p>Les membres de votre foyer voient les objets partagés et leurs justificatifs. Les données sont hébergées par nos sous-traitants techniques ; un service d’intelligence artificielle peut traiter le texte des justificatifs pour en produire un résumé. <ToFill>liste des sous-traitants, prestataire de paiement</ToFill></p>
+      <p>Les membres de votre foyer voient les objets partagés et leurs justificatifs. Les données sont hébergées chez <ToFill>hébergeur et pays d’hébergement</ToFill> ; un service d’intelligence artificielle peut traiter le texte des justificatifs pour en produire un résumé. <ToFill>liste des sous-traitants, prestataire de paiement</ToFill></p>
       <h2>Durée de conservation</h2>
       <p>Tant que le compte est actif, puis <ToFill>durée après suppression du compte</ToFill>.</p>
       <h2>Vos droits</h2>
