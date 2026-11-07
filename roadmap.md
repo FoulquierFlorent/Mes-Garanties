@@ -23,3 +23,5 @@
 - [x] Pages légales (mentions, confidentialité, CGU) avec champs à compléter
 - [ ] Objets : tri par échéance + filtres rapides
 - [ ] Accueil : indicateur de valeur couverte
+- [ ] Valeur protégée : garanties actives seulement + état sans montant
+- [ ] Tests filtres rapides / tri (y compris aucun résultat)
