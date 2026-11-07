@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CguRouteImport } from './routes/cgu'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as AuthenticatedAffairesClasseesRouteImport } from './routes/_authenticated/affaires-classees'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
@@ -34,6 +37,21 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CguRoute = CguRouteImport.update({
+  id: '/cgu',
+  path: '/cgu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TarifsRoute = TarifsRouteImport.update({
@@ -86,6 +104,9 @@ const ApiExportsTypeRoute = ApiExportsTypeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/tarifs': typeof TarifsRoute
   '/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/app': typeof AuthenticatedAppRoute
@@ -99,6 +120,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/tarifs': typeof TarifsRoute
   '/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/app': typeof AuthenticatedAppRoute
@@ -114,6 +138,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cgu': typeof CguRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
   '/tarifs': typeof TarifsRoute
   '/_authenticated/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
@@ -129,6 +156,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cgu'
+    | '/confidentialite'
+    | '/mentions-legales'
     | '/tarifs'
     | '/affaires-classees'
     | '/app'
@@ -142,6 +172,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/cgu'
+    | '/confidentialite'
+    | '/mentions-legales'
     | '/tarifs'
     | '/affaires-classees'
     | '/app'
@@ -156,6 +189,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cgu'
+    | '/confidentialite'
+    | '/mentions-legales'
     | '/tarifs'
     | '/_authenticated/affaires-classees'
     | '/_authenticated/app'
@@ -171,6 +207,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CguRoute: typeof CguRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
   TarifsRoute: typeof TarifsRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
   ApiExportsTypeRoute: typeof ApiExportsTypeRoute
@@ -197,6 +236,27 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgu': {
+      id: '/cgu'
+      path: '/cgu'
+      fullPath: '/cgu'
+      preLoaderRoute: typeof CguRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tarifs': {
@@ -290,6 +350,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CguRoute: CguRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
   TarifsRoute: TarifsRoute,
   InvitationTokenRoute: InvitationTokenRoute,
   ApiExportsTypeRoute: ApiExportsTypeRoute,
