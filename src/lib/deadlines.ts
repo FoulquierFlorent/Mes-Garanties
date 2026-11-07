@@ -57,3 +57,42 @@ export function upcomingByItem(items: DeadlineItem[], today: string, limit = 5):
 export function isArchived(item: WarrantyItem, today: string) {
   return itemWarranties(item).every((w) => w.end < today);
 }
+
+/** Prochaine fin de garantie encore active (ou null si tout est expiré). */
+export function nextActiveEnd(item: WarrantyItem, today: string): string | null {
+  const ends = itemWarranties(item).map((w) => w.end).filter((e) => e >= today).sort();
+  return ends[0] ?? null;
+}
+
+/** Tri par échéance : la garantie active la plus proche d'abord, objets sans garantie active à la fin. */
+export function sortByDeadline<T extends WarrantyItem>(items: T[], today: string): T[] {
+  return [...items].sort((a, b) => {
+    const ea = nextActiveEnd(a, today), eb = nextActiveEnd(b, today);
+    if (ea === eb) return 0;
+    if (!ea) return 1;
+    if (!eb) return -1;
+    return ea.localeCompare(eb);
+  });
+}
+
+export type QuickFilter = "tous" | "bientot" | "sans-prix";
+export const QUICK_FILTERS: { key: QuickFilter; label: string }[] = [
+  { key: "tous", label: "Tous" },
+  { key: "bientot", label: "Expire sous 90 jours" },
+  { key: "sans-prix", label: "Sans prix" },
+];
+
+export function applyQuickFilter<T extends WarrantyItem & { price?: number | null }>(items: T[], filter: QuickFilter, today: string): T[] {
+  if (filter === "bientot") return items.filter((i) => { const e = nextActiveEnd(i, today); return e !== null && daysLeftISO(e, today) <= 90; });
+  if (filter === "sans-prix") return items.filter((i) => i.price == null);
+  return items;
+}
+
+const daysLeftISO = (end: string, today: string) => Math.round((Date.parse(end) - Date.parse(today)) / 86400000);
+
+/** Valeur protégée : somme des prix des objets ayant au moins une garantie active aujourd'hui. */
+export function protectedValue(items: (WarrantyItem & { price?: number | null })[], today: string) {
+  const active = items.filter((i) => nextActiveEnd(i, today) !== null);
+  const priced = active.filter((i) => i.price != null);
+  return { total: priced.reduce((s, i) => s + Number(i.price), 0), priced: priced.length, unpriced: active.length - priced.length, active: active.length };
+}
