@@ -135,6 +135,7 @@ function FoyerPage() {
             </div>
           </section>
         )}
+        {mine && <EmailAlertPreferences householdId={h.id} userId={mine.user_id} />}
         <Button variant="ghost" className="mt-6 text-destructive" onClick={leave}>Quitter le foyer</Button>
       </main>
     );

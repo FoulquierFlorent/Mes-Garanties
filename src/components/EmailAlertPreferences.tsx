@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { EMAIL_ALERT_OPTIONS, normalizeEmailAlertLead, type DEFAULT_EMAIL_ALERT_LEAD } from "@/lib/warranty-email";
+import { EMAIL_ALERT_OPTIONS, normalizeEmailAlertLead } from "@/lib/warranty-email";
 import type { AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

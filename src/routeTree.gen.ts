@@ -24,6 +24,7 @@ import { Route as InvitationTokenRouteImport } from './routes/invitation.$token'
 import { Route as AuthenticatedMembreIdRouteImport } from './routes/_authenticated/membre.$id'
 import { Route as AuthenticatedObjetIdRouteImport } from './routes/_authenticated/objet.$id'
 import { Route as ApiExportsTypeRouteImport } from './routes/api/exports/$type'
+import { Route as ApiPublicJobsSendWarrantyRemindersRouteImport } from './routes/api/public/jobs/send-warranty-reminders'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -101,6 +102,12 @@ const ApiExportsTypeRoute = ApiExportsTypeRouteImport.update({
   path: '/api/exports/$type',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsSendWarrantyRemindersRoute =
+  ApiPublicJobsSendWarrantyRemindersRouteImport.update({
+    id: '/api/public/jobs/send-warranty-reminders',
+    path: '/api/public/jobs/send-warranty-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/membre/$id': typeof AuthenticatedMembreIdRoute
   '/objet/$id': typeof AuthenticatedObjetIdRoute
   '/api/exports/$type': typeof ApiExportsTypeRoute
+  '/api/public/jobs/send-warranty-reminders': typeof ApiPublicJobsSendWarrantyRemindersRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -140,6 +148,7 @@ export interface FileRoutesByTo {
   '/membre/$id': typeof AuthenticatedMembreIdRoute
   '/objet/$id': typeof AuthenticatedObjetIdRoute
   '/api/exports/$type': typeof ApiExportsTypeRoute
+  '/api/public/jobs/send-warranty-reminders': typeof ApiPublicJobsSendWarrantyRemindersRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
@@ -159,6 +168,7 @@ export interface FileRoutesById {
   '/_authenticated/membre/$id': typeof AuthenticatedMembreIdRoute
   '/_authenticated/objet/$id': typeof AuthenticatedObjetIdRoute
   '/api/exports/$type': typeof ApiExportsTypeRoute
+  '/api/public/jobs/send-warranty-reminders': typeof ApiPublicJobsSendWarrantyRemindersRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/membre/$id'
     | '/objet/$id'
     | '/api/exports/$type'
+    | '/api/public/jobs/send-warranty-reminders'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/membre/$id'
     | '/objet/$id'
     | '/api/exports/$type'
+    | '/api/public/jobs/send-warranty-reminders'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
@@ -213,6 +225,7 @@ export interface FileRouteTypes {
     | '/_authenticated/membre/$id'
     | '/_authenticated/objet/$id'
     | '/api/exports/$type'
+    | '/api/public/jobs/send-warranty-reminders'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
@@ -226,6 +239,7 @@ export interface RootRouteChildren {
   TarifsRoute: typeof TarifsRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
   ApiExportsTypeRoute: typeof ApiExportsTypeRoute
+  ApiPublicJobsSendWarrantyRemindersRoute: typeof ApiPublicJobsSendWarrantyRemindersRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -336,6 +350,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExportsTypeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/send-warranty-reminders': {
+      id: '/api/public/jobs/send-warranty-reminders'
+      path: '/api/public/jobs/send-warranty-reminders'
+      fullPath: '/api/public/jobs/send-warranty-reminders'
+      preLoaderRoute: typeof ApiPublicJobsSendWarrantyRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -377,6 +398,8 @@ const rootRouteChildren: RootRouteChildren = {
   TarifsRoute: TarifsRoute,
   InvitationTokenRoute: InvitationTokenRoute,
   ApiExportsTypeRoute: ApiExportsTypeRoute,
+  ApiPublicJobsSendWarrantyRemindersRoute:
+    ApiPublicJobsSendWarrantyRemindersRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
