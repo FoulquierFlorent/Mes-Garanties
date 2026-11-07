@@ -1,11 +1,14 @@
 # Roadmap
 
+- [x] Rétablir l’aperçu et vérifier les pages et interactions sur téléphone après connexion
+
 - [x] Bandeaux d'accroche : style moins formel, plus bandeau d'information, phrases moins slogans
 - [x] Enregistrer mesgaranties.com comme domaine d’envoi et préparer l’infrastructure d’e-mails
 - [ ] Terminer la vérification DNS de mesgaranties.com (propagation en cours, suivi dans More → Emails)
 - [x] Préparer le modèle et l’envoi automatique des alertes d’expiration de garantie
 - [x] Permettre à chaque membre du foyer de choisir son délai d’alerte e-mail
-- [ ] Vérifier les alertes sur téléphone et l’envoi réel (aperçu bloqué par la reconstruction des dépendances ; vérification DNS et publication également requises)
+- [x] Vérifier les alertes sur téléphone : délai enregistré, conservé après rechargement puis réglage initial restauré
+- [ ] Vérifier l’envoi réel des alertes (version publiée à mettre à jour et réception réelle à confirmer)
 - [x] Préparer Mentions légales, Confidentialité et CGU avec champs « À compléter », sans données fictives
 - [x] Alléger la fiche objet : essentiel visible, justificatifs et démarches en rubriques dépliables
 - [x] Simplifier l'ajout d'un objet : ticket, nom, date d'abord, détails facultatifs repliables
