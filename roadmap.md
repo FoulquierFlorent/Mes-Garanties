@@ -1,10 +1,14 @@
 # Roadmap
 
+- [x] Ajouter « Envoyer un e-mail de test » dans Foyer, réservé à l’adresse vérifiée du compte
+- [x] Afficher le chargement puis une confirmation ou une erreur après l’envoi du test
+- [x] Envoyer et vérifier un message d’exemple depuis Foyer sur téléphone (envoi confirmé ; réception en boîte à confirmer par Florent)
+
 - [x] Rétablir l’aperçu et vérifier les pages et interactions sur téléphone après connexion
 
 - [x] Bandeaux d'accroche : style moins formel, plus bandeau d'information, phrases moins slogans
 - [x] Enregistrer mesgaranties.com comme domaine d’envoi et préparer l’infrastructure d’e-mails
-- [ ] Terminer la vérification DNS de mesgaranties.com (propagation en cours, suivi dans More → Emails)
+- [x] Terminer la vérification DNS de mesgaranties.com
 - [x] Préparer le modèle et l’envoi automatique des alertes d’expiration de garantie
 - [x] Permettre à chaque membre du foyer de choisir son délai d’alerte e-mail
 - [x] Vérifier les alertes sur téléphone : délai enregistré, conservé après rechargement puis réglage initial restauré

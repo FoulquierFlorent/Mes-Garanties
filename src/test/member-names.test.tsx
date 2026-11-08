@@ -29,6 +29,7 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
 }));
 vi.mock("@/hooks/useUserId", () => ({ useUserId: () => "u1" }));
+vi.mock("@/components/TestEmailButton", () => ({ TestEmailButton: () => null }));
 vi.mock("@/components/ItemPhotos", () => ({ PhotoPicker: () => null, ItemPhotos: () => null }));
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {

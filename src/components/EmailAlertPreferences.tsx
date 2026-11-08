@@ -6,6 +6,7 @@ import { EMAIL_ALERT_OPTIONS, normalizeEmailAlertLead } from "@/lib/warranty-ema
 import type { AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { TestEmailButton } from "@/components/TestEmailButton";
 
 export function EmailAlertPreferences({ householdId, userId }: { householdId: string; userId: string }) {
   const [lead, setLead] = useState<AlertKey>("1m");
@@ -44,6 +45,7 @@ export function EmailAlertPreferences({ householdId, userId }: { householdId: st
       </div>
       <p className="mt-2 text-xs text-muted-foreground">Un seul e-mail par objet regroupe les garanties concernées.</p>
       <Button className="mt-4" onClick={save} disabled={busy || loading}>{busy ? "Enregistrement…" : "Enregistrer mon délai"}</Button>
+      <TestEmailButton />
     </section>
   );
 }
