@@ -12,6 +12,7 @@ vi.mock("@/integrations/supabase/client", () => ({
 vi.mock("@tanstack/react-start", () => ({
   createServerFn: () => ({ middleware: () => ({ handler: (handler: unknown) => handler }) }),
 }));
+vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 
 import { EmailAlertPreferences } from "@/components/EmailAlertPreferences";
 import { SENDER_EMAIL } from "@/lib/email-sender";
