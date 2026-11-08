@@ -24,3 +24,4 @@
 - Family invitations use single-recipient expiring tokens and authentication magic links; revocation, member removal and item attribution are enforced by database rules rather than only hidden controls.
 - Warranty reminder emails use each member’s lead-time preference and an authenticated daily callback, with per-member/item/date idempotency keys instead of email queues so retries do not duplicate alerts.
 - Let dependency subpaths resolve through their package exports without global entities aliases, so different parser versions use their compatible decoder.
+- Test emails use an authenticated server function with a fixed template and the verified account address only; minute-scoped idempotency prevents duplicate clicks from sending duplicate messages.
