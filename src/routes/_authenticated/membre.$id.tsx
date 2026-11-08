@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { RightBanner } from "@/components/RightBanner";
-import { householdQuery, itemsQuery, fmt, todayISO } from "@/lib/items";
-import { itemWarranties, status, WARRANTY_LABELS } from "@/lib/warranty";
+import { householdQuery, itemsQuery, todayISO } from "@/lib/items";
+import { itemWarranties, status } from "@/lib/warranty";
 import { memberDotClass, memberBorderClass } from "@/lib/members";
 import { PrivateProfile } from "@/components/PrivateProfile";
 import { useUserId } from "@/hooks/useUserId";
@@ -46,19 +46,7 @@ function MemberSpace() {
           {own.map((i) => (
             <li key={i.id} className={`rounded-lg border-2 bg-card p-4 ${memberBorderClass(i.user_id)}`}>
               <Link to="/objet/$id" params={{ id: i.id }} className="block">
-                <p className="font-serif text-xl">{i.name}{i.brand ? ` · ${i.brand}` : ""}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{i.category} · acheté le {fmt(i.purchase_date)}</p>
-                <div className="mt-3 space-y-1">
-                  {itemWarranties(i).map((w) => {
-                    const s = status(w.end, today);
-                    return (
-                      <p key={w.key} className="text-xs">
-                        <span className="font-medium">{WARRANTY_LABELS[w.key]}</span> — fin le {fmt(w.end)}
-                        <span className="text-muted-foreground"> · {s === "expired" ? "expirée" : s === "soon" ? "bientôt finie" : "active"}</span>
-                      </p>
-                    );
-                  })}
-                </div>
+                <p className="break-words font-serif text-xl">{i.name}</p>
               </Link>
             </li>
           ))}
