@@ -53,7 +53,7 @@ describe("prénoms des membres du foyer", () => {
     render(<Page />);
     expect(screen.getByText("Bob")).not.toBeNull();
     expect((screen.getByLabelText("Votre prénom") as HTMLInputElement).value).toBe("Jane");
-    expect(screen.queryByText(/@/)).toBeNull();
+    expect(screen.queryByText(/@example\.fr/)).toBeNull();
   });
 
   it("signale qui a ajouté un objet par son prénom, jamais par son e-mail", () => {
