@@ -1,6 +1,7 @@
 # Roadmap
 
 - [x] Ajouter « Envoyer un e-mail de test » dans Foyer, réservé à l’adresse vérifiée du compte
+- [x] Afficher le chargement puis une confirmation ou une erreur après l’envoi du test
 - [ ] Envoyer et vérifier un message d’exemple depuis Foyer sur téléphone
 
 - [x] Rétablir l’aperçu et vérifier les pages et interactions sur téléphone après connexion
