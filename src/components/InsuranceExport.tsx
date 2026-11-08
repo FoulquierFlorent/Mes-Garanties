@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { FileDown } from "lucide-react";
+import { ArrowLeft, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -86,11 +86,14 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
       <DialogTrigger asChild>
         <Button variant="outline" disabled={items.length === 0}><FileDown /> Dossier assurance (PDF)</Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90dvh] max-w-md overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="shrink-0 border-b px-5 pb-4 pt-5 text-left">
+          <Button type="button" variant="outline" className="mb-3 mr-8 min-h-11 w-fit" onClick={() => { setOpen(false); setReady(null); }}>
+            <ArrowLeft /> Retour à l’application
+          </Button>
           <DialogTitle>Dossier d'assurance</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="min-h-0 space-y-4 overflow-y-auto overscroll-contain p-5">
           <div>
             <Label className="mb-2 block">Période couverte</Label>
             <div className="flex flex-wrap gap-2">
@@ -135,7 +138,9 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
               {busy ? "Préparation…" : "Préparer le dossier"}
             </Button>
           )}
-          <Button type="button" variant="outline" className="w-full" onClick={() => { setOpen(false); setReady(null); }}>
+        </div>
+        <div className="shrink-0 border-t bg-background p-4">
+          <Button type="button" className="min-h-11 w-full" onClick={() => { setOpen(false); setReady(null); }}>
             Fermer
           </Button>
         </div>
