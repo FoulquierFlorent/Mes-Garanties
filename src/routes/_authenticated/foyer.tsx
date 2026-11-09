@@ -158,6 +158,7 @@ function FoyerPage() {
         <Input placeholder="AB12CD" value={code} onChange={(e) => setCode(e.target.value)} />
         <Button variant="outline" className="w-full" onClick={join}>Rejoindre</Button>
       </div>
+      <DeleteAccount sharedItems={0} />
     </main>
   );
 }

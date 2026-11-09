@@ -55,6 +55,7 @@ export function ReceiptScanner({ onResult, disabled }: Props) {
           fields.store && `magasin : ${fields.store}`,
           fields.purchase_date && `date : ${fields.purchase_date}`,
           fields.order_number && `n° : ${fields.order_number}`,
+          fields.price && `prix : ${fields.price.replace(".", ",")} €`,
           fields.category && `catégorie : ${fields.category}`,
         ].filter(Boolean);
         setFilled(parts.length ? `Renseigné automatiquement — ${parts.join(" · ")}` : "Aucune information reconnue : complétez la fiche à la main.");

@@ -8,6 +8,7 @@ export type ScanFields = {
   order_number?: string;
   order_date?: string;
   category?: string;
+  price?: string;
 };
 
 /** Compare sans accents ni majuscules : l'OCR en perd souvent. */
@@ -103,6 +104,16 @@ export function findOrderNumber(text: string): string | undefined {
   return undefined;
 }
 
+/** Montant total du ticket ("TOTAL 349,99 €", "Net à payer : 1 299,00"). */
+export function findTotal(text: string): string | undefined {
+  for (const line of text.split(/\r?\n/)) {
+    if (!/total|net\s*a\s*payer|montant|a\s*payer/i.test(fold(line)) || /sous[- ]?total|tva|ht\b/i.test(fold(line))) continue;
+    const m = line.match(/(\d{1,3}(?:[ \u00a0.]\d{3})*|\d+)[,.](\d{2})(?!\d)/);
+    if (m) return `${m[1]!.replace(/[ \u00a0.]/g, "")}.${m[2]}`;
+  }
+  return undefined;
+}
+
 /** Enlève prix, étoiles et espaces superflus d'une ligne de ticket. */
 function cleanLine(line: string) {
   return line
@@ -124,6 +135,9 @@ export function parseReceipt(text: string): ScanFields {
 
   const order = findOrderNumber(text);
   if (order) out.order_number = order;
+
+  const total = findTotal(text);
+  if (total) out.price = total;
 
   const store = STORES.find((s) => folded.includes(fold(s)));
   if (store) out.store = store;
