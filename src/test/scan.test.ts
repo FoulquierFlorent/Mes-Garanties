@@ -72,3 +72,9 @@ describe("numéro de facture lu sur le ticket", () => {
     expect(r.order_number).toBe("FA-2025-0187");
   });
 });
+
+describe("prix lu sur le ticket", () => {
+  it("lit le total et ignore la TVA", () => {
+    expect(parseReceipt("TVA 20% 58,33\nTOTAL 1 299,90 €\n").price).toBe("1299.90");
+  });
+});

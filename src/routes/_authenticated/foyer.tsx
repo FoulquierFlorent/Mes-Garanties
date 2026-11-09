@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { FamilyInvitations } from "@/components/FamilyInvitations";
 import { RemoveMember } from "@/components/RemoveMember";
 import { EmailAlertPreferences } from "@/components/EmailAlertPreferences";
+import { DeleteAccount } from "@/components/DeleteAccount";
 
 export const Route = createFileRoute("/_authenticated/foyer")({
   head: () => ({ meta: [{ title: "Mon foyer — Mes garanties" }, { name: "description", content: "Partagez vos garanties avec votre foyer." }, { property: "og:title", content: "Mon foyer — Mes garanties" }, { property: "og:description", content: "Partagez vos garanties avec les membres de votre maison." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -137,6 +138,7 @@ function FoyerPage() {
         )}
         {mine && <EmailAlertPreferences householdId={h.id} userId={mine.user_id} />}
         <Button variant="ghost" className="mt-6 text-destructive" onClick={leave}>Quitter le foyer</Button>
+        <DeleteAccount sharedItems={h.members.length > 1 ? items.filter((i) => i.user_id === me && i.household_id === h.id).length : 0} />
       </main>
     );
   }
@@ -156,6 +158,7 @@ function FoyerPage() {
         <Input placeholder="AB12CD" value={code} onChange={(e) => setCode(e.target.value)} />
         <Button variant="outline" className="w-full" onClick={join}>Rejoindre</Button>
       </div>
+      <DeleteAccount sharedItems={0} />
     </main>
   );
 }

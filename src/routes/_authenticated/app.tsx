@@ -52,6 +52,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const [savedItemId, setSavedItemId] = useState<string | null>(null);
   const [scanFile, setScanFile] = useState<File | null>(null);
   const [scanText, setScanText] = useState("");
+  const [review, setReview] = useState<string[] | null>(null);
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
@@ -85,6 +86,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
       setSavedItemId(null);
       setScanFile(null);
       setScanText("");
+      setReview(null);
       setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 });
       toast.success("Objet ajouté");
     },
@@ -94,7 +96,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
       {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -112,9 +114,13 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                 purchase_date: fields.purchase_date || prev.purchase_date,
                 order_number: fields.order_number || prev.order_number,
                 order_date: fields.order_date || prev.order_date,
+                price: fields.price || prev.price,
                 warranty_months: prev.warranty_months,
               }));
               if (fields.category) setCategory(fields.category);
+              if (fields.brand || fields.store || fields.price) setDetailsOpen(true);
+              const missing = [!fields.name && "nom de l’objet", !fields.purchase_date && "date d’achat", !fields.order_number && "n° de facture", !fields.price && "prix"].filter(Boolean) as string[];
+              setReview(missing);
             }}
           />
           <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
@@ -165,6 +171,12 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
               </fieldset>
               <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
           </Rubrique>
+          {review && !savedItemId && (
+            <div role="note" className="rounded-lg border border-accent/40 bg-accent/10 p-3 text-sm">
+              <p className="font-medium">Vérifiez la fiche avant de l’enregistrer</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">Les informations lues sur le ticket peuvent contenir des erreurs : corrigez chaque champ si besoin.{review.length ? ` À compléter : ${review.join(", ")}.` : ""}</p>
+            </div>
+          )}
           <Button className="w-full" disabled={m.isPending}>{m.isPending ? "Enregistrement…" : savedItemId ? "Réessayer l’envoi des photos" : "Enregistrer"}</Button>
         </form>
       </DialogContent>

@@ -37,3 +37,6 @@
 - [x] Accueil : indicateur de valeur couverte
 - [x] Valeur protégée : garanties actives seulement + état sans montant
 - [x] Tests filtres rapides / tri (y compris aucun résultat)
+
+- [x] Créer une fiche d’achat depuis une photo de ticket, avec vérification et correction avant enregistrement
+- [x] Suppression définitive du compte avec confirmation et explication (données personnelles, objets partagés)
