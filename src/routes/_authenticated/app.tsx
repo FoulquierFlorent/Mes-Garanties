@@ -251,13 +251,13 @@ function AppPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-5 py-12">
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-4xl sm:text-5xl">{household ? household.name : "Mes objets"}</h1>
           {household && <p className="mt-2 font-serif text-base italic text-foreground/75">Vos biens comptent. Gardez-en la preuve.</p>}
           {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
         </div>
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button>{allItems.length > 0 && <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="icon" aria-label="Plus d’options" title="Plus d’options"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { const url = URL.createObjectURL(new Blob([buildInventoryCsv(allItems, today0)], { type: "text/csv;charset=utf-8" })); const a = document.createElement("a"); a.href = url; a.download = `inventaire-garanties-${today0}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }}>Exporter l’inventaire (CSV)</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}<AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
+        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button>{allItems.length > 0 && <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="icon" aria-label="Plus d’options" title="Plus d’options"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { const url = URL.createObjectURL(new Blob([buildInventoryCsv(allItems, today0)], { type: "text/csv;charset=utf-8" })); const a = document.createElement("a"); a.href = url; a.download = `inventaire-garanties-${today0}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }}>Exporter l’inventaire (CSV)</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}<AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
       </div>
       {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /></div>}
       {allItems.length > 0 && (
