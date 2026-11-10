@@ -1,3 +1,4 @@
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
@@ -5,7 +6,7 @@ import { useState } from "react";
 import { buildInventoryCsv } from "@/lib/inventory-csv";
 import { QUICK_FILTERS, applyQuickFilter, protectedValue, sortByDeadline, type QuickFilter } from "@/lib/deadlines";
 import { toast } from "sonner";
-import { Plus, Trash2, Bell, CalendarDays, Search, ShieldCheck } from "lucide-react";
+import { Plus, Trash2, Bell, CalendarDays, Search, ShieldCheck, MoreHorizontal } from "lucide-react";
 import { isArchived, matchesSearch } from "@/lib/deadlines";
 import { supabase } from "@/integrations/supabase/client";
 import { canAddItem, FREE_ITEM_LIMIT } from "@/lib/plans";
@@ -97,7 +98,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   });
   return (
     <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
-      {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter</Button></DialogTrigger>}
+      {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter un objet</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter un objet</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
@@ -256,9 +257,9 @@ function AppPage() {
           {household && <p className="mt-2 font-serif text-base italic text-foreground/75">Vos biens comptent. Gardez-en la preuve.</p>}
           {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
         </div>
-        <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button>{allItems.length > 0 && <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="icon" aria-label="Plus d’options" title="Plus d’options"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { const url = URL.createObjectURL(new Blob([buildInventoryCsv(allItems, today0)], { type: "text/csv;charset=utf-8" })); const a = document.createElement("a"); a.href = url; a.download = `inventaire-garanties-${today0}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }}>Exporter l’inventaire (CSV)</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}<AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
       </div>
-      {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /><Button variant="outline" size="sm" onClick={() => { const url = URL.createObjectURL(new Blob([buildInventoryCsv(allItems, today0)], { type: "text/csv;charset=utf-8" })); const a = document.createElement("a"); a.href = url; a.download = `inventaire-garanties-${today0}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }}>Exporter l’inventaire (CSV)</Button></div>}
+      {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /></div>}
       {allItems.length > 0 && (
         <div className="mt-4 rounded-lg border bg-card p-4">
           <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground"><ShieldCheck className="size-4 text-primary" aria-hidden /> Valeur de vos biens enregistrés</p>
@@ -273,7 +274,13 @@ function AppPage() {
           )}
         </div>
       )}
-      <RightBanner variant="whisper" offset={6} className="mt-4" />
+      <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-banner px-3 py-2.5 text-banner-foreground">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
+        <div className="min-w-0">
+          <p className="text-sm font-medium leading-snug">Un imprévu peut arriver. Vos preuves restent à portée de main.</p>
+          <p className="mt-0.5 text-xs leading-relaxed opacity-80">Conservez vos factures et justificatifs pour faciliter vos démarches en cas de sinistre.</p>
+        </div>
+      </div>
       {allItems.length > 0 && (
         <div className="relative mt-6">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
