@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "@tanstack/react-router";
-import { Lock } from "lucide-react";
+import { Lock, FileCheck } from "lucide-react";
 import { todayISO, type Item } from "@/lib/items";
 import { filterItemsByPeriod, insuranceFileName } from "@/lib/insurance-pdf";
 import { canExportInsurance } from "@/lib/plans";
@@ -72,20 +72,34 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
 
   if (!canExportInsurance(plan)) {
     return (
-      <div className="flex flex-wrap items-center gap-2">
-        <Button variant="outline" disabled><Lock /> Dossier assurance (PDF)</Button>
-        <p className="text-sm text-muted-foreground">
-          Réservé aux offres Solo, Famille et Titane — <Link to="/tarifs" className="underline">voir les tarifs</Link>.
-        </p>
+      <div className="flex items-start gap-3 rounded-lg border bg-card p-4">
+        <FileCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">Votre dossier assurance</p>
+          <p className="mt-1 text-sm text-muted-foreground">Vos objets, factures et justificatifs réunis dans un seul document, utile en cas de vol, d’incendie ou de dégât des eaux.</p>
+          <div className="mt-3">
+            <Button disabled><Lock /> Télécharger mon dossier PDF</Button>
+            <p className="mt-2 text-xs text-muted-foreground">Réservé aux offres Solo, Famille et Titane — <Link to="/tarifs" className="underline">voir les tarifs</Link>.</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setReady(null); }}>
-      <DialogTrigger asChild>
-        <Button variant="outline" disabled={items.length === 0}><FileDown /> Dossier assurance (PDF)</Button>
-      </DialogTrigger>
+      <div className="flex items-start gap-3 rounded-lg border bg-card p-4">
+        <FileCheck className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">Votre dossier assurance</p>
+          <p className="mt-1 text-sm text-muted-foreground">Vos objets, factures et justificatifs réunis dans un seul document, utile en cas de vol, d’incendie ou de dégât des eaux.</p>
+          <div className="mt-3">
+            <DialogTrigger asChild>
+              <Button disabled={items.length === 0}><FileDown /> Télécharger mon dossier PDF</Button>
+            </DialogTrigger>
+          </div>
+        </div>
+      </div>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-md flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="shrink-0 border-b px-5 pb-4 pt-5 text-left">
           <Button type="button" variant="outline" className="mb-3 mr-8 min-h-11 w-fit" onClick={() => { setOpen(false); setReady(null); }}>

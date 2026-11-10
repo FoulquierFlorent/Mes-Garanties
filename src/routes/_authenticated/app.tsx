@@ -5,7 +5,7 @@ import { useState } from "react";
 import { buildInventoryCsv } from "@/lib/inventory-csv";
 import { QUICK_FILTERS, applyQuickFilter, protectedValue, sortByDeadline, type QuickFilter } from "@/lib/deadlines";
 import { toast } from "sonner";
-import { Plus, Trash2, Bell, CalendarDays, Search } from "lucide-react";
+import { Plus, Trash2, Bell, CalendarDays, Search, ShieldCheck } from "lucide-react";
 import { isArchived, matchesSearch } from "@/lib/deadlines";
 import { supabase } from "@/integrations/supabase/client";
 import { canAddItem, FREE_ITEM_LIMIT } from "@/lib/plans";
@@ -253,6 +253,7 @@ function AppPage() {
       <div className="flex items-end justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-4xl sm:text-5xl">{household ? household.name : "Mes objets"}</h1>
+          {household && <p className="mt-2 font-serif text-base italic text-foreground/75">Vos biens comptent. Gardez-en la preuve.</p>}
           {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button><AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
@@ -260,11 +261,12 @@ function AppPage() {
       {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /><Button variant="outline" size="sm" onClick={() => { const url = URL.createObjectURL(new Blob([buildInventoryCsv(allItems, today0)], { type: "text/csv;charset=utf-8" })); const a = document.createElement("a"); a.href = url; a.download = `inventaire-garanties-${today0}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }}>Exporter l’inventaire (CSV)</Button></div>}
       {allItems.length > 0 && (
         <div className="mt-4 rounded-lg border bg-card p-4">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Valeur protégée</p>
+          <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground"><ShieldCheck className="size-4 text-primary" aria-hidden /> Valeur de vos biens enregistrés</p>
           {value.priced > 0 ? (
             <>
               <p className="mt-1 text-3xl tabular-nums">{formatPrice(value.total)}</p>
               <p className="text-xs text-muted-foreground">{value.priced} objet(s) sous garantie active{value.unpriced > 0 ? ` · ${value.unpriced} sans prix renseigné` : ""}</p>
+              <p className="mt-2 text-xs text-muted-foreground">Retrouvez les justificatifs de vos biens pour faciliter vos démarches en cas de sinistre.</p>
             </>
           ) : (
             <p className="mt-1 text-sm text-muted-foreground">{value.active === 0 ? "Aucun objet n’a de garantie active pour le moment." : "Aucun prix renseigné sur vos objets sous garantie : ajoutez-le depuis la fiche de l’objet pour voir la valeur protégée."}</p>
