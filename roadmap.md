@@ -40,3 +40,4 @@
 
 - [x] Créer une fiche d’achat depuis une photo de ticket, avec vérification et correction avant enregistrement
 - [x] Suppression définitive du compte avec confirmation et explication (données personnelles, objets partagés)
+- [x] Signature de marque sous le logo de l'accueil
