@@ -32,6 +32,8 @@ function Index() {
         <h1 className="mt-6 max-w-3xl text-5xl leading-[1.05] sm:text-7xl">
           Vos garanties, <em className="text-accent">jamais oubliées</em>.
         </h1>
+        <p className="mt-5 font-serif text-xl italic text-foreground/80 sm:text-2xl">Vos garanties suivies. Vos biens documentés.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Factures, garanties et preuves d’achat réunies au même endroit.</p>
         <p className="mt-6 max-w-xl text-lg text-muted-foreground">
           Enregistrez vos achats et recevez une alerte avant la fin de leur garantie. Simple, discret, efficace.
         </p>
