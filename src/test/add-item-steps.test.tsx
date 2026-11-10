@@ -26,7 +26,7 @@ import { Route } from "@/routes/_authenticated/app";
 function openDialog() {
   const Page = Route.options.component as ComponentType;
   render(<Page />);
-  fireEvent.click(screen.getByRole("button", { name: "Ajouter" }));
+  fireEvent.click(screen.getByRole("button", { name: "Ajouter un objet" }));
 }
 
 describe("ajout d'un objet en deux temps", () => {
