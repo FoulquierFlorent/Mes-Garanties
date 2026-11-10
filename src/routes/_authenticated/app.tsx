@@ -5,7 +5,7 @@ import { useState } from "react";
 import { buildInventoryCsv } from "@/lib/inventory-csv";
 import { QUICK_FILTERS, applyQuickFilter, protectedValue, sortByDeadline, type QuickFilter } from "@/lib/deadlines";
 import { toast } from "sonner";
-import { Plus, Trash2, Bell, CalendarDays, Search } from "lucide-react";
+import { Plus, Trash2, Bell, CalendarDays, Search, ShieldCheck } from "lucide-react";
 import { isArchived, matchesSearch } from "@/lib/deadlines";
 import { supabase } from "@/integrations/supabase/client";
 import { canAddItem, FREE_ITEM_LIMIT } from "@/lib/plans";
