@@ -193,7 +193,7 @@ function FoyerPage() {
         <h2 className="mt-7 text-sm font-semibold uppercase tracking-wider text-destructive">Zone sensible</h2>
         <div className="mt-2 space-y-4 rounded-xl border border-destructive/30 bg-card p-4">
           <section>
-            <h3 className="text-sm font-medium">Quitter le foyer</h3>
+            <h3 className="font-sans text-sm font-medium">Quitter le foyer</h3>
             <p className="mt-1 text-sm text-muted-foreground">Vous ne verrez plus les objets partagés de « {h.name} ».</p>
             <AlertDialog>
               <AlertDialogTrigger asChild><Button variant="outline" className="mt-3 h-11 border-destructive/50 text-destructive">Quitter le foyer</Button></AlertDialogTrigger>
