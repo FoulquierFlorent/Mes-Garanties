@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 type P = { email: string; relation: string; phone: string; birth_date: string; address: string; notes: string };
 const EMPTY: P = { email: "", relation: "", phone: "", birth_date: "", address: "", notes: "" };
 
-/** Espace secret : visible uniquement par la personne connectée. */
+/** Mes informations privées : visible uniquement par la personne connectée. */
 export function PrivateProfile({ userId }: { userId: string }) {
   const [p, setP] = useState<P>(EMPTY);
   const [busy, setBusy] = useState(false);
@@ -24,13 +24,12 @@ export function PrivateProfile({ userId }: { userId: string }) {
     setBusy(true);
     const { error } = await supabase.from("member_profiles").upsert({ user_id: userId, ...p, birth_date: p.birth_date || null, updated_at: new Date().toISOString() });
     setBusy(false);
-    error ? toast.error("Enregistrement impossible") : toast.success("Espace secret enregistré");
+    error ? toast.error("Enregistrement impossible") : toast.success("Informations privées enregistrées");
   };
   return (
-    <section className="mt-8 rounded-lg border bg-card p-5">
-      <h2 className="flex items-center gap-2 text-2xl"><Lock className="h-5 w-5 text-accent" />Mon espace secret</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Visible uniquement par vous, pas par les autres membres du foyer.</p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+    <div>
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><Lock className="h-3.5 w-3.5 text-accent" />Privé : visible uniquement par vous, jamais par les autres membres.</p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5"><Label htmlFor="pp-email">E-mail</Label><Input id="pp-email" type="email" value={p.email} onChange={set("email")} /></div>
         <div className="space-y-1.5"><Label htmlFor="pp-rel">Lien familial</Label><Input id="pp-rel" placeholder="Père, fille, conjoint…" value={p.relation} onChange={set("relation")} /></div>
         <div className="space-y-1.5"><Label htmlFor="pp-phone">Téléphone</Label><Input id="pp-phone" type="tel" value={p.phone} onChange={set("phone")} /></div>
@@ -38,7 +37,7 @@ export function PrivateProfile({ userId }: { userId: string }) {
         <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="pp-addr">Adresse</Label><Input id="pp-addr" value={p.address} onChange={set("address")} /></div>
         <div className="space-y-1.5 sm:col-span-2"><Label htmlFor="pp-notes">Autres renseignements</Label><Textarea id="pp-notes" rows={3} value={p.notes} onChange={set("notes")} /></div>
       </div>
-      <Button className="mt-4" onClick={save} disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer"}</Button>
-    </section>
+      <Button className="mt-3 h-11 w-full sm:w-auto" onClick={save} disabled={busy}>{busy ? "Enregistrement…" : "Enregistrer"}</Button>
+    </div>
   );
 }
