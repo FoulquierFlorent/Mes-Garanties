@@ -30,8 +30,8 @@ export function DeleteAccount({ sharedItems }: { sharedItems: number }) {
   }
 
   return (
-    <section className="mt-10 rounded-lg border border-destructive/40 p-5">
-      <h2 className="text-xl">Supprimer mon compte</h2>
+    <section>
+      <h3 className="font-sans text-sm font-medium">Supprimer mon compte</h3>
       <p className="mt-1 text-sm text-muted-foreground">Suppression définitive de votre compte et de vos données personnelles.</p>
       <Dialog open={open} onOpenChange={(n) => { if (!busy) { setOpen(n); setWord(""); } }}>
         <DialogTrigger asChild><Button variant="outline" className="mt-3 border-destructive/50 text-destructive">Supprimer définitivement mon compte</Button></DialogTrigger>
