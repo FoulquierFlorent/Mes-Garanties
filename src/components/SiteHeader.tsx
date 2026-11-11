@@ -21,9 +21,9 @@ export function SiteHeader() {
         <nav className="flex min-w-0 items-center gap-0.5 text-sm sm:gap-4">
           {signedIn ? (
             <>
-              <Link to="/calendrier" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent", "aria-current": "page" }}>Calendrier</Link>
-              <Link to="/app" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent", "aria-current": "page" }}>Objets</Link>
-              <Link to="/foyer" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent", "aria-current": "page" }}>Foyer</Link>
+              <Link to="/calendrier" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent" }}>Calendrier</Link>
+              <Link to="/app" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent" }}>Objets</Link>
+              <Link to="/foyer" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent" }}>Foyer</Link>
               <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}>
                 Déconnexion
               </Button>
