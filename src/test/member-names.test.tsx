@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ComponentType } from "react";
 
@@ -52,6 +52,7 @@ describe("prénoms des membres du foyer", () => {
     const Page = FoyerRoute.options.component as ComponentType;
     render(<Page />);
     expect(screen.getByText("Bob")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Personnalisation du profil/ }));
     expect((screen.getByLabelText("Votre prénom") as HTMLInputElement).value).toBe("Jane");
     expect(screen.queryByText(/@example\.fr/)).toBeNull();
   });
