@@ -95,7 +95,7 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
           <p className="mt-1 text-sm text-muted-foreground">Vos objets, factures et justificatifs réunis dans un seul document, utile en cas de vol, d’incendie ou de dégât des eaux.</p>
           <div className="mt-3">
             <DialogTrigger asChild>
-              <Button disabled={items.length === 0}><FileDown /> Télécharger mon dossier PDF</Button>
+              <Button disabled={items.length === 0} className="h-auto min-h-9 w-full max-w-full whitespace-normal px-3 py-2 text-center leading-snug"><FileDown /> Télécharger mon dossier PDF</Button>
             </DialogTrigger>
           </div>
         </div>
@@ -146,7 +146,7 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
             {filtered.length} objet(s) inclus — {period.label}. Le dossier regroupe valeurs, garanties et justificatifs, avec une section pour les biens sans justificatif.
           </p>
           {ready ? (
-            <Button className="w-full" onClick={download}><FileDown /> Télécharger le dossier ({ready.label})</Button>
+            <Button className="h-auto min-h-9 w-full whitespace-normal py-2 leading-snug" onClick={download}><FileDown /> Télécharger le dossier ({ready.label})</Button>
           ) : (
             <Button className="w-full" onClick={build} disabled={busy || filtered.length === 0 || (mode === "year" && !year) || (mode === "range" && (!from || !to))}>
               {busy ? "Préparation…" : "Préparer le dossier"}
