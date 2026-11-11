@@ -14,6 +14,7 @@ import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
+import { itemCoverage, StatusBadge } from "@/components/HouseholdUi";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { PhotoPicker } from "@/components/ItemPhotos";
 import { uploadItemPhotos } from "@/lib/item-photos";
@@ -215,19 +216,21 @@ function AppPage() {
   const renderItem = (i: (typeof items)[number]) => {
             const catImg = categoryImage(i.category);
             return (
-              <li key={i.id} className={`rounded-lg border-2 bg-card p-4 ${memberBorderClass(i.user_id)}`}>
+              <li key={i.id} className={`rounded-xl border-2 bg-card p-3 ${memberBorderClass(i.user_id)}`}>
                 <div className="flex items-start gap-3">
+                  {catImg ? <img src={catImg} alt="" loading="lazy" width={40} height={40} className="h-10 w-10 shrink-0 rounded-lg object-cover" /> : <span aria-hidden className="h-10 w-10 shrink-0 rounded-lg bg-muted" />}
                   <div className="min-w-0 flex-1">
                     <Link to="/objet/$id" params={{ id: i.id }} className="font-medium hover:text-accent">{i.name} {i.brand && <span className="text-muted-foreground font-normal">· {i.brand}</span>}</Link>
                     {i.return_status !== "none" && <p className="text-xs text-warning">Retour : {RETURN_LABELS[i.return_status] ?? i.return_status}</p>}
-                    <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-accent">{catImg && <img src={catImg} alt="" loading="lazy" width={14} height={14} className="h-3.5 w-3.5 rounded object-cover" />}{i.category}
+                    <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-accent">{i.category}
                       {i.price != null && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· {formatPrice(i.price)}</span>}
                       {household && me && i.user_id !== me && <span className="ml-2 normal-case tracking-normal text-muted-foreground">· ajouté par {household.members.find((m) => m.user_id === i.user_id)?.display_name?.trim() || "un membre"}</span>}
                     </p>
                   </div>
+                  {(() => { const c = itemCoverage(i, today); return c.status && <StatusBadge value={c.status} />; })()}
                   <Button variant="ghost" size="icon" aria-label="Supprimer" onClick={() => del(i.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
-                <div className="mt-3 space-y-1.5 rounded-md border border-border/60 bg-muted/40 px-3 py-2.5">
+                <div className="mt-2 space-y-1 rounded-md border border-border/60 bg-muted/40 px-2.5 py-2">
                   {itemWarranties(i).map((w) => {
                     const ws = status(w.end, today);
                     const d = daysLeft(w.end, today);
@@ -250,7 +253,7 @@ function AppPage() {
           };
 
   return (
-    <main className="mx-auto max-w-4xl px-5 py-12">
+    <main className="mx-auto max-w-4xl px-4 py-8 sm:px-5 sm:py-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-4xl sm:text-5xl">{household ? household.name : "Mes objets"}</h1>
@@ -341,7 +344,7 @@ function AppPage() {
         ) : <p className="mt-16 text-center text-muted-foreground">Aucun objet pour l'instant. Ajoutez votre premier achat.</p>
       ) : (
         <>
-          <ul className="mt-8 space-y-3">{activeItems.map(renderItem)}</ul>
+          <ul className="mt-5 space-y-2">{activeItems.map(renderItem)}</ul>
           {activeItems.length === 0 && <p className="mt-8 text-center text-sm text-muted-foreground">Tous ces objets sont classés.</p>}
           {archivedItems.length > 0 && (
             <div className="mt-10 text-center"><Button asChild variant="outline"><Link to="/affaires-classees">Affaires classées ({archivedItems.length})</Link></Button></div>

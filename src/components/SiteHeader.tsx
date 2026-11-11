@@ -13,17 +13,17 @@ export function SiteHeader() {
   }, []);
 
   return (
-    <header className="border-b bg-background/80 backdrop-blur sticky top-0 z-30">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link to="/" className="font-serif text-2xl">
+    <header className="sticky top-0 z-30 border-b bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:h-16 sm:px-5">
+        <Link to="/" className="shrink-0 font-serif text-xl sm:text-2xl">
           Mes garanties<span className="text-accent">.</span>
         </Link>
-        <nav className="flex items-center gap-1 sm:gap-4 text-sm">
+        <nav className="flex min-w-0 items-center gap-0.5 text-sm sm:gap-4">
           {signedIn ? (
             <>
-              <Link to="/calendrier" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Calendrier</Link>
-              <Link to="/app" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Objets</Link>
-              <Link to="/foyer" className="px-2 py-1 hover:text-accent" activeProps={{ className: "text-accent" }}>Foyer</Link>
+              <Link to="/calendrier" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent", "aria-current": "page" }}>Calendrier</Link>
+              <Link to="/app" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent", "aria-current": "page" }}>Objets</Link>
+              <Link to="/foyer" className="inline-flex min-h-11 items-center border-b-2 border-transparent px-1.5 hover:text-accent sm:px-2" activeProps={{ className: "border-accent font-medium text-accent", "aria-current": "page" }}>Foyer</Link>
               <Button variant="ghost" size="sm" className="hidden sm:inline-flex" onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/" }); }}>
                 Déconnexion
               </Button>

@@ -4,7 +4,8 @@ import { ArrowLeft } from "lucide-react";
 import { RightBanner } from "@/components/RightBanner";
 import { householdQuery, itemsQuery, todayISO } from "@/lib/items";
 import { itemWarranties, status } from "@/lib/warranty";
-import { memberDotClass, memberBorderClass } from "@/lib/members";
+import { memberDotClass } from "@/lib/members";
+import { ItemRow, StatTile } from "@/components/HouseholdUi";
 import { PrivateProfile } from "@/components/PrivateProfile";
 import { useUserId } from "@/hooks/useUserId";
 
@@ -27,7 +28,7 @@ function MemberSpace() {
   const covered = own.filter((i) => itemWarranties(i).some((w) => status(w.end, today) !== "expired")).length;
 
   return (
-    <main className="mx-auto max-w-xl px-5 py-12">
+    <main className="mx-auto max-w-xl px-4 py-8 sm:px-5 sm:py-10">
       <Link to="/foyer" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" />Mon foyer
       </Link>
@@ -36,25 +37,24 @@ function MemberSpace() {
         <h1 className="text-4xl sm:text-5xl">{name}</h1>
       </div>
       <RightBanner variant="whisper" offset={4} className="mt-3" />
-      <p className="mt-3 text-muted-foreground">
-        {own.length} objet{own.length > 1 ? "s" : ""} enregistré{own.length > 1 ? "s" : ""} · {covered} encore couvert{covered > 1 ? "s" : ""}.
-      </p>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <StatTile value={own.length} label={`objet${own.length > 1 ? "s" : ""} enregistré${own.length > 1 ? "s" : ""}`} />
+        <StatTile value={covered} label="encore couverts" />
+      </div>
 
-      {isMe && (member?.display_name?.trim() ? <PrivateProfile userId={id} /> : <p className="mt-8 rounded-lg border bg-card p-5 text-sm text-muted-foreground">Enregistrez votre prénom dans la page Foyer pour ouvrir votre espace secret.</p>)}
+      {isMe && (
+        <section className="mt-5 rounded-xl border bg-card p-4">
+          <h2 className="text-lg">Mes informations privées</h2>
+          <div className="mt-2">{member?.display_name?.trim() ? <PrivateProfile userId={id} /> : <p className="text-sm text-muted-foreground">Enregistrez votre prénom dans la page Foyer pour ouvrir cet espace.</p>}</div>
+        </section>
+      )}
+      <h2 className="mt-6 text-xl">Objets</h2>
       {own.length ? (
-        <ul className="mt-8 space-y-3">
-          {own.map((i) => (
-            <li key={i.id} className={`rounded-lg border-2 bg-card p-4 ${memberBorderClass(i.user_id)}`}>
-              <Link to="/objet/$id" params={{ id: i.id }} className="block">
-                <p className="break-words font-serif text-xl">{i.name}</p>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <ul className="mt-2 space-y-2">{own.map((i) => <ItemRow key={i.id} item={i} today={today} />)}</ul>
       ) : (
-        <div className="mt-8 rounded-lg border bg-card p-6">
-          <p className="text-muted-foreground">Aucun objet enregistré pour ce membre pour le moment.</p>
-          <Link to="/app" className="mt-4 inline-flex rounded-md border px-3 py-1.5 text-sm hover:bg-accent">Ajouter un objet</Link>
+        <div className="mt-2 rounded-xl border bg-card p-4">
+          <p className="text-sm text-muted-foreground">Aucun objet enregistré pour ce membre pour le moment.</p>
+          <Link to="/app" className="mt-3 inline-flex min-h-11 items-center rounded-md border px-3 text-sm hover:bg-muted">Ajouter un objet</Link>
         </div>
       )}
     </main>
