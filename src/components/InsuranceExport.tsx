@@ -78,7 +78,7 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
           <p className="font-medium">Votre dossier assurance</p>
           <p className="mt-1 text-sm text-muted-foreground">Vos objets, factures et justificatifs réunis dans un seul document, utile en cas de vol, d’incendie ou de dégât des eaux.</p>
           <div className="mt-3">
-            <Button disabled><Lock /> Télécharger mon dossier PDF</Button>
+            <Button disabled className="h-auto min-h-9 w-full max-w-full whitespace-normal px-3 py-2 text-center leading-snug"><Lock /> Télécharger mon dossier PDF</Button>
             <p className="mt-2 text-xs text-muted-foreground">Réservé aux offres Solo, Famille et Titane — <Link to="/tarifs" className="underline">voir les tarifs</Link>.</p>
           </div>
         </div>
