@@ -38,7 +38,8 @@ describe("ajout d'un objet en deux temps", () => {
     expect(screen.getByText("Scanner un ticket")).toBeInTheDocument();
     expect(screen.getByText("Nom")).toBeInTheDocument();
     expect(screen.getByText("Date d'achat")).toBeInTheDocument();
-    expect(screen.getByText("Garantie légale : 2 ans par défaut pour tout achat. Modifiez-la dans les détails facultatifs.")).toBeInTheDocument();
+    expect(screen.getByText(/Garantie légale proposée : 2 ans/)).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Ajout manuel" })).toBeInTheDocument();
   });
 
   it("garde les détails facultatifs hors de vue jusqu'à ce qu'on les ouvre", () => {
@@ -48,7 +49,7 @@ describe("ajout d'un objet en deux temps", () => {
     expect(screen.queryByText("Marque")).toBeNull();
     expect(screen.queryByText("Prix (€, facultatif)")).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: /Détails facultatifs/ }));
+    fireEvent.click(screen.getByRole("button", { name: /informations complémentaires/ }));
 
     expect(screen.getByText("Garantie magasin")).toBeInTheDocument();
     expect(screen.getByText("Marque")).toBeInTheDocument();

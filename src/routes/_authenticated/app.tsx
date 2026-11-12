@@ -218,7 +218,7 @@ function AppPage() {
   const filtered = applyQuickFilter(allItems.filter((i) => (!cat || i.category === cat) && matchesSearch(i, query)), quick, today0);
   const items = sortDeadline ? sortByDeadline(filtered, today0) : filtered;
   const value = protectedValue(allItems, today0);
-  const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
+  const usedCats = [...CATEGORIES.filter((c) => allItems.some((i) => i.category === c)), ...Array.from(new Set(allItems.map((i) => i.category))).filter((c) => !CATEGORIES.includes(c))];
   const qc = useQueryClient();
   const today = todayISO();
   const firstYearItems = items.filter((i) => firstYearReminder(i.purchase_date) === today);
