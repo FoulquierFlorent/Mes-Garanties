@@ -116,7 +116,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
       {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter un objet</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter un objet</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
-        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
+        <form className="min-w-0 space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
           <div role="tablist" aria-label="Mode d’ajout" className="grid grid-cols-2 rounded-lg bg-muted p-1 text-sm">
             {(["scan", "manuel"] as const).map((k) => (
               <button key={k} type="button" role="tab" aria-selected={mode === k} onClick={() => setMode(k)} className={`h-10 rounded-md transition-colors ${mode === k ? "bg-background font-medium shadow-sm" : "text-muted-foreground"}`}>{k === "scan" ? "Ajout intelligent" : "Ajout manuel"}</button>
@@ -150,7 +150,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
               <p className="mt-0.5 text-xs text-muted-foreground">Les informations lues sur le ticket peuvent contenir des erreurs : corrigez chaque champ si besoin.{review.length ? ` Non trouvé : ${review.join(", ")}.` : ""}</p>
             </div>
           )}
-          <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
+          <fieldset disabled={m.isPending || savedItemId !== null} className="min-w-0 space-y-4">
           <div className="space-y-1.5"><Label htmlFor="new-name">Nom</Label><Input id="new-name" className="h-11" required placeholder="Lave-linge" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Catégorie</Label>
             <CategoryPicker category={category} onCategory={setCategory} name={f.name} onType={(t) => setF((prev) => ({ ...prev, name: t }))} />
@@ -159,7 +159,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
           <p className="text-xs text-muted-foreground">Garantie légale proposée : {f.warranty_months > 0 ? `${f.warranty_months / 12} an${f.warranty_months > 12 ? "s" : ""}` : "aucune"}. Ajustez-la dans les informations complémentaires.</p>
           </fieldset>
           <Rubrique compact title="Ajouter des informations complémentaires" hint="marque, magasin, prix, facture, garanties, alertes, photos" open={detailsOpen} onOpenChange={setDetailsOpen} contentClassName="mt-4 space-y-4">
-              <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
+              <fieldset disabled={m.isPending || savedItemId !== null} className="min-w-0 space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5"><Label>Marque</Label><Input className="h-11" value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
                   <div className="space-y-1.5"><Label>Magasin</Label><Input className="h-11" value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>

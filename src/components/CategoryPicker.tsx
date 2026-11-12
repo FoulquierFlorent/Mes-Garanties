@@ -22,7 +22,7 @@ export function CategoryPicker({ category, onCategory, name, onType }: Props) {
   const choose = (c: string) => { onCategory(c); setOpen(false); setQ(""); };
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       {!open ? (
         <button type="button" onClick={() => setOpen(true)} className="flex h-11 w-full items-center gap-2 rounded-md border bg-background px-3 text-left text-sm">
           {img && <img src={img} alt="" width={24} height={24} className="h-6 w-6 rounded object-cover" />}
