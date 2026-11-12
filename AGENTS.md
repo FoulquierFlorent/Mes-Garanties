@@ -27,3 +27,4 @@
 - Test emails use an authenticated server function with a fixed template and the verified account address only; minute-scoped idempotency prevents duplicate clicks from sending duplicate messages.
 - Keep insurance dialog navigation outside its scrollable body so closing remains accessible on short mobile screens.
 - Account deletion runs in an authenticated server function using the admin client after the caller confirms; items in households with other members are kept, personal items and their files are erased, since shared warranties must survive a member leaving.
+- Legal conformity durations in the add-item form come from src/lib/legal-warranty.ts (country, seller type, condition) so the estimate rules stay testable in one place.
