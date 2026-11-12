@@ -14,7 +14,7 @@ export function CategoryPicker({ category, onCategory, name, onType }: Props) {
   const results = useMemo(() => {
     if (!needle) return { cats: CATEGORIES, types: [] as { c: string; t: string }[] };
     const cats = CATEGORIES.filter((c) => c.toLowerCase().includes(needle));
-    const types = CATEGORIES.flatMap((c) => CATEGORY_TYPES[c].filter((t) => t.toLowerCase().includes(needle)).map((t) => ({ c, t }))).slice(0, 8);
+    const types = CATEGORIES.flatMap((c) => (CATEGORY_TYPES[c] ?? []).filter((t) => t.toLowerCase().includes(needle)).map((t) => ({ c, t }))).slice(0, 8);
     return { cats, types };
   }, [needle]);
   const types = CATEGORY_TYPES[category] ?? [];
