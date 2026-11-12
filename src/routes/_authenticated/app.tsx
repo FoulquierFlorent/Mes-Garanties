@@ -31,6 +31,14 @@ import { InsuranceExport } from "@/components/InsuranceExport";
 import { TitaneExports } from "@/components/TitaneExports";
 import { Rubrique } from "@/components/Rubrique";
 import { uploadReceipt } from "@/lib/receipt-upload";
+import { CategoryPicker } from "@/components/CategoryPicker";
+import { DEFAULT_LEGAL_CONTEXT, estimateLegalWarranty, type ItemCondition, type LegalContext, type PurchaseCountry, type SellerType } from "@/lib/legal-warranty";
+
+function LegalSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
+  return <div className="space-y-1"><Label className="text-xs text-muted-foreground">{label}</Label>
+    <Select value={value} onValueChange={onChange}><SelectTrigger aria-label={label} className="h-10 px-2 text-xs"><SelectValue /></SelectTrigger>
+      <SelectContent>{options.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select></div>;
+}
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({ meta: [{ title: "Mes objets — Mes garanties" }, { name: "description", content: "Vos objets et leurs garanties." }, { property: "og:title", content: "Mes objets — Mes garanties" }, { property: "og:description", content: "Vos objets et leurs garanties partagés avec votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -55,6 +63,10 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const [scanFile, setScanFile] = useState<File | null>(null);
   const [scanText, setScanText] = useState("");
   const [review, setReview] = useState<string[] | null>(null);
+  const [mode, setMode] = useState<"scan" | "manuel">("scan");
+  const [legal, setLegal] = useState<LegalContext>(DEFAULT_LEGAL_CONTEXT);
+  const estimate = estimateLegalWarranty(legal);
+  const applyLegal = (next: LegalContext) => { setLegal(next); const e = estimateLegalWarranty(next); if (e.months !== null) setF((prev) => ({ ...prev, warranty_months: e.months as number })); };
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
@@ -89,6 +101,8 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
       setScanFile(null);
       setScanText("");
       setReview(null);
+      setMode("scan");
+      setLegal(DEFAULT_LEGAL_CONTEXT);
       setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 });
       toast.success("Objet ajouté");
     },
@@ -102,8 +116,13 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
       {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter un objet</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter un objet</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
-        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
-          <ReceiptScanner
+        <form className="min-w-0 space-y-4" onSubmit={(e) => { e.preventDefault(); m.mutate(); }}>
+          <div role="tablist" aria-label="Mode d’ajout" className="grid grid-cols-2 rounded-lg bg-muted p-1 text-sm">
+            {(["scan", "manuel"] as const).map((k) => (
+              <button key={k} type="button" role="tab" aria-selected={mode === k} onClick={() => setMode(k)} className={`h-10 rounded-md transition-colors ${mode === k ? "bg-background font-medium shadow-sm" : "text-muted-foreground"}`}>{k === "scan" ? "Ajout intelligent" : "Ajout manuel"}</button>
+            ))}
+          </div>
+          {mode === "scan" && <ReceiptScanner
             disabled={m.isPending}
             onResult={(fields, file, text) => {
               setScanFile(file);
@@ -120,39 +139,44 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                 warranty_months: prev.warranty_months,
               }));
               if (fields.category) setCategory(fields.category);
-              if (fields.brand || fields.store || fields.price) setDetailsOpen(true);
+              if (fields.brand || fields.store || fields.price || fields.order_number) setDetailsOpen(true);
               const missing = [!fields.name && "nom de l’objet", !fields.purchase_date && "date d’achat", !fields.order_number && "n° de facture", !fields.price && "prix"].filter(Boolean) as string[];
               setReview(missing);
             }}
-          />
-          <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
-          <div className="space-y-1.5"><Label>Nom</Label><Input required placeholder="Lave-linge" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
+          />}
+          {review && !savedItemId && (
+            <div role="note" className="rounded-lg border border-accent/40 bg-accent/10 p-3 text-sm">
+              <p className="font-medium">Vérifiez la fiche avant de l’enregistrer</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">Les informations lues sur le ticket peuvent contenir des erreurs : corrigez chaque champ si besoin.{review.length ? ` Non trouvé : ${review.join(", ")}.` : ""}</p>
+            </div>
+          )}
+          <fieldset disabled={m.isPending || savedItemId !== null} className="min-w-0 space-y-4">
+          <div className="space-y-1.5"><Label htmlFor="new-name">Nom</Label><Input id="new-name" className="h-11" required placeholder="Lave-linge" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>Catégorie</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>{CATEGORIES.map((c) => { const img = categoryImage(c); return <SelectItem key={c} value={c} textValue={c} className="gap-2"><span className="flex items-center gap-2">{img && <img src={img} alt="" loading="lazy" width={20} height={20} className="h-5 w-5 shrink-0 rounded object-cover" />}{c}</span></SelectItem>; })}</SelectContent>
-            </Select>
-            {(CATEGORY_TYPES[category] ?? []).length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1" aria-label="Type d’objet">
-                {(CATEGORY_TYPES[category] ?? []).map((t) => (
-                  <button key={t} type="button" onClick={() => setF({ ...f, name: t })} className={`rounded-full border px-2.5 py-0.5 text-xs transition-colors ${f.name === t ? "border-primary bg-primary text-primary-foreground" : "hover:bg-muted"}`}>{t}</button>
-                ))}
-              </div>
-            )}
+            <CategoryPicker category={category} onCategory={setCategory} name={f.name} onType={(t) => setF((prev) => ({ ...prev, name: t }))} />
           </div>
-          <div className="space-y-1.5"><Label>Date d'achat</Label><Input type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label htmlFor="new-order">N° de facture ou de commande</Label><Input id="new-order" placeholder="Rempli par le ticket, ou à saisir" value={f.order_number} onChange={(e) => setF({ ...f, order_number: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label htmlFor="new-order-date">Date de la facture ou de la commande</Label><Input id="new-order-date" type="date" value={f.order_date} onChange={(e) => setF({ ...f, order_date: e.target.value })} /></div>
-          <p className="text-xs text-muted-foreground">Garantie légale : 2 ans par défaut pour tout achat. Modifiez-la dans les détails facultatifs.</p>
+          <div className="space-y-1.5"><Label htmlFor="new-date">Date d'achat</Label><Input id="new-date" className="h-11" type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
+          <p className="text-xs text-muted-foreground">Garantie légale proposée : {f.warranty_months > 0 ? `${f.warranty_months / 12} an${f.warranty_months > 12 ? "s" : ""}` : "aucune"}. Ajustez-la dans les informations complémentaires.</p>
           </fieldset>
-          <Rubrique compact title="Détails facultatifs" hint="marque, magasin, prix, garanties, alertes, photos" open={detailsOpen} onOpenChange={setDetailsOpen} contentClassName="mt-4 space-y-4">
-              <fieldset disabled={m.isPending || savedItemId !== null} className="space-y-4">
-                <WarrantyYearSelect id="primary-years" label="Garantie légale" warrantyKey="base" optional={false} value={f.warranty_months / 12} onChange={(y) => { if (y !== null) setF({ ...f, warranty_months: y * 12 }); }} />
+          <Rubrique compact title="Ajouter des informations complémentaires" hint="marque, magasin, prix, facture, garanties, alertes, photos" open={detailsOpen} onOpenChange={setDetailsOpen} contentClassName="mt-4 space-y-4">
+              <fieldset disabled={m.isPending || savedItemId !== null} className="min-w-0 space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5"><Label>Marque</Label><Input value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
-                  <div className="space-y-1.5"><Label>Magasin</Label><Input value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>
+                  <div className="space-y-1.5"><Label>Marque</Label><Input className="h-11" value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
+                  <div className="space-y-1.5"><Label>Magasin</Label><Input className="h-11" value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>
                 </div>
-                <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input className="h-11" type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="new-order">N° de facture ou de commande</Label><Input id="new-order" className="h-11" placeholder="Rempli par le ticket, ou à saisir" value={f.order_number} onChange={(e) => setF({ ...f, order_number: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label htmlFor="new-order-date">Date de la facture ou de la commande</Label><Input id="new-order-date" className="h-11" type="date" value={f.order_date} onChange={(e) => setF({ ...f, order_date: e.target.value })} /></div>
+                <div className="space-y-3 rounded-lg border p-3">
+                  <p className="text-sm font-medium">Garantie légale</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <LegalSelect label="Pays d’achat" value={legal.country} onChange={(v) => applyLegal({ ...legal, country: v as PurchaseCountry })} options={[["france", "France"], ["ue", "Autre pays UE"], ["hors_ue", "Hors UE"]]} />
+                    <LegalSelect label="Vendeur" value={legal.seller} onChange={(v) => applyLegal({ ...legal, seller: v as SellerType })} options={[["pro", "Professionnel"], ["particulier", "Particulier"]]} />
+                    <LegalSelect label="État" value={legal.condition} onChange={(v) => applyLegal({ ...legal, condition: v as ItemCondition })} options={[["neuf", "Neuf"], ["occasion", "Occasion"]]} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">{estimate.certainty === "estimation" && <span className="font-medium">Estimation · </span>}{estimate.certainty === "inconnue" && <span className="font-medium">À vérifier · </span>}{estimate.note}</p>
+                  <WarrantyYearSelect id="primary-years" label="Durée retenue" warrantyKey="base" value={f.warranty_months > 0 ? f.warranty_months / 12 : null} onChange={(y) => setF({ ...f, warranty_months: y === null ? 0 : y * 12 })} />
+                </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <WarrantyYearSelect id="store-years" label="Garantie magasin" warrantyKey="store" value={storeYears} onChange={setStoreYears} />
                   <WarrantyYearSelect id="brand-years" label="Garantie de marque" warrantyKey="brand" value={brandYears} onChange={setBrandYears} />
@@ -173,13 +197,9 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
               </fieldset>
               <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
           </Rubrique>
-          {review && !savedItemId && (
-            <div role="note" className="rounded-lg border border-accent/40 bg-accent/10 p-3 text-sm">
-              <p className="font-medium">Vérifiez la fiche avant de l’enregistrer</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Les informations lues sur le ticket peuvent contenir des erreurs : corrigez chaque champ si besoin.{review.length ? ` À compléter : ${review.join(", ")}.` : ""}</p>
-            </div>
-          )}
-          <Button className="w-full" disabled={m.isPending}>{m.isPending ? "Enregistrement…" : savedItemId ? "Réessayer l’envoi des photos" : "Enregistrer"}</Button>
+          <div className="sticky -bottom-6 -mx-6 border-t bg-background px-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
+            <Button className="h-11 w-full" disabled={m.isPending}>{m.isPending ? "Enregistrement…" : savedItemId ? "Réessayer l’envoi des photos" : "Enregistrer l’objet"}</Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
@@ -198,7 +218,7 @@ function AppPage() {
   const filtered = applyQuickFilter(allItems.filter((i) => (!cat || i.category === cat) && matchesSearch(i, query)), quick, today0);
   const items = sortDeadline ? sortByDeadline(filtered, today0) : filtered;
   const value = protectedValue(allItems, today0);
-  const usedCats = CATEGORIES.filter((c) => allItems.some((i) => i.category === c));
+  const usedCats = [...CATEGORIES.filter((c) => allItems.some((i) => i.category === c)), ...Array.from(new Set(allItems.map((i) => i.category))).filter((c) => !CATEGORIES.includes(c))];
   const qc = useQueryClient();
   const today = todayISO();
   const firstYearItems = items.filter((i) => firstYearReminder(i.purchase_date) === today);
