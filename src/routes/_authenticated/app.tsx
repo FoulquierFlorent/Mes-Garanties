@@ -21,6 +21,7 @@ import { uploadItemPhotos } from "@/lib/item-photos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useUserId } from "@/hooks/useUserId";
@@ -55,6 +56,9 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const [alerts, setAlerts] = useState<AlertKey[]>(ALERT_PRESETS.standard);
   const [alertMode, setAlertMode] = useState<AlertMode>("standard");
   const [extraShown, setExtraShown] = useState<string[]>([]);
+  const [details, setDetails] = useState<Record<string, { provider: string; start_date: string; conditions: string }>>({});
+  const [contracts, setContracts] = useState<Record<string, File>>({});
+  const setDetail = (k: string, patch: Partial<{ provider: string; start_date: string; conditions: string }>) => setDetails((d) => ({ ...d, [k]: { provider: "", start_date: "", conditions: "", ...d[k], ...patch } }));
   const [storeYears, setStoreYears] = useState<number | null>(null);
   const [brandYears, setBrandYears] = useState<number | null>(null);
   const [constructorYears, setConstructorYears] = useState<number | null>(null);
@@ -69,14 +73,24 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const [legal, setLegal] = useState<LegalContext>(DEFAULT_LEGAL_CONTEXT);
   const estimate = estimateLegalWarranty(legal);
   const applyLegal = (next: LegalContext) => { setLegal(next); const e = estimateLegalWarranty(next); if (e.months !== null) setF((prev) => ({ ...prev, warranty_months: e.months as number })); };
+  const yearsOf: Record<string, number | null> = { store: storeYears, brand: brandYears, constructor: constructorYears, extension: extensionYears, repair: repairYears };
+  const buildDetails = () => Object.fromEntries(Object.entries(details).filter(([k]) => yearsOf[k] !== null).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([a, b]) => [a, b.trim()]).filter(([, b]) => b))]));
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
       if (!itemId) {
-        const { data, error } = await supabase.from("items").insert({ ...f, order_number: f.order_number.trim() || null, order_date: f.order_date || null, price: f.price.trim() ? Number(f.price.replace(",", ".")) : null, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears, constructor_warranty_years: constructorYears, extension_warranty_years: extensionYears, repair_warranty_years: repairYears }).select("id").single();
+        const { data, error } = await supabase.from("items").insert({ ...f, order_number: f.order_number.trim() || null, order_date: f.order_date || null, price: f.price.trim() ? Number(f.price.replace(",", ".")) : null, alerts, category, household_id: householdId, store_warranty_years: storeYears, brand_warranty_years: brandYears, constructor_warranty_years: constructorYears, extension_warranty_years: extensionYears, repair_warranty_years: repairYears, warranty_details: buildDetails() }).select("id").single();
         if (error) throw error;
         itemId = data.id;
         setSavedItemId(itemId);
+        for (const [k, file] of Object.entries(contracts)) {
+          try {
+            const name = await uploadReceipt(itemId, file);
+            const wd = buildDetails() as Record<string, Record<string, string>>;
+            wd[k] = { ...(wd[k] ?? {}), contract_file: name };
+            await supabase.from("items").update({ warranty_details: wd }).eq("id", itemId);
+          } catch { toast.error("Un contrat n’a pas pu être joint : ajoutez-le depuis la fiche."); }
+        }
         if (scanFile) {
           try {
             await uploadReceipt(itemId, scanFile, scanText);
@@ -114,7 +128,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetailsOpen(false); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetails({}); setContracts({}); setExtraShown([]); setDetailsOpen(false); } }}>
       {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter un objet</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter un objet</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -188,9 +202,18 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                     ["extension", "Extension de garantie", extensionYears, setExtensionYears],
                     ["repair", "Garantie de réparation", repairYears, setRepairYears],
                   ] as const).map(([k, label, val, set]) => (extraShown.includes(k) || val !== null) ? (
-                    <div key={k} className="flex items-end gap-2">
-                      <div className="min-w-0 flex-1"><WarrantyYearSelect id={`${k}-years`} label={label} warrantyKey={k} value={val} onChange={set} /></div>
-                      <Button type="button" variant="ghost" size="sm" className="h-11" onClick={() => { set(null); setExtraShown(extraShown.filter((x) => x !== k)); }}>Retirer</Button>
+                    <div key={k} className="space-y-2 rounded-md border bg-background p-2.5">
+                      <div className="flex items-end gap-2">
+                        <div className="min-w-0 flex-1"><WarrantyYearSelect id={`${k}-years`} label={label} warrantyKey={k} value={val} onChange={set} /></div>
+                        <Button type="button" variant="ghost" size="sm" className="h-11" onClick={() => { set(null); setExtraShown(extraShown.filter((x) => x !== k)); }}>Retirer</Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1"><Label htmlFor={`${k}-provider`} className="text-xs">{k === "repair" ? "Réparateur" : "Fournisseur"}</Label><Input id={`${k}-provider`} className="h-11" value={details[k]?.provider ?? ""} onChange={(e) => setDetail(k, { provider: e.target.value })} /></div>
+                        <div className="space-y-1"><Label htmlFor={`${k}-start`} className="text-xs">Date de début</Label><Input id={`${k}-start`} type="date" className="h-11" value={details[k]?.start_date ?? ""} onChange={(e) => setDetail(k, { start_date: e.target.value })} /></div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Sans date de début, la date d’achat est utilisée.</p>
+                      <div className="space-y-1"><Label htmlFor={`${k}-cond`} className="text-xs">Conditions</Label><Textarea id={`${k}-cond`} rows={2} value={details[k]?.conditions ?? ""} onChange={(e) => setDetail(k, { conditions: e.target.value })} /></div>
+                      <div className="space-y-1"><Label htmlFor={`${k}-contract`} className="text-xs">Contrat (photo ou PDF)</Label><Input id={`${k}-contract`} type="file" accept="image/*,application/pdf" className="h-11" onChange={(e) => { const file = e.target.files?.[0]; setContracts((c) => { const n = { ...c }; if (file) n[k] = file; else delete n[k]; return n; }); }} /></div>
                     </div>
                   ) : null)}
                   <div className="flex flex-wrap gap-2">

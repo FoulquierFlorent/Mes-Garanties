@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/public/jobs/send-warranty-reminders")
           ]);
           const [{ data: members, error: membersError }, { data: items, error: itemsError }] = await Promise.all([
             supabaseAdmin.from("household_members").select("user_id, household_id, email, display_name, email_alert_lead").eq("email_alerts_enabled", true),
-            supabaseAdmin.from("items").select("id, name, household_id, purchase_date, warranty_months, store_warranty_years, brand_warranty_years, constructor_warranty_years, extension_warranty_years, repair_warranty_years").not("household_id", "is", null),
+            supabaseAdmin.from("items").select("id, name, household_id, purchase_date, warranty_months, store_warranty_years, brand_warranty_years, constructor_warranty_years, extension_warranty_years, repair_warranty_years, warranty_details").not("household_id", "is", null),
           ]);
           if (membersError || itemsError) return json({ error: "read_failed" }, 500);
 

@@ -33,3 +33,10 @@ describe("garantie", () => {
     expect(status("2026-03-01", "2026-02-01")).toBe("soon");
   });
 });
+
+import { itemWarranties as iw } from "./warranty";
+import { it as it2, expect as ex2 } from "vitest";
+it2("une garantie supplémentaire part de sa date de début si elle est renseignée", () => {
+  const w = iw({ purchase_date: "2024-01-10", warranty_months: 24, store_warranty_years: 1, warranty_details: { store: { start_date: "2024-03-01" } } });
+  ex2(w.find((x) => x.key === "store")?.end).toBe("2025-03-01");
+});
