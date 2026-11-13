@@ -60,7 +60,16 @@ export type WarrantyItem = {
   constructor_warranty_years?: number | null;
   extension_warranty_years?: number | null;
   repair_warranty_years?: number | null;
+  warranty_details?: unknown;
 };
+
+export type WarrantyDetail = { provider?: string; start_date?: string; conditions?: string; contract_file?: string };
+export function warrantyDetail(item: { warranty_details?: unknown }, key: WarrantyKey): WarrantyDetail {
+  const d = item.warranty_details;
+  if (!d || typeof d !== "object") return {};
+  const v = (d as Record<string, unknown>)[key];
+  return v && typeof v === "object" ? (v as WarrantyDetail) : {};
+}
 
 export type Warranty = { key: WarrantyKey; label: string; end: string };
 
@@ -76,7 +85,7 @@ export function itemWarranties(item: WarrantyItem): Warranty[] {
     ["repair", item.repair_warranty_years],
   ];
   for (const [key, years] of optional) {
-    if (years) warranties.push({ key, label: WARRANTY_LABELS[key], end: warrantyEnd(item.purchase_date, years * 12) });
+    if (years) warranties.push({ key, label: WARRANTY_LABELS[key], end: warrantyEnd(warrantyDetail(item, key).start_date || item.purchase_date, years * 12) });
   }
   return warranties;
 }

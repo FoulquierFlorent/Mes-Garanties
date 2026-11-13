@@ -157,6 +157,7 @@ export type Database = {
           store: string | null
           store_warranty_years: number | null
           user_id: string
+          warranty_details: Json
           warranty_months: number
         }
         Insert: {
@@ -186,6 +187,7 @@ export type Database = {
           store?: string | null
           store_warranty_years?: number | null
           user_id?: string
+          warranty_details?: Json
           warranty_months?: number
         }
         Update: {
@@ -215,6 +217,7 @@ export type Database = {
           store?: string | null
           store_warranty_years?: number | null
           user_id?: string
+          warranty_details?: Json
           warranty_months?: number
         }
         Relationships: [
