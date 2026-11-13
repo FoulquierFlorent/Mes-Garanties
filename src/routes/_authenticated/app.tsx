@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { canAddItem, FREE_ITEM_LIMIT } from "@/lib/plans";
 import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt, formatPrice } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ALERT_OPTIONS, alertDate, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
+import { ALERT_OPTIONS, ALERT_PRESETS, type AlertMode, alertDate, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { itemCoverage, StatusBadge } from "@/components/HouseholdUi";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
@@ -52,7 +52,9 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const [open, setOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [f, setF] = useState({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 });
-  const [alerts, setAlerts] = useState<AlertKey[]>(["1m"]);
+  const [alerts, setAlerts] = useState<AlertKey[]>(ALERT_PRESETS.standard);
+  const [alertMode, setAlertMode] = useState<AlertMode>("standard");
+  const [extraShown, setExtraShown] = useState<string[]>([]);
   const [storeYears, setStoreYears] = useState<number | null>(null);
   const [brandYears, setBrandYears] = useState<number | null>(null);
   const [constructorYears, setConstructorYears] = useState<number | null>(null);
@@ -177,22 +179,44 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                   <p className="text-xs text-muted-foreground">{estimate.certainty === "estimation" && <span className="font-medium">Estimation · </span>}{estimate.certainty === "inconnue" && <span className="font-medium">À vérifier · </span>}{estimate.note}</p>
                   <WarrantyYearSelect id="primary-years" label="Durée retenue" warrantyKey="base" value={f.warranty_months > 0 ? f.warranty_months / 12 : null} onChange={(y) => setF({ ...f, warranty_months: y === null ? 0 : y * 12 })} />
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <WarrantyYearSelect id="store-years" label="Garantie magasin" warrantyKey="store" value={storeYears} onChange={setStoreYears} />
-                  <WarrantyYearSelect id="brand-years" label="Garantie de marque" warrantyKey="brand" value={brandYears} onChange={setBrandYears} />
-                  <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" warrantyKey="constructor" value={constructorYears} onChange={setConstructorYears} />
-                  <WarrantyYearSelect id="extension-years" label="Garantie d’extension" warrantyKey="extension" value={extensionYears} onChange={setExtensionYears} />
-                  <WarrantyYearSelect id="repair-years" label="Garantie de réparation" warrantyKey="repair" value={repairYears} onChange={setRepairYears} />
+                <div className="space-y-3 rounded-lg border p-3">
+                  <p className="text-sm font-medium">Garanties supplémentaires</p>
+                  {([
+                    ["store", "Garantie magasin", storeYears, setStoreYears],
+                    ["brand", "Garantie de marque", brandYears, setBrandYears],
+                    ["constructor", "Garantie constructeur", constructorYears, setConstructorYears],
+                    ["extension", "Extension de garantie", extensionYears, setExtensionYears],
+                    ["repair", "Garantie de réparation", repairYears, setRepairYears],
+                  ] as const).map(([k, label, val, set]) => (extraShown.includes(k) || val !== null) ? (
+                    <div key={k} className="flex items-end gap-2">
+                      <div className="min-w-0 flex-1"><WarrantyYearSelect id={`${k}-years`} label={label} warrantyKey={k} value={val} onChange={set} /></div>
+                      <Button type="button" variant="ghost" size="sm" className="h-11" onClick={() => { set(null); setExtraShown(extraShown.filter((x) => x !== k)); }}>Retirer</Button>
+                    </div>
+                  ) : null)}
+                  <div className="flex flex-wrap gap-2">
+                    {([["store", "Magasin"], ["brand", "Marque"], ["constructor", "Constructeur"], ["extension", "Extension"], ["repair", "Réparation"]] as const)
+                      .filter(([k]) => !extraShown.includes(k) && ({ store: storeYears, brand: brandYears, constructor: constructorYears, extension: extensionYears, repair: repairYears })[k] === null)
+                      .map(([k, l]) => <Button key={k} type="button" variant="outline" size="sm" className="h-9 rounded-full" onClick={() => setExtraShown([...extraShown, k])}>+ {l}</Button>)}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Alertes</Label>
-                  <label className="flex items-center gap-2 text-sm"><Checkbox checked disabled />Fin de la première année</label>
-                  {ALERT_OPTIONS.map((o) => (
+                  <div role="radiogroup" aria-label="Mode d'alertes" className="grid grid-cols-2 gap-2">
+                    {([["standard", "Standard", "1 mois et 1 semaine avant"], ["renforcees", "Renforcées", "6 mois, 3 mois, 1 mois, 1 semaine"], ["personnalisees", "Personnalisées", "À choisir"], ["aucune", "Aucune", "Pas d’alerte pour cet objet"]] as const).map(([k, l, d]) => (
+                      <button key={k} type="button" role="radio" aria-checked={alertMode === k} onClick={() => { setAlertMode(k); if (k !== "personnalisees") setAlerts(ALERT_PRESETS[k]); }}
+                        className={`rounded-lg border p-2.5 text-left text-sm transition-colors ${alertMode === k ? "border-primary bg-secondary" : "bg-background"}`}>
+                        <span className="block font-medium">{l}{k === "standard" && <span className="ml-1 text-xs font-normal text-muted-foreground">(recommandé)</span>}</span>
+                        <span className="block text-xs text-muted-foreground">{d}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {alertMode === "personnalisees" && ALERT_OPTIONS.map((o) => (
                     <label key={o.key} className="flex items-center gap-2 text-sm">
                       <Checkbox checked={alerts.includes(o.key)} onCheckedChange={(c) => setAlerts(c ? [...alerts, o.key] : alerts.filter((a) => a !== o.key))} />
                       {o.label}
                     </label>
                   ))}
+                  <p className="text-xs text-muted-foreground">Un rappel de fin de première année est toujours affiché. Les alertes sont calculées à partir de la date de fin de chaque garantie.</p>
                 </div>
               </fieldset>
               <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
