@@ -51,7 +51,7 @@ describe("ajout d'un objet en deux temps", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /informations complémentaires/ }));
 
-    expect(screen.getByText("Garantie magasin")).toBeInTheDocument();
+    expect(screen.getByText("Garanties supplémentaires")).toBeInTheDocument();
     expect(screen.getByText("Marque")).toBeInTheDocument();
     expect(screen.getByText("Prix (€, facultatif)")).toBeInTheDocument();
     expect(screen.getByText("Garantie de réparation")).toBeInTheDocument();
