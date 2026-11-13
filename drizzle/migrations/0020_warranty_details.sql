@@ -1,0 +1,2 @@
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS warranty_details jsonb NOT NULL DEFAULT '{}'::jsonb;
+COMMENT ON COLUMN public.items.warranty_details IS 'Per extra warranty key (store, brand, constructor, extension, repair): provider, start_date, conditions, contract_file';
