@@ -54,6 +54,6 @@ describe("ajout d'un objet en deux temps", () => {
     expect(screen.getByText("Garanties supplémentaires")).toBeInTheDocument();
     expect(screen.getByText("Marque")).toBeInTheDocument();
     expect(screen.getByText("Prix (€, facultatif)")).toBeInTheDocument();
-    expect(screen.getByText("Garantie de réparation")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "+ Réparation" })).toBeInTheDocument();
   });
 });
