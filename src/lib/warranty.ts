@@ -102,3 +102,15 @@ export function status(endDate: string, today: string): Status {
   if (d <= 90) return "soon";
   return "active";
 }
+
+export type AlertMode = "standard" | "renforcees" | "personnalisees" | "aucune";
+export const ALERT_PRESETS: Record<"standard" | "renforcees" | "aucune", AlertKey[]> = {
+  standard: ["1m", "1w"],
+  renforcees: ["6m", "3m", "1m", "1w"],
+  aucune: [],
+};
+export function alertModeOf(keys: AlertKey[]): AlertMode {
+  const s = [...keys].sort().join(",");
+  for (const m of ["standard", "renforcees", "aucune"] as const) if ([...ALERT_PRESETS[m]].sort().join(",") === s) return m;
+  return "personnalisees";
+}
