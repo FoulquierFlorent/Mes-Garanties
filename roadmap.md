@@ -44,6 +44,7 @@
 
 ## Amélioration progressive du document
 - [x] Phases 1 à 3 : ajout simplifié, garanties supplémentaires et modes de rappels
-- [ ] Phase 4 : fiche compacte, garanties détaillées modifiables et contrats consultables
-- [ ] Vérifier la fiche sur téléphone, la sauvegarde et le rechargement
-- [ ] Phase 5 : vérification complète des autres parcours (prochaine étape après la fiche)
+- [x] Phase 4 : fiche compacte, garanties détaillées modifiables et contrats consultables
+- [x] Vérifier la fiche sur téléphone, la sauvegarde et le rechargement
+
+Prochaine phase du document : finitions et vérification complète des autres parcours.

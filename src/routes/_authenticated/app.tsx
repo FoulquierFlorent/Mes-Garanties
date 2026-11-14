@@ -83,12 +83,14 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
         if (error) throw error;
         itemId = data.id;
         setSavedItemId(itemId);
+        const wd = buildDetails() as Record<string, Record<string, string>>;
         for (const [k, file] of Object.entries(contracts)) {
+          if (yearsOf[k] === null) continue;
           try {
             const name = await uploadReceipt(itemId, file);
-            const wd = buildDetails() as Record<string, Record<string, string>>;
             wd[k] = { ...(wd[k] ?? {}), contract_file: name };
-            await supabase.from("items").update({ warranty_details: wd }).eq("id", itemId);
+            const { error: detailsError } = await supabase.from("items").update({ warranty_details: wd }).eq("id", itemId);
+            if (detailsError) throw detailsError;
           } catch { toast.error("Un contrat n’a pas pu être joint : ajoutez-le depuis la fiche."); }
         }
         if (scanFile) {
@@ -112,6 +114,9 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
       setConstructorYears(null);
       setExtensionYears(null);
       setRepairYears(null);
+      setDetails({});
+      setContracts({});
+      setExtraShown([]);
       setPhotos([]);
       setSavedItemId(null);
       setScanFile(null);
