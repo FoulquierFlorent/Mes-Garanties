@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ComponentType } from "react";
 
@@ -38,6 +38,7 @@ describe("garanties sur la page de l'objet", () => {
   it("affiche la garantie légale avec la garantie magasin et la garantie de marque", () => {
     const Page = Route.options.component as ComponentType;
     render(<Page />);
+    fireEvent.click(screen.getByRole("button", { name: /Modifier les durées/ }));
     const section = screen.getByRole("heading", { name: "Garanties" }).closest("section") as HTMLElement;
 
     const rows = Array.from(section.querySelectorAll("p")).map((p) => p.textContent);
@@ -54,6 +55,7 @@ describe("garanties sur la page de l'objet", () => {
   it("permet de modifier la garantie légale depuis la page de l'objet", () => {
     const Page = Route.options.component as ComponentType;
     render(<Page />);
+    fireEvent.click(screen.getByRole("button", { name: /Modifier les durées/ }));
     const trigger = screen.getByLabelText("Garantie légale");
     expect(trigger.textContent).toContain("2 ans");
   });
