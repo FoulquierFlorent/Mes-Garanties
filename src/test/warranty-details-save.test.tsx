@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, expect, it, vi } from "vitest";
 import type { Item } from "@/lib/items";
 const { update, upload } = vi.hoisted(() => ({ update: vi.fn(), upload: vi.fn() }));
-vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => ({ invalidateQueries: vi.fn() }) }));
+vi.mock("@tanstack/react-query", () => ({ queryOptions: (options: unknown) => options, useQueryClient: () => ({ invalidateQueries: vi.fn() }) }));
 vi.mock("@/lib/receipt-upload", () => ({ uploadReceipt: upload }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: () => ({ update: (patch: unknown) => { update(patch); return { eq: () => Promise.resolve({ error: null }) }; } }) } }));
 import { ItemWarrantyDetails } from "@/components/ItemWarrantyDetails";
