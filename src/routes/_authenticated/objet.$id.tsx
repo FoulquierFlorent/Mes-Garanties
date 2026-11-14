@@ -1,3 +1,5 @@
+import { ItemWarrantyDetails } from "@/components/ItemWarrantyDetails";
+import { itemCoverage, StatusBadge } from "@/components/HouseholdUi";
 import { ReceiptSummary } from "@/components/ReceiptSummary";
 import { RightBanner } from "@/components/RightBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -123,7 +125,6 @@ function ItemPage() {
   }
 
   if (!item) return <main className="p-12 text-center">Objet introuvable.</main>;
-  const end = warrantyEnd(item.purchase_date, item.warranty_months);
   const baseYearsWhole = item.warranty_months % 12 === 0;
   const originalMonths = item.warranty_months;
   const yearsByWarranty: Record<string, number | null | undefined> = {
@@ -267,12 +268,34 @@ function ItemPage() {
   return (
     <main className="mx-auto max-w-3xl px-5 py-12">
       <Link to="/app" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />Retour</Link>
+      <ItemPhotos itemId={item.id} />
       <p className="mt-6 text-xs uppercase tracking-wider text-accent">{item.category}</p>
       <h1 className="text-4xl sm:text-5xl">{item.name}</h1>
-      <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""} · garantie légale jusqu'au {fmt(end)}</p>
+      <p className="mt-2 text-muted-foreground">Acheté le {fmt(item.purchase_date)}{item.store ? ` chez ${item.store}` : ""}{item.price != null ? ` · ${formatPrice(item.price)}` : ""}</p>
 
-      <ItemPhotos itemId={item.id} />
+      <p className="mt-2 text-sm text-muted-foreground">{item.brand || "Marque non renseignée"}</p>
+      <div className="mt-3">{itemCoverage(item, todayISO()).status ? <StatusBadge value={itemCoverage(item, todayISO()).status ?? "expired"} /> : <span className="text-sm text-muted-foreground">Informations insuffisantes</span>}</div>
 
+      <section className="mt-6 border-y py-6">
+        <h2 className="text-2xl">Garanties</h2>
+        <ItemWarrantyDetails item={item} />
+        <Rubrique compact title="Modifier les durées" open={openSections.includes("durations")} onOpenChange={(o) => setSection("durations", o)}>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
+          <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
+          <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
+          <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" value={constructorYears} onChange={setConstructorYears} warrantyKey="constructor" />
+          <WarrantyYearSelect id="extension-years" label="Garantie d’extension" value={extensionYears} onChange={setExtensionYears} warrantyKey="extension" />
+          <WarrantyYearSelect id="repair-years" label="Garantie de réparation" value={repairYears} onChange={setRepairYears} warrantyKey="repair" />
+        </div>
+        <div className="mt-4 space-y-1.5">
+          {warrantyRows.map((w) => <p key={w.key} className="text-sm text-muted-foreground pl-8 -indent-8"><WarrantyMarker warrantyKey={w.key} className="mr-2" />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
+        </div>
+        <Button className="mt-4" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
+        </Rubrique>
+      </section>
+
+      <Rubrique title="Informations de l’objet" open={openSections.includes("info")} onOpenChange={(o) => setSection("info", o)}>
       <section className="border-y py-6">
         <h2 className="text-2xl">Descriptif de l’objet</h2>
         <div className="mt-4 space-y-1.5">
@@ -320,21 +343,7 @@ function ItemPage() {
       </section>
 
 
-      <section className="mt-6 border-y py-6">
-        <h2 className="text-2xl">Garanties</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
-          <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
-          <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
-          <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" value={constructorYears} onChange={setConstructorYears} warrantyKey="constructor" />
-          <WarrantyYearSelect id="extension-years" label="Garantie d’extension" value={extensionYears} onChange={setExtensionYears} warrantyKey="extension" />
-          <WarrantyYearSelect id="repair-years" label="Garantie de réparation" value={repairYears} onChange={setRepairYears} warrantyKey="repair" />
-        </div>
-        <div className="mt-4 space-y-1.5">
-          {warrantyRows.map((w) => <p key={w.key} className="text-sm text-muted-foreground pl-8 -indent-8"><WarrantyMarker warrantyKey={w.key} className="mr-2" />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
-        </div>
-        <Button className="mt-4" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
-      </section>
+      </Rubrique>
 
       <Button className="mt-6" variant="outline" onClick={() => { openSection("steps"); scrollToSection(stepsRef); }}><TriangleAlert />Signaler un problème</Button>
 
