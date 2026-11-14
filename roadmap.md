@@ -41,3 +41,10 @@
 - [x] Créer une fiche d’achat depuis une photo de ticket, avec vérification et correction avant enregistrement
 - [x] Suppression définitive du compte avec confirmation et explication (données personnelles, objets partagés)
 - [x] Signature de marque sous le logo de l'accueil
+
+## Amélioration progressive du document
+- [x] Phases 1 à 3 : ajout simplifié, garanties supplémentaires et modes de rappels
+- [x] Phase 4 : fiche compacte, garanties détaillées modifiables et contrats consultables
+- [x] Vérifier la fiche sur téléphone, la sauvegarde et le rechargement
+
+Prochaine phase du document : finitions et vérification complète des autres parcours.
