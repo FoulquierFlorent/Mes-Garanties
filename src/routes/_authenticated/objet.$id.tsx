@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { ArrowLeft, Copy, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, householdQuery, fmt, todayISO, RETURN_LABELS, formatPrice } from "@/lib/items";
-import { warrantyEnd, itemWarranties, yearsLabel, WARRANTY_LABELS } from "@/lib/warranty";
+import { itemWarranties, yearsLabel, WARRANTY_LABELS } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { ItemPhotos, PhotoPicker } from "@/components/ItemPhotos";
@@ -69,6 +69,14 @@ function ItemPage() {
     item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
   );
   const [savingWarranties, setSavingWarranties] = useState(false);
+  useEffect(() => {
+    setStoreYears(item?.store_warranty_years ?? null);
+    setBrandYears(item?.brand_warranty_years ?? null);
+    setConstructorYears(item?.constructor_warranty_years ?? null);
+    setExtensionYears(item?.extension_warranty_years ?? null);
+    setRepairYears(item?.repair_warranty_years ?? null);
+    setBaseYears(item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null);
+  }, [item?.id, item?.warranty_months, item?.store_warranty_years, item?.brand_warranty_years, item?.constructor_warranty_years, item?.extension_warranty_years, item?.repair_warranty_years]);
   const [price, setPrice] = useState(item?.price != null ? String(item.price) : "");
   const [savingPrice, setSavingPrice] = useState(false);
   // Resynchronise le prix avec la fiche enregistrée (rechargement, autre membre du foyer).
@@ -280,18 +288,18 @@ function ItemPage() {
         <h2 className="text-2xl">Garanties</h2>
         <ItemWarrantyDetails item={item} />
         <Rubrique compact title="Modifier les durées" open={openSections.includes("durations")} onOpenChange={(o) => setSection("durations", o)}>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <fieldset disabled={savingWarranties} className="mt-4 grid min-w-0 gap-4 sm:grid-cols-3 [&_button]:min-h-11">
           {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
           <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
           <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
           <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" value={constructorYears} onChange={setConstructorYears} warrantyKey="constructor" />
           <WarrantyYearSelect id="extension-years" label="Garantie d’extension" value={extensionYears} onChange={setExtensionYears} warrantyKey="extension" />
           <WarrantyYearSelect id="repair-years" label="Garantie de réparation" value={repairYears} onChange={setRepairYears} warrantyKey="repair" />
-        </div>
+        </fieldset>
         <div className="mt-4 space-y-1.5">
           {warrantyRows.map((w) => <p key={w.key} className="text-sm text-muted-foreground pl-8 -indent-8"><WarrantyMarker warrantyKey={w.key} className="mr-2" />{w.label} · {w.duration} · jusqu’au {fmt(w.end)}</p>)}
         </div>
-        <Button className="mt-4" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
+        <Button className="mt-4 h-auto min-h-11 w-full whitespace-normal sm:w-auto" disabled={savingWarranties} onClick={saveWarranties}>{savingWarranties ? "Enregistrement…" : "Enregistrer les garanties"}</Button>
         </Rubrique>
       </section>
 

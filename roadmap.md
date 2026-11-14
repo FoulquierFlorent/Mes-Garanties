@@ -47,4 +47,5 @@
 - [x] Phase 4 : fiche compacte, garanties détaillées modifiables et contrats consultables
 - [x] Vérifier la fiche sur téléphone, la sauvegarde et le rechargement
 
-Prochaine phase du document : finitions et vérification complète des autres parcours.
+- [ ] Finitions des fiches : durée visible, aperçu de fin, annulation et boutons mobiles
+- [ ] Vérifier une modification réelle, son rechargement et restaurer les valeurs initiales sur téléphone
