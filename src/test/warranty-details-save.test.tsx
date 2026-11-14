@@ -7,6 +7,16 @@ vi.mock("@/lib/receipt-upload", () => ({ uploadReceipt: upload }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: () => ({ update: (patch: unknown) => { update(patch); return { eq: () => Promise.resolve({ error: null }) }; } }) } }));
 import { ItemWarrantyDetails } from "@/components/ItemWarrantyDetails";
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
+it("annuler une modification conserve les données enregistrées", () => {
+  const item = { id: "objet", purchase_date: "2026-01-15", warranty_months: 24, store_warranty_years: 2, warranty_details: { store: { provider: "Magasin A", start_date: "2026-02-01" } } } as unknown as Item;
+  render(<ItemWarrantyDetails item={item} />);
+  fireEvent.click(screen.getByRole("button", { name: /Modifier les informations/ }));
+  fireEvent.change(screen.getByLabelText("Fournisseur"), { target: { value: "À abandonner" } });
+  fireEvent.click(screen.getByRole("button", { name: "Annuler" }));
+  fireEvent.click(screen.getByRole("button", { name: /Modifier les informations/ }));
+  expect(screen.getByLabelText("Fournisseur")).toHaveValue("Magasin A");
+  expect(update).not.toHaveBeenCalled();
+});
 it("enregistre fournisseur, début et conditions sans effacer le contrat ni les autres garanties", async () => {
   const item = { id: "objet", purchase_date: "2026-01-15", warranty_months: 24, store_warranty_years: 2, warranty_details: { store: { provider: "Magasin A", contract_file: "contrat.pdf" }, brand: { provider: "Marque B", conditions: "Pièces" } } } as unknown as Item;
   render(<ItemWarrantyDetails item={item} />);
