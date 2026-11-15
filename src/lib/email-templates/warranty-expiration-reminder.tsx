@@ -67,7 +67,7 @@ export const template = {
     itemName: "Machine à laver",
     itemUrl: "https://mesgaranties.com/calendrier",
     leadLabel: "1 mois avant l’échéance",
-    warranties: [{ label: "Garantie légale", endDate: "15 janvier 2027", daysLeft: 31 }],
+    warranties: [{ label: "Garantie légale de conformité", endDate: "15 janvier 2027", daysLeft: 31 }],
   },
 } satisfies TemplateEntry;
 
