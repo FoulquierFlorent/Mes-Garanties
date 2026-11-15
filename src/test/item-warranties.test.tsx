@@ -42,11 +42,11 @@ describe("garanties sur la page de l'objet", () => {
     const section = screen.getByRole("heading", { name: "Garanties" }).closest("section") as HTMLElement;
 
     const rows = Array.from(section.querySelectorAll("p")).map((p) => p.textContent);
-    expect(rows).toContain("Garantie légale · 2 ans · jusqu’au 15 janvier 2027");
+    expect(rows).toContain("Garantie légale de conformité · 2 ans · jusqu’au 15 janvier 2027");
     expect(rows).toContain("Garantie magasin · 1 an · jusqu’au 15 janvier 2026");
     expect(rows).toContain("Garantie de marque · 3 ans · jusqu’au 15 janvier 2028");
 
-    const legalRow = Array.from(section.querySelectorAll("p")).find((p) => p.textContent?.startsWith("Garantie légale ·")) as HTMLElement;
+    const legalRow = Array.from(section.querySelectorAll("p")).find((p) => p.textContent?.startsWith("Garantie légale de conformité ·")) as HTMLElement;
     expect(legalRow.querySelector("span.bg-warranty-legal")).not.toBeNull();
     expect(section.querySelector("span.bg-warranty-store")).not.toBeNull();
     expect(section.querySelector("span.bg-warranty-brand")).not.toBeNull();
@@ -56,7 +56,7 @@ describe("garanties sur la page de l'objet", () => {
     const Page = Route.options.component as ComponentType;
     render(<Page />);
     fireEvent.click(screen.getByRole("button", { name: /Modifier les durées/ }));
-    const trigger = screen.getByLabelText("Garantie légale");
+    const trigger = screen.getByLabelText("Garantie légale de conformité");
     expect(trigger.textContent).toContain("2 ans");
   });
 });

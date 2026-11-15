@@ -48,7 +48,7 @@ describe("fiche objet allégée", () => {
     expect(screen.getByRole("heading", { name: "Prix" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Modifier les durées/ }));
     const rows = Array.from(document.querySelectorAll("p")).map((p) => p.textContent);
-    expect(rows).toContain("Garantie légale · 2 ans · jusqu’au 15 janvier 2027");
+    expect(rows).toContain("Garantie légale de conformité · 2 ans · jusqu’au 15 janvier 2027");
 
     expect(pageText()).not.toContain("Factures et tickets");
     expect(pageText()).not.toContain("Lettre de demande de remplacement");
