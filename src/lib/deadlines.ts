@@ -1,4 +1,4 @@
-import { ALERT_OPTIONS, alertDate, firstYearReminder, itemWarranties, type AlertKey, type WarrantyItem } from "@/lib/warranty";
+import { ALERT_LEAD_LABELS, alertDate, firstYearReminder, itemWarranties, type AlertKey, type WarrantyItem } from "@/lib/warranty";
 
 export type Deadline = { id: string; name: string; date: string; warrantyKey: string; warranty: string; kind: "end" | "first-year" | AlertKey; label: string };
 
@@ -12,7 +12,7 @@ export function upcomingDeadlines(items: DeadlineItem[], today: string, limit = 
     for (const w of itemWarranties(i)) {
       out.push({ id: i.id, name: i.name, date: w.end, warrantyKey: w.key, warranty: w.label, kind: "end", label: "Fin de garantie" });
       for (const a of (Array.isArray(i.alerts) ? i.alerts : []) as AlertKey[]) {
-        out.push({ id: i.id, name: i.name, date: alertDate(w.end, a), warrantyKey: w.key, warranty: w.label, kind: a, label: `Alerte ${ALERT_OPTIONS.find((o) => o.key === a)?.label ?? ""}`.trim() });
+        out.push({ id: i.id, name: i.name, date: alertDate(w.end, a), warrantyKey: w.key, warranty: w.label, kind: a, label: `Alerte ${ALERT_LEAD_LABELS[a]}` });
       }
     }
   }

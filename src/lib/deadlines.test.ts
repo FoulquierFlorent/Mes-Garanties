@@ -16,6 +16,16 @@ describe("upcomingDeadlines", () => {
     expect(r.some((d) => d.id === "b")).toBe(false);
     expect(r[2]?.warrantyKey).toBe("base");
   });
+
+  it("names the legal warranty in full and keeps alert leads generic", () => {
+    const items = [{ ...base, id: "a", name: "A", purchase_date: "2025-01-10", store_warranty_years: 3, alerts: ["1m"] }];
+    const r = upcomingDeadlines(items, "2026-01-01");
+    const legalEnd = r.find((d) => d.warrantyKey === "base" && d.kind === "end");
+    expect(legalEnd?.warranty).toBe("Garantie légale de conformité");
+    const storeAlert = r.find((d) => d.warrantyKey === "store" && d.kind === "1m");
+    expect(storeAlert?.label).toBe("Alerte 1 mois avant la fin");
+    expect(storeAlert?.warranty).toBe("Garantie magasin");
+  });
 });
 
 describe("matchesSearch", () => {

@@ -177,7 +177,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
             <CategoryPicker category={category} onCategory={setCategory} name={f.name} onType={(t) => setF((prev) => ({ ...prev, name: t }))} />
           </div>
           <div className="space-y-1.5"><Label htmlFor="new-date">Date d'achat</Label><Input id="new-date" className="h-11" type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
-          <p className="text-xs text-muted-foreground">Garantie légale proposée : {f.warranty_months > 0 ? `${f.warranty_months / 12} an${f.warranty_months > 12 ? "s" : ""}` : "aucune"}. Ajustez-la dans les informations complémentaires.</p>
+          <p className="text-xs text-muted-foreground">Garantie légale de conformité proposée : {f.warranty_months > 0 ? `${f.warranty_months / 12} an${f.warranty_months > 12 ? "s" : ""}` : "aucune"}. Ajustez-la dans les informations complémentaires.</p>
           </fieldset>
           <Rubrique compact title="Ajouter des informations complémentaires" hint="marque, magasin, prix, facture, garanties, alertes, photos" open={detailsOpen} onOpenChange={setDetailsOpen} contentClassName="mt-4 space-y-4">
               <fieldset disabled={m.isPending || savedItemId !== null} className="min-w-0 space-y-4">
@@ -189,7 +189,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                 <div className="space-y-1.5"><Label htmlFor="new-order">N° de facture ou de commande</Label><Input id="new-order" className="h-11" placeholder="Rempli par le ticket, ou à saisir" value={f.order_number} onChange={(e) => setF({ ...f, order_number: e.target.value })} /></div>
                 <div className="space-y-1.5"><Label htmlFor="new-order-date">Date de la facture ou de la commande</Label><Input id="new-order-date" className="h-11" type="date" value={f.order_date} onChange={(e) => setF({ ...f, order_date: e.target.value })} /></div>
                 <div className="space-y-3 rounded-lg border p-3">
-                  <p className="text-sm font-medium">Garantie légale</p>
+                  <p className="text-sm font-medium">Garantie légale de conformité</p>
                   <div className="grid grid-cols-3 gap-2">
                     <LegalSelect label="Pays d’achat" value={legal.country} onChange={(v) => applyLegal({ ...legal, country: v as PurchaseCountry })} options={[["france", "France"], ["ue", "Autre pays UE"], ["hors_ue", "Hors UE"]]} />
                     <LegalSelect label="Vendeur" value={legal.seller} onChange={(v) => applyLegal({ ...legal, seller: v as SellerType })} options={[["pro", "Professionnel"], ["particulier", "Particulier"]]} />

@@ -38,7 +38,7 @@ describe("ajout d'un objet en deux temps", () => {
     expect(screen.getByText("Scanner un ticket")).toBeInTheDocument();
     expect(screen.getByText("Nom")).toBeInTheDocument();
     expect(screen.getByText("Date d'achat")).toBeInTheDocument();
-    expect(screen.getByText(/Garantie légale proposée : 2 ans/)).toBeInTheDocument();
+    expect(screen.getByText(/Garantie légale de conformité proposée : 2 ans/)).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Ajout manuel" })).toBeInTheDocument();
   });
 

@@ -1,11 +1,19 @@
 export type AlertKey = "6m" | "3m" | "1m" | "1w";
 
 export const ALERT_OPTIONS: { key: AlertKey; label: string }[] = [
-  { key: "6m", label: "6 mois avant la fin de la garantie légale" },
-  { key: "3m", label: "3 mois avant la fin de la garantie légale" },
-  { key: "1m", label: "1 mois avant la fin de la garantie légale" },
-  { key: "1w", label: "1 semaine avant la fin de la garantie légale" },
+  { key: "6m", label: "6 mois avant la fin de la garantie légale de conformité" },
+  { key: "3m", label: "3 mois avant la fin de la garantie légale de conformité" },
+  { key: "1m", label: "1 mois avant la fin de la garantie légale de conformité" },
+  { key: "1w", label: "1 semaine avant la fin de la garantie légale de conformité" },
 ];
+
+/** Libellés courts de délai d'alerte, utilisés quand la garantie concernée est déjà nommée à côté. */
+export const ALERT_LEAD_LABELS: Record<AlertKey, string> = {
+  "6m": "6 mois avant la fin",
+  "3m": "3 mois avant la fin",
+  "1m": "1 mois avant la fin",
+  "1w": "1 semaine avant la fin",
+};
 
 function parse(d: string) {
   const [y = 0, m = 1, day = 1] = d.split("-").map(Number);
@@ -41,7 +49,7 @@ export const yearsLabel = (years: number) => `${years} ${years === 1 ? "an" : "a
 export type WarrantyKey = "base" | "store" | "brand" | "constructor" | "extension" | "repair";
 
 export const WARRANTY_LABELS: Record<WarrantyKey, string> = {
-  base: "Garantie légale",
+  base: "Garantie légale de conformité",
   store: "Garantie magasin",
   brand: "Garantie de marque",
   constructor: "Garantie constructeur",

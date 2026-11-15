@@ -54,7 +54,7 @@ function Index() {
           </p>
           <p className="mt-4 text-muted-foreground">
             Ce droit a une date de fin, et une preuve d’achat. C’est exactement ce que nous suivons pour vous :
-            garantie légale, garantie magasin, garantie de marque, garantie constructeur, extension ou réparation.
+            garantie légale de conformité, garantie magasin, garantie de marque, garantie constructeur, extension ou réparation.
             Tant que vous avez la date et la preuve, vous pouvez le faire valoir.
           </p>
           <RightBanner variant="whisper" offset={5} className="mt-6" />

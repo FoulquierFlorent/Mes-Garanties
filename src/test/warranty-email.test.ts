@@ -18,7 +18,7 @@ describe("alertes e-mail d’expiration de garantie", () => {
     ["1w", "2028-01-08"],
   ] as const)("envoie le rappel légal au délai %s choisi", (lead, today) => {
     const alert = dueWarrantyAlertsForItem(item, lead, today);
-    expect(alert?.warranties).toEqual([{ key: "base", label: "Garantie légale", end: "2028-01-15" }]);
+    expect(alert?.warranties).toEqual([{ key: "base", label: "Garantie légale de conformité", end: "2028-01-15" }]);
   });
 
   it("applique le délai personnel à chaque garantie de l’objet", () => {

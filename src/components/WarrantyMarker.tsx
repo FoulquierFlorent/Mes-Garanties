@@ -1,5 +1,5 @@
 export const WARRANTY_LEGEND = [
-  { key: "base", label: "Garantie légale", className: "bg-warranty-legal" },
+  { key: "base", label: "Garantie légale de conformité", className: "bg-warranty-legal" },
   { key: "store", label: "Garantie magasin", className: "bg-warranty-store" },
   { key: "brand", label: "Garantie de marque", className: "bg-warranty-brand" },
   { key: "constructor", label: "Garantie constructeur", className: "bg-warranty-constructor" },

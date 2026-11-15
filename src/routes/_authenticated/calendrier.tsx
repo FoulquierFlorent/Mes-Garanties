@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUpRight, Bell } from "lucide-react";
 import { itemsQuery, todayISO, fmt } from "@/lib/items";
-import { ALERT_OPTIONS, alertDate, firstYearReminder, itemWarranties, toISO, type AlertKey } from "@/lib/warranty";
+import { ALERT_LEAD_LABELS, alertDate, firstYearReminder, itemWarranties, toISO, type AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
 import { ReminderMarker, WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
 import { groupByItem, type Deadline, type ItemDeadlines } from "@/lib/deadlines";
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/calendrier")({
 
 type Ev = { id: string; name: string; warranty: string; warrantyKey: string; kind: "end" | "first-year" | AlertKey };
 
-const kindLabel = (k: Ev["kind"]) => k === "end" ? "Fin de garantie" : k === "first-year" ? "Fin de la première année" : `Alerte ${ALERT_OPTIONS.find((o) => o.key === k)?.label ?? ""}`.trim();
+const kindLabel = (k: Ev["kind"]) => k === "end" ? "Fin de garantie" : k === "first-year" ? "Fin de la première année" : `Alerte ${ALERT_LEAD_LABELS[k]}`;
 const short = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 
 function ItemLine({ g, showDates }: { g: ItemDeadlines; showDates: boolean }) {

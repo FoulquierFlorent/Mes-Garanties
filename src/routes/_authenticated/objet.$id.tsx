@@ -289,7 +289,7 @@ function ItemPage() {
         <ItemWarrantyDetails item={item} />
         <Rubrique compact title="Modifier les durées" open={openSections.includes("durations")} onOpenChange={(o) => setSection("durations", o)}>
         <fieldset disabled={savingWarranties} className="mt-4 grid min-w-0 gap-4 sm:grid-cols-3 [&_button]:min-h-11">
-          {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
+          {baseYearsWhole && <WarrantyYearSelect id="base-years" label="Garantie légale de conformité" value={baseYears} onChange={setBaseYears} optional={false} warrantyKey="base" />}
           <WarrantyYearSelect id="store-years" label="Garantie magasin" value={storeYears} onChange={setStoreYears} warrantyKey="store" />
           <WarrantyYearSelect id="brand-years" label="Garantie de marque" value={brandYears} onChange={setBrandYears} warrantyKey="brand" />
           <WarrantyYearSelect id="constructor-years" label="Garantie constructeur" value={constructorYears} onChange={setConstructorYears} warrantyKey="constructor" />

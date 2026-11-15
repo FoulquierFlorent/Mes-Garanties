@@ -57,13 +57,13 @@ describe("garanties dans la liste des objets", () => {
     render(<Page />);
 
     const rows = warrantyRows();
-    expect(rows.map((r) => (r.textContent ?? "").match(/Garantie (?:légale|magasin|de marque)/)?.[0])).toEqual([
-      "Garantie légale",
+    expect(rows.map((r) => (r.textContent ?? "").match(/Garantie légale de conformité|Garantie magasin|Garantie de marque/)?.[0])).toEqual([
+      "Garantie légale de conformité",
       "Garantie magasin",
       "Garantie de marque",
     ]);
 
-    const legal = rows.find((r) => r.textContent?.startsWith("Garantie légale")) as HTMLElement;
+    const legal = rows.find((r) => r.textContent?.startsWith("Garantie légale de conformité")) as HTMLElement;
     const store = rows.find((r) => r.textContent?.startsWith("Garantie magasin")) as HTMLElement;
     const brand = rows.find((r) => r.textContent?.startsWith("Garantie de marque")) as HTMLElement;
     expect(legal.querySelector("span.bg-warranty-legal")).not.toBeNull();
@@ -76,7 +76,7 @@ describe("garanties dans la liste des objets", () => {
     render(<Page />);
 
     const rows = warrantyRows();
-    const legal = rows.find((r) => r.textContent?.startsWith("Garantie légale")) as HTMLElement;
+    const legal = rows.find((r) => r.textContent?.startsWith("Garantie légale de conformité")) as HTMLElement;
     const store = rows.find((r) => r.textContent?.startsWith("Garantie magasin")) as HTMLElement;
     const brand = rows.find((r) => r.textContent?.startsWith("Garantie de marque")) as HTMLElement;
 
