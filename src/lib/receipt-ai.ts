@@ -13,7 +13,7 @@ export function sanitizeAiReceipt(raw: unknown, categories: string[]): ScanField
   const n = typeof r["price"] === "number" ? r["price"] : Number(String(r["price"] ?? "").replace(",", "."));
   const price = Number.isFinite(n) && n > 0 && n < 1_000_000 ? n.toFixed(2) : undefined;
   const cat = str(r["category"]);
-  const out: ScanFields = {
+  const out: Record<keyof ScanFields, string | undefined> = {
     name: str(r["name"]),
     brand: str(r["brand"], 60),
     store: str(r["store"], 80),
