@@ -7,6 +7,14 @@ export const ALERT_OPTIONS: { key: AlertKey; label: string }[] = [
   { key: "1w", label: "1 semaine avant la fin de la garantie légale de conformité" },
 ];
 
+/** Libellés courts de délai d'alerte, utilisés quand la garantie concernée est déjà nommée à côté. */
+export const ALERT_LEAD_LABELS: Record<AlertKey, string> = {
+  "6m": "6 mois avant la fin",
+  "3m": "3 mois avant la fin",
+  "1m": "1 mois avant la fin",
+  "1w": "1 semaine avant la fin",
+};
+
 function parse(d: string) {
   const [y = 0, m = 1, day = 1] = d.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, day));
