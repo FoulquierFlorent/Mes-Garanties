@@ -103,7 +103,7 @@ export function ReceiptScanner({ onResult, disabled }: Props) {
     <div className="rounded-lg border border-dashed p-3">
       <p className="text-sm font-medium">Scanner un justificatif</p>
       <p className="mt-0.5 text-xs text-muted-foreground">
-        Ticket de caisse photographié, capture d'écran ou facture PDF : le texte est lu et la fiche est remplie.
+        Ticket de caisse photographié, capture d'écran ou facture PDF : la lecture intelligente remplit la fiche, à vérifier avant l’enregistrement.
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
         <Button type="button" size="sm" variant="outline" disabled={busy || disabled} onClick={() => camera.current?.click()}>
