@@ -28,7 +28,7 @@ function ItemLine({ g, showDates }: { g: ItemDeadlines; showDates: boolean }) {
       <span className="w-14 shrink-0 pt-0.5 text-xs text-muted-foreground tabular-nums">{short(g.date)}</span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2"><span className="truncate font-medium">{g.name}</span><span className="flex shrink-0 items-center gap-1">{hasReminder && <ReminderMarker />}{keys.map((k) => <WarrantyMarker key={k} warrantyKey={k} />)}</span></span>
-        <span className="block text-xs text-muted-foreground">{g.entries.map((e) => `${e.label.includes(e.warranty) ? e.label : `${e.warranty} · ${e.label}`}${showDates ? ` (${short(e.date)})` : ""}`).join(" — ")}</span>
+        <span className="block text-xs text-muted-foreground">{g.entries.map((e) => `${e.warranty} · ${e.label}${showDates ? ` (${short(e.date)})` : ""}`).join(" — ")}</span>
       </span>
       <ArrowUpRight className="h-4 w-4 shrink-0" />
     </Link>
