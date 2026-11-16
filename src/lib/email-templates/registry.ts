@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { template as supportRequestTemplate } from './support-request'
 import { template as testEmailTemplate } from './test-email'
 import { template as warrantyExpirationReminderTemplate } from './warranty-expiration-reminder'
 
@@ -20,6 +21,7 @@ export interface TemplateEntry {
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
+  'support-request': supportRequestTemplate,
   'test-email': testEmailTemplate,
   'warranty-expiration-reminder': warrantyExpirationReminderTemplate,
 }

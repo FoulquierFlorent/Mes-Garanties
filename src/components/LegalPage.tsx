@@ -32,6 +32,7 @@ export function LegalLinks() {
       <Link to="/mentions-legales" className="hover:underline">Mentions légales</Link>
       <Link to="/confidentialite" className="hover:underline">Confidentialité</Link>
       <Link to="/cgu" className="hover:underline">CGU</Link>
+      <Link to="/aide" className="hover:underline">Aide et assistance</Link>
     </nav>
   );
 }

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { householdQuery, itemsQuery, todayISO } from "@/lib/items";
 import { itemWarranties, status } from "@/lib/warranty";
-import { Bell, Check, Copy, CreditCard, KeyRound, Lock, Palette, Share2, Users } from "lucide-react";
+import { Bell, Check, Copy, CreditCard, LifeBuoy, KeyRound, Lock, Palette, Share2, Users } from "lucide-react";
 import { StatTile, SettingRow } from "@/components/HouseholdUi";
 import { PrivateProfile } from "@/components/PrivateProfile";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -187,6 +187,10 @@ function FoyerPage() {
               {(Object.keys(PLAN_LABELS) as PlanId[]).map((p) => <option key={p} value={p}>{PLAN_LABELS[p]}</option>)}
             </select>
             <p className="mt-2 text-xs text-muted-foreground">Le dossier d'assurance est réservé aux offres Solo, Famille et Titane. <Link to="/tarifs" className="underline">Voir les tarifs</Link></p>
+          </SettingRow>
+          <SettingRow icon={<LifeBuoy />} title="Aide et assistance" hint="Contacter le support" open={open === "help"} onToggle={() => toggle("help")}>
+            <p className="text-sm text-muted-foreground">Une question, un problème ou une demande de résiliation ? Écrivez-nous.</p>
+            <Button asChild variant="outline" className="mt-3 h-11"><Link to="/aide">Ouvrir le centre d'aide</Link></Button>
           </SettingRow>
         </div>
 
