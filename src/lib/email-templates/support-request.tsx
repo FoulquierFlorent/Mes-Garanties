@@ -31,7 +31,7 @@ function SupportRequest({ name, email, category, subject, message, requestId }: 
 
 export const template = {
   component: SupportRequest,
-  subject: (d: Record<string, any>) => `[${d.category ?? "Support"}] ${d.subject ?? "Nouvelle demande"}`,
+  subject: (d: Record<string, any>) => `[${d["category"] ?? "Support"}] ${d["subject"] ?? "Nouvelle demande"}`,
   displayName: "Demande d'assistance",
   to: SUPPORT_EMAIL,
   previewData: { name: "Jeanne", email: "jeanne@example.com", category: "Assistance technique", subject: "Impossible d'ajouter un ticket", message: "Bonjour,\nle scan ne fonctionne pas.", requestId: "exemple" },
