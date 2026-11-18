@@ -36,7 +36,7 @@ import { DEFAULT_LEGAL_CONTEXT, estimateLegalWarranty, type ItemCondition, type 
 
 function LegalSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
   return <div className="space-y-1"><Label className="text-xs text-muted-foreground">{label}</Label>
-    <Select value={value} onValueChange={onChange}><SelectTrigger aria-label={label} className="h-10 px-2 text-xs"><SelectValue /></SelectTrigger>
+    <Select value={value} onValueChange={onChange}><SelectTrigger aria-label={label} className="h-11 px-3 text-sm"><SelectValue /></SelectTrigger>
       <SelectContent>{options.map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}</SelectContent></Select></div>;
 }
 
@@ -180,7 +180,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
           <div className="space-y-1.5"><Label htmlFor="new-date">Date d'achat</Label><Input id="new-date" className="h-11" type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
           <div className="space-y-3 rounded-lg border p-3">
             <p className="text-sm font-medium">Garantie légale de conformité</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               <LegalSelect label="Pays d’achat" value={legal.country} onChange={(v) => applyLegal({ ...legal, country: v as PurchaseCountry })} options={[["france", "France"], ["ue", "Autre pays UE"], ["hors_ue", "Hors UE"]]} />
               <LegalSelect label="Vendeur" value={legal.seller} onChange={(v) => applyLegal({ ...legal, seller: v as SellerType })} options={[["pro", "Professionnel"], ["particulier", "Particulier"]]} />
               <LegalSelect label="État" value={legal.condition} onChange={(v) => applyLegal({ ...legal, condition: v as ItemCondition })} options={[["neuf", "Neuf"], ["occasion", "Occasion"]]} />
@@ -210,7 +210,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                   <div className="space-y-1.5"><Label>Marque</Label><Input className="h-11" value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
                   <div className="space-y-1.5"><Label>Magasin</Label><Input className="h-11" value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} /></div>
                 </div>
-                <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input className="h-11" type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input className="h-11" type="text" inputMode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" title="Exemple : 49,90" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
                 <div className="space-y-1.5"><Label htmlFor="new-order">N° de facture ou de commande</Label><Input id="new-order" className="h-11" placeholder="Rempli par le ticket, ou à saisir" value={f.order_number} onChange={(e) => setF({ ...f, order_number: e.target.value })} /></div>
                 <div className="space-y-1.5"><Label htmlFor="new-order-date">Date de la facture ou de la commande</Label><Input id="new-order-date" className="h-11" type="date" value={f.order_date} onChange={(e) => setF({ ...f, order_date: e.target.value })} /></div>
                 <div className="space-y-3 rounded-lg border p-3">
@@ -248,7 +248,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                     {([["standard", "Standard", "1 mois et 1 semaine avant"], ["renforcees", "Renforcées", "6 mois, 3 mois, 1 mois, 1 semaine"], ["personnalisees", "Personnalisées", "À choisir"], ["aucune", "Aucune", "Pas d’alerte pour cet objet"]] as const).map(([k, l, d]) => (
                       <button key={k} type="button" role="radio" aria-checked={alertMode === k} onClick={() => { setAlertMode(k); if (k !== "personnalisees") setAlerts(ALERT_PRESETS[k]); }}
                         className={`rounded-lg border p-2.5 text-left text-sm transition-colors ${alertMode === k ? "border-primary bg-secondary" : "bg-background"}`}>
-                        <span className="block font-medium">{l}{k === "standard" && <span className="ml-1 text-xs font-normal text-muted-foreground">(recommandé)</span>}</span>
+                        <span className="block font-medium">{l}{k === "standard" && <span className="block text-xs font-normal text-muted-foreground">Recommandé</span>}</span>
                         <span className="block text-xs text-muted-foreground">{d}</span>
                       </button>
                     ))}
