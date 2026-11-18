@@ -74,7 +74,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const estimate = estimateLegalWarranty(legal);
   const applyLegal = (next: LegalContext) => { setLegal(next); const e = estimateLegalWarranty(next); if (e.months !== null) setF((prev) => ({ ...prev, warranty_months: e.months as number })); };
   const yearsOf: Record<string, number | null> = { store: storeYears, brand: brandYears, constructor: constructorYears, extension: extensionYears, repair: repairYears };
-  const buildDetails = () => { const out: Record<string, Record<string, string>> = Object.fromEntries(Object.entries(details).filter(([k]) => yearsOf[k] !== null).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([a, b]) => [a, b.trim()]).filter(([, b]) => b))])); if (legalStart && f.warranty_months > 0) out.base = { start_date: legalStart }; return out; };
+  const buildDetails = () => { const out: Record<string, Record<string, string>> = Object.fromEntries(Object.entries(details).filter(([k]) => yearsOf[k] !== null).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([a, b]) => [a, b.trim()]).filter(([, b]) => b))])); if (legalStart && f.warranty_months > 0) out["base"] = { start_date: legalStart }; return out; };
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
