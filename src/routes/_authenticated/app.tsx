@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { canAddItem, FREE_ITEM_LIMIT } from "@/lib/plans";
 import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt, formatPrice } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ALERT_OPTIONS, ALERT_PRESETS, type AlertMode, alertDate, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
+import { ALERT_OPTIONS, ALERT_PRESETS, type AlertMode, alertDate, warrantyEnd, firstYearReminder, daysLeft, status, itemWarranties, type AlertKey } from "@/lib/warranty";
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { itemCoverage, StatusBadge } from "@/components/HouseholdUi";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
@@ -30,7 +30,6 @@ import { categoryImage } from "@/lib/category-images";
 import { ReceiptScanner } from "@/components/ReceiptScanner";
 import { InsuranceExport } from "@/components/InsuranceExport";
 import { TitaneExports } from "@/components/TitaneExports";
-import { Rubrique } from "@/components/Rubrique";
 import { uploadReceipt } from "@/lib/receipt-upload";
 import { CategoryPicker } from "@/components/CategoryPicker";
 import { DEFAULT_LEGAL_CONTEXT, estimateLegalWarranty, type ItemCondition, type LegalContext, type PurchaseCountry, type SellerType } from "@/lib/legal-warranty";
@@ -71,10 +70,11 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const [review, setReview] = useState<string[] | null>(null);
   const [mode, setMode] = useState<"scan" | "manuel">("scan");
   const [legal, setLegal] = useState<LegalContext>(DEFAULT_LEGAL_CONTEXT);
+  const [legalStart, setLegalStart] = useState("");
   const estimate = estimateLegalWarranty(legal);
   const applyLegal = (next: LegalContext) => { setLegal(next); const e = estimateLegalWarranty(next); if (e.months !== null) setF((prev) => ({ ...prev, warranty_months: e.months as number })); };
   const yearsOf: Record<string, number | null> = { store: storeYears, brand: brandYears, constructor: constructorYears, extension: extensionYears, repair: repairYears };
-  const buildDetails = () => Object.fromEntries(Object.entries(details).filter(([k]) => yearsOf[k] !== null).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([a, b]) => [a, b.trim()]).filter(([, b]) => b))]));
+  const buildDetails = () => { const out: Record<string, Record<string, string>> = Object.fromEntries(Object.entries(details).filter(([k]) => yearsOf[k] !== null).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([a, b]) => [a, b.trim()]).filter(([, b]) => b))])); if (legalStart && f.warranty_months > 0) out.base = { start_date: legalStart }; return out; };
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
@@ -124,6 +124,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
       setReview(null);
       setMode("scan");
       setLegal(DEFAULT_LEGAL_CONTEXT);
+      setLegalStart("");
       setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 });
       toast.success("Objet ajouté");
     },
@@ -133,7 +134,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetails({}); setContracts({}); setExtraShown([]); setDetailsOpen(false); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetails({}); setContracts({}); setExtraShown([]); setDetailsOpen(false); setLegalStart(""); setLegal(DEFAULT_LEGAL_CONTEXT); } }}>
       {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter un objet</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter un objet</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -177,9 +178,33 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
             <CategoryPicker category={category} onCategory={setCategory} name={f.name} onType={(t) => setF((prev) => ({ ...prev, name: t }))} />
           </div>
           <div className="space-y-1.5"><Label htmlFor="new-date">Date d'achat</Label><Input id="new-date" className="h-11" type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
-          <p className="text-xs text-muted-foreground">Garantie légale de conformité proposée : {f.warranty_months > 0 ? `${f.warranty_months / 12} an${f.warranty_months > 12 ? "s" : ""}` : "aucune"}. Ajustez-la dans les informations complémentaires.</p>
+          <div className="space-y-3 rounded-lg border p-3">
+            <p className="text-sm font-medium">Garantie légale de conformité</p>
+            <div className="grid grid-cols-3 gap-2">
+              <LegalSelect label="Pays d’achat" value={legal.country} onChange={(v) => applyLegal({ ...legal, country: v as PurchaseCountry })} options={[["france", "France"], ["ue", "Autre pays UE"], ["hors_ue", "Hors UE"]]} />
+              <LegalSelect label="Vendeur" value={legal.seller} onChange={(v) => applyLegal({ ...legal, seller: v as SellerType })} options={[["pro", "Professionnel"], ["particulier", "Particulier"]]} />
+              <LegalSelect label="État" value={legal.condition} onChange={(v) => applyLegal({ ...legal, condition: v as ItemCondition })} options={[["neuf", "Neuf"], ["occasion", "Occasion"]]} />
+            </div>
+            {estimate.months === null ? (
+              <>
+                <p className="text-xs text-muted-foreground"><span className="font-medium">À vérifier · </span>{estimate.note}</p>
+                <WarrantyYearSelect id="primary-years" label="Durée de la garantie" warrantyKey="base" value={f.warranty_months > 0 ? f.warranty_months / 12 : null} onChange={(y) => setF({ ...f, warranty_months: y === null ? 0 : y * 12 })} />
+              </>
+            ) : estimate.months > 0 ? (
+              <p className="text-sm">Garantie légale de conformité : <span className="font-medium">2 ans</span></p>
+            ) : (
+              <p className="text-xs text-muted-foreground">{estimate.note}</p>
+            )}
+            {f.warranty_months > 0 && (
+              <div className="space-y-1.5">
+                <Label htmlFor="legal-start" className="text-xs">Date de départ (livraison, si plus tardive)</Label>
+                <Input id="legal-start" className="h-11" type="date" value={legalStart} onChange={(e) => setLegalStart(e.target.value)} />
+                <p className="text-xs text-muted-foreground">Fin prévue : {new Date(warrantyEnd(legalStart || f.purchase_date, f.warranty_months)).toLocaleDateString("fr-FR")}</p>
+              </div>
+            )}
+          </div>
           </fieldset>
-          <Rubrique compact title="Ajouter des informations complémentaires" hint="marque, magasin, prix, facture, garanties, alertes, photos" open={detailsOpen} onOpenChange={setDetailsOpen} contentClassName="mt-4 space-y-4">
+          <div className="min-w-0 space-y-4">
               <fieldset disabled={m.isPending || savedItemId !== null} className="min-w-0 space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5"><Label>Marque</Label><Input className="h-11" value={f.brand} onChange={(e) => setF({ ...f, brand: e.target.value })} /></div>
@@ -188,16 +213,6 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                 <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input className="h-11" type="number" min="0" step="0.01" inputMode="decimal" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
                 <div className="space-y-1.5"><Label htmlFor="new-order">N° de facture ou de commande</Label><Input id="new-order" className="h-11" placeholder="Rempli par le ticket, ou à saisir" value={f.order_number} onChange={(e) => setF({ ...f, order_number: e.target.value })} /></div>
                 <div className="space-y-1.5"><Label htmlFor="new-order-date">Date de la facture ou de la commande</Label><Input id="new-order-date" className="h-11" type="date" value={f.order_date} onChange={(e) => setF({ ...f, order_date: e.target.value })} /></div>
-                <div className="space-y-3 rounded-lg border p-3">
-                  <p className="text-sm font-medium">Garantie légale de conformité</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    <LegalSelect label="Pays d’achat" value={legal.country} onChange={(v) => applyLegal({ ...legal, country: v as PurchaseCountry })} options={[["france", "France"], ["ue", "Autre pays UE"], ["hors_ue", "Hors UE"]]} />
-                    <LegalSelect label="Vendeur" value={legal.seller} onChange={(v) => applyLegal({ ...legal, seller: v as SellerType })} options={[["pro", "Professionnel"], ["particulier", "Particulier"]]} />
-                    <LegalSelect label="État" value={legal.condition} onChange={(v) => applyLegal({ ...legal, condition: v as ItemCondition })} options={[["neuf", "Neuf"], ["occasion", "Occasion"]]} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">{estimate.certainty === "estimation" && <span className="font-medium">Estimation · </span>}{estimate.certainty === "inconnue" && <span className="font-medium">À vérifier · </span>}{estimate.note}</p>
-                  <WarrantyYearSelect id="primary-years" label="Durée retenue" warrantyKey="base" value={f.warranty_months > 0 ? f.warranty_months / 12 : null} onChange={(y) => setF({ ...f, warranty_months: y === null ? 0 : y * 12 })} />
-                </div>
                 <div className="space-y-3 rounded-lg border p-3">
                   <p className="text-sm font-medium">Garanties supplémentaires</p>
                   {([
@@ -248,7 +263,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                 </div>
               </fieldset>
               <PhotoPicker files={photos} onChange={setPhotos} disabled={m.isPending} />
-          </Rubrique>
+          </div>
           <div className="sticky -bottom-6 -mx-6 border-t bg-background px-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
             <Button className="h-11 w-full" disabled={m.isPending}>{m.isPending ? "Enregistrement…" : savedItemId ? "Réessayer l’envoi des photos" : "Enregistrer l’objet"}</Button>
           </div>

@@ -40,3 +40,7 @@ it2("une garantie supplémentaire part de sa date de début si elle est renseign
   const w = iw({ purchase_date: "2024-01-10", warranty_months: 24, store_warranty_years: 1, warranty_details: { store: { start_date: "2024-03-01" } } });
   ex2(w.find((x) => x.key === "store")?.end).toBe("2025-03-01");
 });
+it2("la garantie légale part de la date de livraison si elle est renseignée", () => {
+    const w = itemWarranties({ purchase_date: "2024-01-10", warranty_months: 24, warranty_details: { base: { start_date: "2024-02-01" } } });
+    expect(w[0].end).toBe("2026-02-01");
+});

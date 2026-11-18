@@ -83,7 +83,7 @@ export type Warranty = { key: WarrantyKey; label: string; end: string };
 
 export function itemWarranties(item: WarrantyItem): Warranty[] {
   const warranties: Warranty[] = [
-    { key: "base", label: WARRANTY_LABELS.base, end: warrantyEnd(item.purchase_date, item.warranty_months) },
+    { key: "base", label: WARRANTY_LABELS.base, end: warrantyEnd(warrantyDetail(item, "base").start_date || item.purchase_date, item.warranty_months) },
   ];
   const optional: [WarrantyKey, number | null | undefined][] = [
     ["store", item.store_warranty_years],

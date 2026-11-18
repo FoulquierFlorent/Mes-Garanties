@@ -38,22 +38,17 @@ describe("ajout d'un objet en deux temps", () => {
     expect(screen.getByText("Scanner un ticket")).toBeInTheDocument();
     expect(screen.getByText("Nom")).toBeInTheDocument();
     expect(screen.getByText("Date d'achat")).toBeInTheDocument();
-    expect(screen.getByText(/Garantie légale de conformité proposée : 2 ans/)).toBeInTheDocument();
+    expect(screen.getByText(/Garantie légale de conformité :/)).toHaveTextContent("Garantie légale de conformité : 2 ans");
     expect(screen.getByRole("tab", { name: "Ajout manuel" })).toBeInTheDocument();
   });
 
-  it("garde les détails facultatifs hors de vue jusqu'à ce qu'on les ouvre", () => {
+  it("affiche directement les détails facultatifs, sans menu à ouvrir", () => {
     openDialog();
 
-    expect(screen.queryByText("Garantie magasin")).toBeNull();
-    expect(screen.queryByText("Marque")).toBeNull();
-    expect(screen.queryByText("Prix (€, facultatif)")).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: /informations complémentaires/ }));
-
+    expect(screen.queryByRole("button", { name: /informations complémentaires/ })).toBeNull();
     expect(screen.getByText("Garanties supplémentaires")).toBeInTheDocument();
     expect(screen.getByText("Marque")).toBeInTheDocument();
     expect(screen.getByText("Prix (€, facultatif)")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "+ Réparation" })).toBeInTheDocument();
+    expect(screen.queryByText("Durée retenue")).toBeNull();
   });
 });
