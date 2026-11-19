@@ -54,7 +54,6 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const [f, setF] = useState({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 });
   const [alerts, setAlerts] = useState<AlertKey[]>(ALERT_PRESETS.standard);
   const [alertMode, setAlertMode] = useState<AlertMode>("standard");
-  const [extraShown, setExtraShown] = useState<string[]>([]);
   const [details, setDetails] = useState<Record<string, { provider: string; start_date: string; conditions: string }>>({});
   const [contracts, setContracts] = useState<Record<string, File>>({});
   const setDetail = (k: string, patch: Partial<{ provider: string; start_date: string; conditions: string }>) => setDetails((d) => ({ ...d, [k]: { provider: "", start_date: "", conditions: "", ...d[k], ...patch } }));
@@ -116,7 +115,6 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
       setRepairYears(null);
       setDetails({});
       setContracts({});
-      setExtraShown([]);
       setPhotos([]);
       setSavedItemId(null);
       setScanFile(null);
@@ -134,7 +132,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetails({}); setContracts({}); setExtraShown([]); setDetailsOpen(false); setLegalStart(""); setLegal(DEFAULT_LEGAL_CONTEXT); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetails({}); setContracts({}); setDetailsOpen(false); setLegalStart(""); setLegal(DEFAULT_LEGAL_CONTEXT); } }}>
       {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter un objet</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter un objet</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -179,7 +177,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
           </div>
           <div className="space-y-1.5"><Label htmlFor="new-date">Date d'achat</Label><Input id="new-date" className="h-11" type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
           <div className="space-y-3 rounded-lg border p-3">
-            <p className="text-sm font-medium">Garantie légale de conformité</p>
+            <p className="flex items-center gap-2 text-sm font-medium"><WarrantyMarker warrantyKey="base" />Garantie légale de conformité</p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               <LegalSelect label="Pays d’achat" value={legal.country} onChange={(v) => applyLegal({ ...legal, country: v as PurchaseCountry })} options={[["france", "France"], ["ue", "Autre pays UE"], ["hors_ue", "Hors UE"]]} />
               <LegalSelect label="Vendeur" value={legal.seller} onChange={(v) => applyLegal({ ...legal, seller: v as SellerType })} options={[["pro", "Professionnel"], ["particulier", "Particulier"]]} />
@@ -213,7 +211,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                 <div className="space-y-1.5"><Label>Prix (€, facultatif)</Label><Input className="h-11" type="text" inputMode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" title="Exemple : 49,90" placeholder="ex. 49,90" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
                 <div className="space-y-1.5"><Label htmlFor="new-order">N° de facture ou de commande</Label><Input id="new-order" className="h-11" placeholder="Rempli par le ticket, ou à saisir" value={f.order_number} onChange={(e) => setF({ ...f, order_number: e.target.value })} /></div>
                 <div className="space-y-1.5"><Label htmlFor="new-order-date">Date de la facture ou de la commande</Label><Input id="new-order-date" className="h-11" type="date" value={f.order_date} onChange={(e) => setF({ ...f, order_date: e.target.value })} /></div>
-                <div className="space-y-3 rounded-lg border p-3">
+                <div className="space-y-4 rounded-lg border p-3">
                   <p className="text-sm font-medium">Garanties supplémentaires</p>
                   {([
                     ["store", "Garantie magasin", storeYears, setStoreYears],
@@ -221,26 +219,20 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
                     ["constructor", "Garantie constructeur", constructorYears, setConstructorYears],
                     ["extension", "Extension de garantie", extensionYears, setExtensionYears],
                     ["repair", "Garantie de réparation", repairYears, setRepairYears],
-                  ] as const).map(([k, label, val, set]) => (extraShown.includes(k) || val !== null) ? (
-                    <div key={k} className="space-y-2 rounded-md border bg-background p-2.5">
-                      <div className="flex items-end gap-2">
-                        <div className="min-w-0 flex-1"><WarrantyYearSelect id={`${k}-years`} label={label} warrantyKey={k} value={val} onChange={set} /></div>
-                        <Button type="button" variant="ghost" size="sm" className="h-11" onClick={() => { set(null); setExtraShown(extraShown.filter((x) => x !== k)); }}>Retirer</Button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1"><Label htmlFor={`${k}-provider`} className="text-xs">{k === "repair" ? "Réparateur" : "Fournisseur"}</Label><Input id={`${k}-provider`} className="h-11" value={details[k]?.provider ?? ""} onChange={(e) => setDetail(k, { provider: e.target.value })} /></div>
-                        <div className="space-y-1"><Label htmlFor={`${k}-start`} className="text-xs">Date de début</Label><Input id={`${k}-start`} type="date" className="h-11" value={details[k]?.start_date ?? ""} onChange={(e) => setDetail(k, { start_date: e.target.value })} /></div>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Sans date de début, la date d’achat est utilisée.</p>
-                      <div className="space-y-1"><Label htmlFor={`${k}-cond`} className="text-xs">Conditions</Label><Textarea id={`${k}-cond`} rows={2} value={details[k]?.conditions ?? ""} onChange={(e) => setDetail(k, { conditions: e.target.value })} /></div>
-                      <div className="space-y-1"><Label htmlFor={`${k}-contract`} className="text-xs">Contrat (photo ou PDF)</Label><Input id={`${k}-contract`} type="file" accept="image/*,application/pdf" className="h-11" onChange={(e) => { const file = e.target.files?.[0]; setContracts((c) => { const n = { ...c }; if (file) n[k] = file; else delete n[k]; return n; }); }} /></div>
+                  ] as const).map(([k, label, val, set]) => (
+                    <div key={k} className="space-y-3">
+                      <WarrantyYearSelect id={`${k}-years`} label={label} warrantyKey={k} value={val} onChange={set} />
+                      {val !== null && <div className="space-y-2 rounded-md border bg-background p-2.5">
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          <div className="space-y-1"><Label htmlFor={`${k}-provider`} className="text-xs">{k === "repair" ? "Réparateur" : "Fournisseur"}</Label><Input id={`${k}-provider`} className="h-11" value={details[k]?.provider ?? ""} onChange={(e) => setDetail(k, { provider: e.target.value })} /></div>
+                          <div className="space-y-1"><Label htmlFor={`${k}-start`} className="text-xs">Date de début</Label><Input id={`${k}-start`} type="date" className="h-11" value={details[k]?.start_date ?? ""} onChange={(e) => setDetail(k, { start_date: e.target.value })} /></div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Sans date de début, la date d’achat est utilisée.</p>
+                        <div className="space-y-1"><Label htmlFor={`${k}-cond`} className="text-xs">Conditions</Label><Textarea id={`${k}-cond`} rows={2} value={details[k]?.conditions ?? ""} onChange={(e) => setDetail(k, { conditions: e.target.value })} /></div>
+                        <div className="space-y-1"><Label htmlFor={`${k}-contract`} className="text-xs">Contrat (photo ou PDF)</Label><Input id={`${k}-contract`} type="file" accept="image/*,application/pdf" className="h-11" onChange={(e) => { const file = e.target.files?.[0]; setContracts((c) => { const n = { ...c }; if (file) n[k] = file; else delete n[k]; return n; }); }} /></div>
+                      </div>}
                     </div>
-                  ) : null)}
-                  <div className="flex flex-wrap gap-2">
-                    {([["store", "Magasin"], ["brand", "Marque"], ["constructor", "Constructeur"], ["extension", "Extension"], ["repair", "Réparation"]] as const)
-                      .filter(([k]) => !extraShown.includes(k) && ({ store: storeYears, brand: brandYears, constructor: constructorYears, extension: extensionYears, repair: repairYears })[k] === null)
-                      .map(([k, l]) => <Button key={k} type="button" variant="outline" size="sm" className="h-9 rounded-full" onClick={() => setExtraShown([...extraShown, k])}>+ {l}</Button>)}
-                  </div>
+                  ))}
                 </div>
                 <div className="space-y-2">
                   <Label>Alertes</Label>
