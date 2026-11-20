@@ -66,7 +66,7 @@ function ItemPage() {
   const [extensionYears, setExtensionYears] = useState<number | null>(item?.extension_warranty_years ?? null);
   const [repairYears, setRepairYears] = useState<number | null>(item?.repair_warranty_years ?? null);
   const [baseYears, setBaseYears] = useState<number | null>(
-    item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
+    item && item.warranty_months > 0 && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null,
   );
   const [savingWarranties, setSavingWarranties] = useState(false);
   useEffect(() => {
@@ -75,7 +75,7 @@ function ItemPage() {
     setConstructorYears(item?.constructor_warranty_years ?? null);
     setExtensionYears(item?.extension_warranty_years ?? null);
     setRepairYears(item?.repair_warranty_years ?? null);
-    setBaseYears(item && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null);
+    setBaseYears(item && item.warranty_months > 0 && item.warranty_months % 12 === 0 ? item.warranty_months / 12 : null);
   }, [item?.id, item?.warranty_months, item?.store_warranty_years, item?.brand_warranty_years, item?.constructor_warranty_years, item?.extension_warranty_years, item?.repair_warranty_years]);
   const [price, setPrice] = useState(item?.price != null ? String(item.price) : "");
   const [savingPrice, setSavingPrice] = useState(false);
@@ -133,7 +133,7 @@ function ItemPage() {
   }
 
   if (!item) return <main className="p-12 text-center">Objet introuvable.</main>;
-  const baseYearsWhole = item.warranty_months % 12 === 0;
+  const baseYearsWhole = item.warranty_months > 0 && item.warranty_months % 12 === 0;
   const originalMonths = item.warranty_months;
   const yearsByWarranty: Record<string, number | null | undefined> = {
     store: item.store_warranty_years,

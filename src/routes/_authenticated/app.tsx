@@ -16,6 +16,7 @@ import { ALERT_OPTIONS, ALERT_PRESETS, type AlertMode, alertDate, warrantyEnd, f
 import { WarrantyYearSelect } from "@/components/WarrantyYearSelect";
 import { itemCoverage, StatusBadge } from "@/components/HouseholdUi";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
+import { OfficialSources, WarrantyInfo } from "@/components/WarrantyInfo";
 import { PhotoPicker } from "@/components/ItemPhotos";
 import { uploadItemPhotos } from "@/lib/item-photos";
 import { Button } from "@/components/ui/button";
@@ -70,10 +71,18 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
   const [mode, setMode] = useState<"scan" | "manuel">("scan");
   const [legal, setLegal] = useState<LegalContext>(DEFAULT_LEGAL_CONTEXT);
   const [legalStart, setLegalStart] = useState("");
+  const [defectDiscovery, setDefectDiscovery] = useState("");
+  const [defectFile, setDefectFile] = useState<File | null>(null);
   const estimate = estimateLegalWarranty(legal);
-  const applyLegal = (next: LegalContext) => { setLegal(next); const e = estimateLegalWarranty(next); if (e.months !== null) setF((prev) => ({ ...prev, warranty_months: e.months as number })); };
+  const applyLegal = (next: LegalContext) => { setLegal(next); const e = estimateLegalWarranty(next); setF((prev) => ({ ...prev, warranty_months: e.months ?? 0 })); };
   const yearsOf: Record<string, number | null> = { store: storeYears, brand: brandYears, constructor: constructorYears, extension: extensionYears, repair: repairYears };
-  const buildDetails = () => { const out: Record<string, Record<string, string>> = Object.fromEntries(Object.entries(details).filter(([k]) => yearsOf[k] !== null).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([a, b]) => [a, b.trim()]).filter(([, b]) => b))])); if (legalStart && f.warranty_months > 0) out["base"] = { start_date: legalStart }; return out; };
+  const buildDetails = () => {
+    const out: Record<string, Record<string, string>> = Object.fromEntries(Object.entries(details).filter(([k]) => yearsOf[k] !== null).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([a, b]) => [a, b.trim()]).filter(([, b]) => b))]));
+    out["purchase_context"] = { country: legal.country, seller: legal.seller, condition: legal.condition };
+    if (legalStart && f.warranty_months > 0) out["base"] = { start_date: legalStart };
+    if (legal.seller === "particulier" && defectDiscovery) out["vices_caches"] = { discovery_date: defectDiscovery };
+    return out;
+  };
   const m = useMutation({
     mutationFn: async () => {
       let itemId = savedItemId;
@@ -91,6 +100,13 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
             const { error: detailsError } = await supabase.from("items").update({ warranty_details: wd }).eq("id", itemId);
             if (detailsError) throw detailsError;
           } catch { toast.error("Un contrat n’a pas pu être joint : ajoutez-le depuis la fiche."); }
+        }
+        if (defectFile) {
+          try {
+            await uploadReceipt(itemId, defectFile);
+          } catch {
+            toast.error("Le justificatif du vice n’a pas pu être joint : ajoutez-le depuis la fiche.");
+          }
         }
         if (scanFile) {
           try {
@@ -122,7 +138,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
       setReview(null);
       setMode("scan");
       setLegal(DEFAULT_LEGAL_CONTEXT);
-      setLegalStart("");
+      setLegalStart(""); setDefectDiscovery(""); setDefectFile(null);
       setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 });
       toast.success("Objet ajouté");
     },
@@ -132,7 +148,7 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
     },
   });
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetails({}); setContracts({}); setDetailsOpen(false); setLegalStart(""); setLegal(DEFAULT_LEGAL_CONTEXT); } }}>
+    <Dialog open={open} onOpenChange={(next) => { if (m.isPending) return; setOpen(next); if (!next && savedItemId) { setSavedItemId(null); setPhotos([]); setScanFile(null); setScanText(""); setReview(null); setF({ name: "", brand: "", store: "", price: "", purchase_date: todayISO(), order_number: "", order_date: "", warranty_months: 24 }); setStoreYears(null); setBrandYears(null); setConstructorYears(null); setExtensionYears(null); setRepairYears(null); setDetails({}); setContracts({}); setDetailsOpen(false); setLegalStart(""); setDefectDiscovery(""); setDefectFile(null); setLegal(DEFAULT_LEGAL_CONTEXT); } }}>
       {blocked ? <Button onClick={() => toast.error(`L’offre Gratuit est limitée à ${FREE_ITEM_LIMIT} objets.`, { action: { label: "Voir les offres", onClick: () => { window.location.href = "/tarifs"; } } })}><Plus className="h-4 w-4" />Ajouter un objet</Button> : <DialogTrigger asChild><Button><Plus className="h-4 w-4" />Ajouter un objet</Button></DialogTrigger>}
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-serif text-2xl font-normal">Nouvel objet</DialogTitle></DialogHeader>
@@ -177,29 +193,35 @@ function AddItem({ householdId, blocked = false }: { householdId: string | null;
           </div>
           <div className="space-y-1.5"><Label htmlFor="new-date">Date d'achat</Label><Input id="new-date" className="h-11" type="date" required value={f.purchase_date} onChange={(e) => setF({ ...f, purchase_date: e.target.value })} /></div>
           <div className="space-y-3 rounded-lg border p-3">
-            <p className="flex items-center gap-2 text-sm font-medium"><WarrantyMarker warrantyKey="base" />Garantie légale de conformité</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="flex min-w-0 items-center gap-2 text-sm font-medium"><WarrantyMarker warrantyKey="base" />Garantie légale de conformité</p>
+              <WarrantyInfo warrantyKey="base" />
+            </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               <LegalSelect label="Pays d’achat" value={legal.country} onChange={(v) => applyLegal({ ...legal, country: v as PurchaseCountry })} options={[["france", "France"], ["ue", "Autre pays UE"], ["hors_ue", "Hors UE"]]} />
-              <LegalSelect label="Vendeur" value={legal.seller} onChange={(v) => applyLegal({ ...legal, seller: v as SellerType })} options={[["pro", "Professionnel"], ["particulier", "Particulier"]]} />
-              <LegalSelect label="État" value={legal.condition} onChange={(v) => applyLegal({ ...legal, condition: v as ItemCondition })} options={[["neuf", "Neuf"], ["occasion", "Occasion"]]} />
+              <LegalSelect label="Type d’achat" value={legal.seller} onChange={(v) => applyLegal({ ...legal, seller: v as SellerType })} options={[["pro", "Acheté à un professionnel"], ["particulier", "Acheté à un particulier"], ["cadeau", "Reçu en cadeau"], ["inconnu", "Autre / origine inconnue"]]} />
+              <LegalSelect label="État" value={legal.condition} onChange={(v) => applyLegal({ ...legal, condition: v as ItemCondition })} options={[["neuf", "Neuf"], ["occasion", "Occasion"], ["reconditionne", "Reconditionné"]]} />
             </div>
+            <p className="text-xs leading-relaxed text-muted-foreground">{estimate.certainty !== "applicable" && <span className="font-medium">À vérifier · </span>}{estimate.note}</p>
             {estimate.months === null ? (
-              <>
-                <p className="text-xs text-muted-foreground"><span className="font-medium">À vérifier · </span>{estimate.note}</p>
-                <WarrantyYearSelect id="primary-years" label="Durée de la garantie" warrantyKey="base" value={f.warranty_months > 0 ? f.warranty_months / 12 : null} onChange={(y) => setF({ ...f, warranty_months: y === null ? 0 : y * 12 })} />
-              </>
+              <WarrantyYearSelect id="primary-years" label="Durée confirmée par le justificatif" warrantyKey="base" value={f.warranty_months > 0 ? f.warranty_months / 12 : null} onChange={(y) => setF({ ...f, warranty_months: y === null ? 0 : y * 12 })} />
             ) : estimate.months > 0 ? (
               <p className="text-sm">Garantie légale de conformité : <span className="font-medium">2 ans</span></p>
-            ) : (
-              <p className="text-xs text-muted-foreground">{estimate.note}</p>
-            )}
+            ) : null}
             {f.warranty_months > 0 && (
               <div className="space-y-1.5">
-                <Label htmlFor="legal-start" className="text-xs">Date de départ (livraison, si plus tardive)</Label>
+                <Label htmlFor="legal-start" className="text-xs">{legal.seller === "cadeau" ? "Date de livraison initiale" : "Date de départ (livraison, si plus tardive)"}</Label>
                 <Input id="legal-start" className="h-11" type="date" value={legalStart} onChange={(e) => setLegalStart(e.target.value)} />
                 <p className="text-xs text-muted-foreground">Fin prévue : {new Date(warrantyEnd(legalStart || f.purchase_date, f.warranty_months)).toLocaleDateString("fr-FR")}</p>
               </div>
             )}
+            {legal.seller === "particulier" && <div className="space-y-3 rounded-md border bg-background p-3">
+              <div className="flex items-center justify-between gap-2"><p className="text-sm font-medium">Garantie des vices cachés</p><WarrantyInfo warrantyKey="vices_caches" /></div>
+              <div className="space-y-1.5"><Label htmlFor="defect-discovery" className="text-xs">Date de découverte du vice (si connue)</Label><Input id="defect-discovery" type="date" className="h-11" value={defectDiscovery} onChange={(e) => setDefectDiscovery(e.target.value)} /></div>
+              <div className="space-y-1.5"><Label htmlFor="defect-file" className="text-xs">Justificatif du vice (photo ou PDF)</Label><Input id="defect-file" type="file" accept="image/*,application/pdf" className="h-11" onChange={(e) => setDefectFile(e.target.files?.[0] ?? null)} /></div>
+              <p className="text-xs text-muted-foreground">Aucune date d’expiration n’est calculée automatiquement à partir de l’achat.</p>
+            </div>}
+            <OfficialSources />
           </div>
           </fieldset>
           <div className="min-w-0 space-y-4">

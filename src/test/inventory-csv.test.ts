@@ -10,4 +10,11 @@ describe("export CSV de l'inventaire", () => {
     expect(rows[1]).toContain('"2028-01-01";"Active"');
     expect(rows[2]).toContain('"2029-01-01"');
   });
+  it("conserve un objet sans échéance au lieu de l’omettre", () => {
+    const csv = buildInventoryCsv([{ name: "Objet offert", category: "Autre", purchase_date: "2026-01-01", warranty_months: 0 }], "2026-11-07");
+    const rows = csv.replace("\uFEFF", "").trim().split("\r\n");
+    expect(rows).toHaveLength(2);
+    expect(rows[1]).toContain('"Objet offert"');
+    expect(rows[1]).toContain('"Aucune garantie à date déterminée";"";"À vérifier"');
+  });
 });

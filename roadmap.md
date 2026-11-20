@@ -53,3 +53,10 @@
 - [x] Réafficher les cinq garanties supplémentaires les unes sous les autres avec leurs couleurs et vérifier leur saisie sur téléphone
 - [x] Tester la saisie et l’enregistrement des cinq garanties supplémentaires : ajout, modification et conservation après rechargement vérifiés, aucun défaut trouvé
 - [x] Vérifier les garanties et leurs couleurs lors de la modification d’un objet existant : valeurs et six codes couleur corrects après rechargement
+
+## Lot prioritaire du document « Amélioration du système de garanties » (limite de 3,6 crédits)
+- [x] Enrichir les types de vendeur et l’état du produit sans modifier les objets existants
+- [x] Fiabiliser les règles légales : neuf, occasion, reconditionné, particulier, cadeau et origine inconnue
+- [x] Ajouter les informations simples, la garantie des vices cachés sans fausse échéance et les sources officielles
+- [x] Tester les calculs et le parcours d’ajout sur téléphone (140 tests réussis, ajout réel avec justificatif et rechargement vérifiés)
+- [ ] Hors de ce lot limité : historique Réparations/SAV complet et durées commerciales en mois ou années (à reprendre avec un nouveau budget)

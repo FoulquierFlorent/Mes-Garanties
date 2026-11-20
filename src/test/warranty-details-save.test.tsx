@@ -17,6 +17,16 @@ it("annuler une modification conserve les données enregistrées", () => {
   expect(screen.getByLabelText("Fournisseur")).toHaveValue("Magasin A");
   expect(update).not.toHaveBeenCalled();
 });
+it("affiche les vices cachés sans fabriquer de garantie de conformité expirée", () => {
+  const item = { id: "objet", purchase_date: "2026-01-15", warranty_months: 0, warranty_details: { purchase_context: { country: "france", seller: "particulier", condition: "occasion" }, vices_caches: { discovery_date: "2026-11-20" } } } as unknown as Item;
+  render(<ItemWarrantyDetails item={item} />);
+  expect(screen.getByRole("heading", { name: "Garantie des vices cachés" })).toBeInTheDocument();
+  expect(screen.getByText("À vérifier")).toBeInTheDocument();
+  expect(screen.getByText(/Découverte du vice/).parentElement).toHaveTextContent("20 novembre 2026");
+  expect(screen.queryByText("Expirée")).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Garantie légale de conformité" })).toBeNull();
+});
+
 it("enregistre fournisseur, début et conditions sans effacer le contrat ni les autres garanties", async () => {
   const item = { id: "objet", purchase_date: "2026-01-15", warranty_months: 24, store_warranty_years: 2, warranty_details: { store: { provider: "Magasin A", contract_file: "contrat.pdf" }, brand: { provider: "Marque B", conditions: "Pièces" } } } as unknown as Item;
   render(<ItemWarrantyDetails item={item} />);

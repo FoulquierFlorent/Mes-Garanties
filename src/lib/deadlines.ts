@@ -55,7 +55,8 @@ export function upcomingByItem(items: DeadlineItem[], today: string, limit = 5):
 
 /** Objet classé : toutes ses garanties sont expirées. */
 export function isArchived(item: WarrantyItem, today: string) {
-  return itemWarranties(item).every((w) => w.end < today);
+  const warranties = itemWarranties(item);
+  return warranties.length > 0 && warranties.every((w) => w.end < today);
 }
 
 /** Prochaine fin de garantie encore active (ou null si tout est expiré). */

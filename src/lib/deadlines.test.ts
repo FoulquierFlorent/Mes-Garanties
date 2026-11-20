@@ -55,5 +55,6 @@ describe("regroupement et classement", () => {
   it("archives an item only when all warranties are expired", () => {
     expect(isArchived({ purchase_date: "2020-01-01", warranty_months: 24 }, "2026-01-01")).toBe(true);
     expect(isArchived({ purchase_date: "2020-01-01", warranty_months: 24, brand_warranty_years: 10 }, "2026-01-01")).toBe(false);
+    expect(isArchived({ purchase_date: "2020-01-01", warranty_months: 0 }, "2026-01-01")).toBe(false);
   });
 });

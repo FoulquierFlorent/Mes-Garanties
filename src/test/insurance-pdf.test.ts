@@ -11,6 +11,11 @@ describe("dossier assurance", () => {
     const r = buildInsuranceRows([{ ...base, price: 1, purchase_date: "2020-01-01" }], "2026-11-05");
     expect(r.rows[0]?.overall).toBe("expired");
   });
+  it("ne marque pas expiré un objet sans garantie à date déterminée", () => {
+    const r = buildInsuranceRows([{ ...base, warranty_months: 0, price: 1, purchase_date: "2020-01-01" }], "2026-11-05");
+    expect(r.rows[0]?.overall).toBeNull();
+    expect(r.rows[0]?.warranties).toEqual([]);
+  });
   it("filtre les objets sur la période d'achat, bornes incluses", () => {
     const items = [
       { ...base, id: "a", purchase_date: "2025-01-01" },

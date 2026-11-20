@@ -20,6 +20,9 @@ describe("garantie", () => {
   it("préserve la garantie existante sans en inventer d'autres", () => {
     expect(itemWarranties({ purchase_date: "2024-01-31", warranty_months: 1, store_warranty_years: null, brand_warranty_years: null })).toEqual([{ key: "base", label: "Garantie légale de conformité", end: "2024-02-29" }]);
   });
+  it("n’invente pas d’échéance de conformité pour une vente entre particuliers", () => {
+    expect(itemWarranties({ purchase_date: "2026-11-20", warranty_months: 0, warranty_details: { purchase_context: { seller: "particulier" }, vices_caches: { discovery_date: "2026-11-20" } } })).toEqual([]);
+  });
   it("fin de garantie = date d'achat + durée", () => {
     expect(warrantyEnd("2025-03-15", 24)).toBe("2027-03-15");
     expect(warrantyEnd("2024-01-31", 1)).toBe("2024-02-29");

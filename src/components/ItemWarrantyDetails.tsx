@@ -8,6 +8,8 @@ import { fmt, todayISO } from "@/lib/items";
 import { daysLeft, itemWarranties, warrantyDetail, warrantyEnd, yearsLabel, type WarrantyDetail, type WarrantyKey } from "@/lib/warranty";
 import { uploadReceipt } from "@/lib/receipt-upload";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
+import { OfficialSources, WarrantyInfo } from "@/components/WarrantyInfo";
+import { hiddenDefectDate, legalContextFromDetails } from "@/lib/legal-warranty";
 import { StatusBadge } from "@/components/HouseholdUi";
 import { status } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
@@ -18,27 +20,45 @@ import { Rubrique } from "@/components/Rubrique";
 
 /** Edit only the selected warranty; preserve all other details and private documents. */
 export function ItemWarrantyDetails({ item }: { item: Item }) {
-  return <div className="mt-4 grid gap-3 sm:grid-cols-2">{itemWarranties(item).map((w) => {
-    const detail = warrantyDetail(item, w.key);
-    const start = detail.start_date || item.purchase_date;
-    const remaining = daysLeft(w.end, todayISO());
-    const months = w.key === "base" ? item.warranty_months : (item[`${w.key}_warranty_years`] ?? 0) * 12;
-    return <article key={w.key} className="min-w-0 rounded-lg border bg-card p-4">
+  const warranties = itemWarranties(item);
+  const context = legalContextFromDetails(item.warranty_details);
+  const defectDate = hiddenDefectDate(item.warranty_details);
+  const showHiddenDefect = context?.seller === "particulier" || Boolean(defectDate);
+  return <div>
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">{warranties.map((w) => {
+      const detail = warrantyDetail(item, w.key);
+      const start = detail.start_date || item.purchase_date;
+      const remaining = daysLeft(w.end, todayISO());
+      const months = w.key === "base" ? item.warranty_months : (item[`${w.key}_warranty_years`] ?? 0) * 12;
+      return <article key={w.key} className="min-w-0 rounded-lg border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="flex min-w-0 items-center gap-2 font-sans text-sm font-semibold"><WarrantyMarker warrantyKey={w.key} /><span className="min-w-0 break-words">{w.label}</span></h3>
+          <div className="flex items-center gap-1"><StatusBadge value={status(w.end, todayISO())} /><WarrantyInfo warrantyKey={w.key} /></div>
+        </div>
+        <dl className="mt-3 space-y-1 text-sm">
+          <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Durée</dt><dd>{months % 12 === 0 ? yearsLabel(months / 12) : `${months} mois`}</dd></div>
+          <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Début</dt><dd>{fmt(start)}</dd></div>
+          <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Fin</dt><dd>{fmt(w.end)}</dd></div>
+          <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Temps restant</dt><dd>{remaining < 0 ? "Expirée" : `${remaining} jour${remaining > 1 ? "s" : ""}`}</dd></div>
+          <div className="pt-2"><dt className="text-xs text-muted-foreground">{w.key === "repair" ? "Réparateur" : "Organisme responsable"}</dt><dd className="break-words">{detail.provider || (w.key === "base" || w.key === "store" ? item.store : w.key === "brand" || w.key === "constructor" ? item.brand : null) || "Non renseigné"}</dd></div>
+        </dl>
+        {detail.conditions && <p className="mt-3 whitespace-pre-wrap break-words text-xs text-muted-foreground">{detail.conditions}</p>}
+        {w.key !== "base" && <WarrantyDetailsEditor item={item} warrantyKey={w.key} />}
+      </article>;
+    })}
+    {showHiddenDefect && <article className="min-w-0 rounded-lg border bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="flex min-w-0 items-center gap-2 font-sans text-sm font-semibold"><WarrantyMarker warrantyKey={w.key} /><span className="min-w-0 break-words">{w.label}</span></h3>
-        <StatusBadge value={status(w.end, todayISO())} />
+        <h3 className="flex min-w-0 items-center gap-2 font-sans text-sm font-semibold"><WarrantyMarker warrantyKey="base" />Garantie des vices cachés</h3>
+        <div className="flex items-center gap-1"><span className="rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-semibold text-warning">À vérifier</span><WarrantyInfo warrantyKey="vices_caches" /></div>
       </div>
-      <dl className="mt-3 space-y-1 text-sm">
-        <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Durée</dt><dd>{months % 12 === 0 ? yearsLabel(months / 12) : `${months} mois`}</dd></div>
-        <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Début</dt><dd>{fmt(start)}</dd></div>
-        <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Fin</dt><dd>{fmt(w.end)}</dd></div>
-        <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Temps restant</dt><dd>{remaining < 0 ? "Expirée" : `${remaining} jour${remaining > 1 ? "s" : ""}`}</dd></div>
-        <div className="pt-2"><dt className="text-xs text-muted-foreground">{w.key === "repair" ? "Réparateur" : "Organisme responsable"}</dt><dd className="break-words">{detail.provider || (w.key === "base" || w.key === "store" ? item.store : w.key === "brand" || w.key === "constructor" ? item.brand : null) || "Non renseigné"}</dd></div>
-      </dl>
-      {detail.conditions && <p className="mt-3 whitespace-pre-wrap break-words text-xs text-muted-foreground">{detail.conditions}</p>}
-      {w.key !== "base" && <WarrantyDetailsEditor item={item} warrantyKey={w.key} />}
-    </article>;
-  })}</div>;
+      <p className="mt-3 text-sm">Protection légale potentiellement applicable, sans date d’expiration calculée à partir de l’achat.</p>
+      {defectDate && <p className="mt-2 text-sm"><span className="text-muted-foreground">Découverte du vice : </span>{fmt(defectDate)}</p>}
+      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">L’action doit être engagée dans les 2 ans de la découverte du vice, sous réserve du délai maximal de 20 ans et des conditions légales.</p>
+    </article>}
+    {warranties.length === 0 && !showHiddenDefect && <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Informations à compléter : aucune garantie à date déterminée n’est enregistrée.</p>}
+    </div>
+    <div className="mt-4"><OfficialSources /></div>
+  </div>;
 }
 
 function WarrantyDetailsEditor({ item, warrantyKey }: { item: Item; warrantyKey: WarrantyKey }) {

@@ -11,14 +11,14 @@ export type InsuranceRow = {
   orderNumber: string | null;
   price: number | null;
   warranties: { label: string; end: string; status: Status }[];
-  overall: Status;
+  overall: Status | null;
 };
 
 /** Récapitulatif du dossier : un objet par ligne, valeur totale déclarée. */
 export function buildInsuranceRows(items: Item[], today: string, names: Record<string, string> = {}) {
   const rows: InsuranceRow[] = items.map((it) => {
     const warranties = itemWarranties(it).map((w) => ({ ...w, status: status(w.end, today) }));
-    const overall: Status = warranties.some((w) => w.status === "active")
+    const overall: Status | null = warranties.length === 0 ? null : warranties.some((w) => w.status === "active")
       ? "active"
       : warranties.some((w) => w.status === "soon") ? "soon" : "expired";
     return {
@@ -102,6 +102,10 @@ export async function makeInsurancePdf(opts: {
       text(fit(`${w.label.replace("Garantie ", "").replace(/^./, (c) => c.toUpperCase())} : ${STATUS_TEXT[w.status]} — ${date(w.end)}`, W - M - cols[4]!, 8), cols[4]!, 8, font, w.status === "expired" ? muted : ink);
       y -= 11;
     });
+    if (r.warranties.length === 0) {
+      text(fit("Aucune garantie à date déterminée", W - M - cols[4]!, 8), cols[4]!, 8, font, muted);
+      y -= 11;
+    }
     y = Math.min(y, bottom - 11) - 8;
     page.drawLine({ start: { x: M, y: y + 12 }, end: { x: W - M, y: y + 12 }, thickness: 0.2, color: rgb(0.85, 0.85, 0.85) });
   }
