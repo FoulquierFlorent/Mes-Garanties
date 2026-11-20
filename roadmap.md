@@ -51,3 +51,5 @@
 - [x] Vérifier une modification réelle, son rechargement et restaurer les valeurs initiales sur téléphone (320, 375 et 390 px ; 123 tests réussis)
 - [x] Rétablir le repère rouge de la garantie légale de conformité dans l’ajout d’un objet
 - [x] Réafficher les cinq garanties supplémentaires les unes sous les autres avec leurs couleurs et vérifier leur saisie sur téléphone
+- [ ] Tester la saisie et l’enregistrement des durées de chaque garantie supplémentaire, puis corriger les problèmes trouvés
+- [ ] Vérifier les garanties et leurs couleurs lors de la modification d’un objet existant, puis corriger les problèmes trouvés
