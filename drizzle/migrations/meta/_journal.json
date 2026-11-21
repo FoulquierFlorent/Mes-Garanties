@@ -155,6 +155,13 @@
       "when": 1794865632194,
       "tag": "0021_create_support_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1795219342282,
+      "tag": "0022_add_item_repairs",
+      "breakpoints": true
     }
   ]
 }

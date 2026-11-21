@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Rubrique } from "@/components/Rubrique";
+import { RepairsSection } from "@/components/RepairsSection";
 import { currentReturnStep } from "@/lib/deadlines";
 
 export const Route = createFileRoute("/_authenticated/objet/$id")({
@@ -359,6 +360,9 @@ function ItemPage() {
         <Rubrique title="Factures, tickets et résumé" open={openSections.includes("docs")} onOpenChange={(o) => setSection("docs", o)} contentClassName="pb-6 [&>section:first-child]:mt-0 [&>section:first-child]:border-t-0">
           <Receipts itemId={item.id} />
           <ReceiptSummary itemId={item.id} summary={item.receipt_summary ?? null} />
+        </Rubrique>
+        <Rubrique title="Réparations et SAV" open={openSections.includes("repairs")} onOpenChange={(o) => setSection("repairs", o)}>
+          <RepairsSection item={item} />
         </Rubrique>
         <div ref={stepsRef}>
           <Rubrique

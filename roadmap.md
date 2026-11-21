@@ -59,4 +59,5 @@
 - [x] Fiabiliser les règles légales : neuf, occasion, reconditionné, particulier, cadeau et origine inconnue
 - [x] Ajouter les informations simples, la garantie des vices cachés sans fausse échéance et les sources officielles
 - [x] Tester les calculs et le parcours d’ajout sur téléphone (140 tests réussis, ajout réel avec justificatif et rechargement vérifiés)
-- [ ] Hors de ce lot limité : historique Réparations/SAV complet et durées commerciales en mois ou années (à reprendre avec un nouveau budget)
+- [x] Historique Réparations et SAV sur la fiche objet (prolongation légale de 6 mois, remplacement à 24 mois)
+- [ ] Hors de ce lot limité : durées commerciales en mois ou années (à reprendre avec un nouveau budget)

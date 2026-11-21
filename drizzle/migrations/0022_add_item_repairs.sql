@@ -1,0 +1,1 @@
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS repairs jsonb NOT NULL DEFAULT '[]'::jsonb;
