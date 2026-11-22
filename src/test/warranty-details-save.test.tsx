@@ -27,6 +27,28 @@ it("affiche les vices cachés sans fabriquer de garantie de conformité expirée
   expect(screen.queryByRole("heading", { name: "Garantie légale de conformité" })).toBeNull();
 });
 
+it("enregistre l’assurance casse ou vol sans effacer les autres garanties", async () => {
+  const item = { id: "objet", purchase_date: "2026-01-15", warranty_months: 24, warranty_details: { store: { provider: "Magasin A" } } } as unknown as Item;
+  render(<ItemWarrantyDetails item={item} />);
+  fireEvent.click(screen.getByRole("button", { name: "Ajouter l’assurance" }));
+  fireEvent.change(screen.getByLabelText("Numéro de contrat"), { target: { value: "ASSUR-2026-042" } });
+  fireEvent.change(screen.getByLabelText("Début de couverture"), { target: { value: "2026-01-15" } });
+  fireEvent.change(screen.getByLabelText("Fin de couverture"), { target: { value: "2028-01-15" } });
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer l’assurance" }));
+  await waitFor(() => expect(update).toHaveBeenCalledWith({ warranty_details: { store: { provider: "Magasin A" }, damage_theft_insurance: { contract_number: "ASSUR-2026-042", start_date: "2026-01-15", end_date: "2028-01-15" } } }));
+});
+
+it("refuse une fin de couverture antérieure au début", async () => {
+  const item = { id: "objet", purchase_date: "2026-01-15", warranty_months: 24, warranty_details: {} } as unknown as Item;
+  render(<ItemWarrantyDetails item={item} />);
+  fireEvent.click(screen.getByRole("button", { name: "Ajouter l’assurance" }));
+  fireEvent.change(screen.getByLabelText("Début de couverture"), { target: { value: "2026-02-02" } });
+  fireEvent.change(screen.getByLabelText("Fin de couverture"), { target: { value: "2026-02-01" } });
+  fireEvent.click(screen.getByRole("button", { name: "Enregistrer l’assurance" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("La fin de couverture doit être postérieure ou égale à sa date de début.");
+  expect(update).not.toHaveBeenCalled();
+});
+
 it("enregistre fournisseur, début et conditions sans effacer le contrat ni les autres garanties", async () => {
   const item = { id: "objet", purchase_date: "2026-01-15", warranty_months: 24, store_warranty_years: 2, warranty_details: { store: { provider: "Magasin A", contract_file: "contrat.pdf" }, brand: { provider: "Marque B", conditions: "Pièces" } } } as unknown as Item;
   render(<ItemWarrantyDetails item={item} />);

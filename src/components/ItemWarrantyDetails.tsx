@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { FileText } from "lucide-react";
+import { FileText, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Item } from "@/lib/items";
 import { fmt, todayISO } from "@/lib/items";
@@ -10,6 +10,7 @@ import { uploadReceipt } from "@/lib/receipt-upload";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { OfficialSources, WarrantyInfo } from "@/components/WarrantyInfo";
 import { hiddenDefectDate, legalContextFromDetails } from "@/lib/legal-warranty";
+import { insuranceCoverageError, insuranceCoverageFromDetails, type InsuranceCoverage } from "@/lib/insurance";
 import { StatusBadge } from "@/components/HouseholdUi";
 import { status } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,8 @@ export function ItemWarrantyDetails({ item }: { item: Item }) {
   const warranties = itemWarranties(item);
   const context = legalContextFromDetails(item.warranty_details);
   const defectDate = hiddenDefectDate(item.warranty_details);
+  const insurance = insuranceCoverageFromDetails(item.warranty_details);
+  const hasInsurance = Boolean(insurance.contract_number || insurance.start_date || insurance.end_date);
   const showHiddenDefect = context?.seller === "particulier" || Boolean(defectDate);
   return <div>
     <div className="mt-4 grid gap-3 sm:grid-cols-2">{warranties.map((w) => {
@@ -56,9 +59,76 @@ export function ItemWarrantyDetails({ item }: { item: Item }) {
       {defectDate && <p className="mt-2 text-sm"><span className="text-muted-foreground">Découverte du vice : </span>{fmt(defectDate)}</p>}
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">L’action doit être engagée dans les 2 ans de la découverte du vice, sous réserve du délai maximal de 20 ans et des conditions légales.</p>
     </article>}
+    <article className="min-w-0 rounded-lg border bg-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="flex min-w-0 items-center gap-2 font-sans text-sm font-semibold"><ShieldCheck className="h-4 w-4 shrink-0 text-primary" aria-hidden /><span>Assurance casse ou vol</span></h3>
+        {insurance.end_date ? <StatusBadge value={status(insurance.end_date, todayISO())} /> : <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">{hasInsurance ? "À compléter" : "Non renseignée"}</span>}
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">Suivi distinct des garanties légales et commerciales.</p>
+      <dl className="mt-3 space-y-1 text-sm">
+        <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Numéro de contrat</dt><dd className="break-words">{insurance.contract_number || "Non renseigné"}</dd></div>
+        <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Début de couverture</dt><dd>{insurance.start_date ? fmt(insurance.start_date) : "Non renseignée"}</dd></div>
+        <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Fin de couverture</dt><dd>{insurance.end_date ? fmt(insurance.end_date) : "Non renseignée"}</dd></div>
+      </dl>
+      <InsuranceCoverageEditor item={item} />
+    </article>
     {warranties.length === 0 && !showHiddenDefect && <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Informations à compléter : aucune garantie à date déterminée n’est enregistrée.</p>}
     </div>
     <div className="mt-4"><OfficialSources /></div>
+  </div>;
+}
+
+function InsuranceCoverageEditor({ item }: { item: Item }) {
+  const qc = useQueryClient();
+  const saved = insuranceCoverageFromDetails(item.warranty_details);
+  const hasSavedInsurance = Boolean(saved.contract_number || saved.start_date || saved.end_date);
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<InsuranceCoverage>(saved);
+  const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  useEffect(() => { setDraft(insuranceCoverageFromDetails(item.warranty_details)); }, [item.warranty_details]);
+
+  function cancel() {
+    setDraft(saved);
+    setErrorMessage("");
+    setOpen(false);
+  }
+
+  async function save() {
+    if (busy) return;
+    const normalized = { contract_number: draft.contract_number.trim(), start_date: draft.start_date, end_date: draft.end_date };
+    const validationError = insuranceCoverageError(normalized);
+    if (validationError) { setErrorMessage(validationError); return; }
+    setBusy(true);
+    setErrorMessage("");
+    try {
+      const existing = item.warranty_details && typeof item.warranty_details === "object" && !Array.isArray(item.warranty_details) ? item.warranty_details : {};
+      const { error } = await supabase.from("items").update({ warranty_details: { ...existing, damage_theft_insurance: normalized } }).eq("id", item.id);
+      if (error) throw error;
+      await qc.invalidateQueries({ queryKey: ["items"] });
+      setOpen(false);
+      toast.success("Assurance casse ou vol enregistrée");
+    } catch {
+      setErrorMessage("Enregistrement impossible. Vos informations restent dans le formulaire.");
+      toast.error("Enregistrement impossible. Vos informations restent dans le formulaire.");
+    } finally { setBusy(false); }
+  }
+
+  return <div className="mt-3">
+    <Rubrique compact title={hasSavedInsurance ? "Modifier l’assurance" : "Ajouter l’assurance"} open={open} onOpenChange={(next) => { if (!busy) setOpen(next); }}>
+      <fieldset disabled={busy} className="mt-3 min-w-0 space-y-3">
+        <div className="space-y-1"><Label htmlFor="insurance-contract-number">Numéro de contrat</Label><Input id="insurance-contract-number" className="h-11" value={draft.contract_number} onChange={(e) => setDraft({ ...draft, contract_number: e.target.value })} /></div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1"><Label htmlFor="insurance-start-date">Début de couverture</Label><Input id="insurance-start-date" type="date" className="h-11 min-w-0" value={draft.start_date} onChange={(e) => setDraft({ ...draft, start_date: e.target.value })} /></div>
+          <div className="space-y-1"><Label htmlFor="insurance-end-date">Fin de couverture</Label><Input id="insurance-end-date" type="date" className="h-11 min-w-0" value={draft.end_date} onChange={(e) => setDraft({ ...draft, end_date: e.target.value })} /></div>
+        </div>
+        {errorMessage && <p role="alert" className="text-sm text-destructive">{errorMessage}</p>}
+        <div className="sticky bottom-0 space-y-2 border-t bg-card py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <Button className="h-auto min-h-11 w-full whitespace-normal" disabled={busy} onClick={save}>{busy ? "Enregistrement…" : "Enregistrer l’assurance"}</Button>
+          <Button variant="outline" className="min-h-11 w-full" disabled={busy} onClick={cancel}>Annuler</Button>
+        </div>
+      </fieldset>
+    </Rubrique>
   </div>;
 }
 

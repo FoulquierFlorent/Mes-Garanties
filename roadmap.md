@@ -61,4 +61,5 @@
 - [x] Tester les calculs et le parcours d’ajout sur téléphone (140 tests réussis, ajout réel avec justificatif et rechargement vérifiés)
 - [x] Historique Réparations et SAV sur la fiche objet (prolongation légale de 6 mois, remplacement à 24 mois)
 - [x] Ajouter une intervention sur un objet de test, vérifier les calculs de garantie à l’écran et corriger les défauts trouvés (10/07/2027 partout, 145 tests réussis, objet supprimé)
+- [x] Ajouter sur la fiche objet le suivi d’une assurance casse ou vol : numéro de contrat et dates de couverture (enregistrement et rechargement vérifiés, 147 tests réussis)
 - [ ] Hors de ce lot limité : durées commerciales en mois ou années (à reprendre avec un nouveau budget)
