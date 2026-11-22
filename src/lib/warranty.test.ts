@@ -17,6 +17,16 @@ describe("garantie", () => {
       { key: "brand", label: "Garantie de marque", end: "2028-03-15" },
     ]);
   });
+  it("utilise la prolongation légale dans toutes les échéances sans modifier les garanties commerciales", () => {
+    const warranties = itemWarranties({
+      purchase_date: "2025-01-10",
+      warranty_months: 24,
+      store_warranty_years: 1,
+      repairs: [{ id: "1", type: "legal", requestDate: "2026-05-01", returnDate: "2026-05-20" }],
+    });
+    expect(warranties.find((w) => w.key === "base")?.end).toBe("2027-07-10");
+    expect(warranties.find((w) => w.key === "store")?.end).toBe("2026-01-10");
+  });
   it("préserve la garantie existante sans en inventer d'autres", () => {
     expect(itemWarranties({ purchase_date: "2024-01-31", warranty_months: 1, store_warranty_years: null, brand_warranty_years: null })).toEqual([{ key: "base", label: "Garantie légale de conformité", end: "2024-02-29" }]);
   });

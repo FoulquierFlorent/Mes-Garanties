@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { fmt } from "@/lib/items";
-import { itemWarranties } from "@/lib/warranty";
+import { baseWarrantyEnd } from "@/lib/warranty";
 import { adjustedLegalEnd, parseRepairs, partsWarrantyEnd, REPAIR_TYPES, type Repair, type RepairType } from "@/lib/repairs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ export function RepairsSection({ item }: { item: any }) {
   const empty: Repair = { id: "", type: "legal" };
   const [draft, setDraft] = useState<Repair | null>(null);
   const [saving, setSaving] = useState(false);
-  const base = itemWarranties(item).find((w) => w.key === "base")?.end ?? null;
+  const base = baseWarrantyEnd(item);
   const adjusted = adjustedLegalEnd(base, repairs);
   const set = (k: keyof Repair, v: string) => setDraft((d) => d && { ...d, [k]: k === "amount" || k === "partsWarrantyMonths" ? (v ? Number(v.replace(",", ".")) : undefined) : v || undefined });
   async function persist(next: Repair[]) {

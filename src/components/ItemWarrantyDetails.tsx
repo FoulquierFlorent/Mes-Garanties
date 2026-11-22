@@ -5,7 +5,7 @@ import { FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Item } from "@/lib/items";
 import { fmt, todayISO } from "@/lib/items";
-import { daysLeft, itemWarranties, warrantyDetail, warrantyEnd, yearsLabel, type WarrantyDetail, type WarrantyKey } from "@/lib/warranty";
+import { baseWarrantyEnd, daysLeft, itemWarranties, warrantyDetail, warrantyEnd, yearsLabel, type WarrantyDetail, type WarrantyKey } from "@/lib/warranty";
 import { uploadReceipt } from "@/lib/receipt-upload";
 import { WarrantyMarker } from "@/components/WarrantyMarker";
 import { OfficialSources, WarrantyInfo } from "@/components/WarrantyInfo";
@@ -30,15 +30,16 @@ export function ItemWarrantyDetails({ item }: { item: Item }) {
       const start = detail.start_date || item.purchase_date;
       const remaining = daysLeft(w.end, todayISO());
       const months = w.key === "base" ? item.warranty_months : (item[`${w.key}_warranty_years`] ?? 0) * 12;
+      const legallyExtended = w.key === "base" && baseWarrantyEnd(item) !== w.end;
       return <article key={w.key} className="min-w-0 rounded-lg border bg-card p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="flex min-w-0 items-center gap-2 font-sans text-sm font-semibold"><WarrantyMarker warrantyKey={w.key} /><span className="min-w-0 break-words">{w.label}</span></h3>
           <div className="flex items-center gap-1"><StatusBadge value={status(w.end, todayISO())} /><WarrantyInfo warrantyKey={w.key} /></div>
         </div>
         <dl className="mt-3 space-y-1 text-sm">
-          <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Durée</dt><dd>{months % 12 === 0 ? yearsLabel(months / 12) : `${months} mois`}</dd></div>
+          <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">{legallyExtended ? "Durée initiale" : "Durée"}</dt><dd>{months % 12 === 0 ? yearsLabel(months / 12) : `${months} mois`}</dd></div>
           <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Début</dt><dd>{fmt(start)}</dd></div>
-          <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Fin</dt><dd>{fmt(w.end)}</dd></div>
+          <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">{legallyExtended ? "Fin prolongée" : "Fin"}</dt><dd>{fmt(w.end)}</dd></div>
           <div className="flex flex-wrap justify-between gap-x-3"><dt className="text-muted-foreground">Temps restant</dt><dd>{remaining < 0 ? "Expirée" : `${remaining} jour${remaining > 1 ? "s" : ""}`}</dd></div>
           <div className="pt-2"><dt className="text-xs text-muted-foreground">{w.key === "repair" ? "Réparateur" : "Organisme responsable"}</dt><dd className="break-words">{detail.provider || (w.key === "base" || w.key === "store" ? item.store : w.key === "brand" || w.key === "constructor" ? item.brand : null) || "Non renseigné"}</dd></div>
         </dl>

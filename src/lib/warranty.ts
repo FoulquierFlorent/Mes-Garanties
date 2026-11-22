@@ -1,3 +1,5 @@
+import { adjustedLegalEnd, parseRepairs } from "@/lib/repairs";
+
 export type AlertKey = "6m" | "3m" | "1m" | "1w";
 
 export const ALERT_OPTIONS: { key: AlertKey; label: string }[] = [
@@ -69,6 +71,7 @@ export type WarrantyItem = {
   extension_warranty_years?: number | null;
   repair_warranty_years?: number | null;
   warranty_details?: unknown;
+  repairs?: unknown;
 };
 
 export type WarrantyDetail = { provider?: string; start_date?: string; conditions?: string; contract_file?: string };
@@ -81,9 +84,16 @@ export function warrantyDetail(item: { warranty_details?: unknown }, key: Warran
 
 export type Warranty = { key: WarrantyKey; label: string; end: string };
 
+/** Échéance légale initiale, avant les prolongations liées aux réparations. */
+export function baseWarrantyEnd(item: WarrantyItem): string | null {
+  if (item.warranty_months <= 0) return null;
+  return warrantyEnd(warrantyDetail(item, "base").start_date || item.purchase_date, item.warranty_months);
+}
+
 export function itemWarranties(item: WarrantyItem): Warranty[] {
   const warranties: Warranty[] = [];
-  if (item.warranty_months > 0) warranties.push({ key: "base", label: WARRANTY_LABELS.base, end: warrantyEnd(warrantyDetail(item, "base").start_date || item.purchase_date, item.warranty_months) });
+  const baseEnd = baseWarrantyEnd(item);
+  if (baseEnd) warranties.push({ key: "base", label: WARRANTY_LABELS.base, end: adjustedLegalEnd(baseEnd, parseRepairs(item.repairs)) ?? baseEnd });
   const optional: [WarrantyKey, number | null | undefined][] = [
     ["store", item.store_warranty_years],
     ["brand", item.brand_warranty_years],
