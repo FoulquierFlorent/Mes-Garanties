@@ -448,7 +448,7 @@ function AppPage() {
           <ul className="mt-5 space-y-2">{activeItems.map(renderItem)}</ul>
           {activeItems.length === 0 && <p className="mt-8 text-center text-sm text-muted-foreground">Tous ces objets sont classés.</p>}
           {archivedItems.length > 0 && (
-            <div className="mt-10 text-center"><Button asChild variant="outline"><Link to="/affaires-classees">Affaires classées ({archivedItems.length})</Link></Button></div>
+            <div className="mt-10 text-center"><Button asChild variant="outline"><Link to="/affaires-classees">Affaires classées ({archivedItems.length})</Link></Button> <Button asChild variant="outline"><Link to="/carnet" search={{}}>Carnet d’entretien</Link></Button></div>
           )}
         </>
       )}

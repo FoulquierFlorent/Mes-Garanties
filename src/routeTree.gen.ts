@@ -20,6 +20,7 @@ import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as AuthenticatedAffairesClasseesRouteImport } from './routes/_authenticated/affaires-classees'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedCalendrierRouteImport } from './routes/_authenticated/calendrier'
+import { Route as AuthenticatedCarnetRouteImport } from './routes/_authenticated/carnet'
 import { Route as AuthenticatedFoyerRouteImport } from './routes/_authenticated/foyer'
 import { Route as InvitationTokenRouteImport } from './routes/invitation.$token'
 import { Route as AuthenticatedMembreIdRouteImport } from './routes/_authenticated/membre.$id'
@@ -83,6 +84,11 @@ const AuthenticatedCalendrierRoute = AuthenticatedCalendrierRouteImport.update({
   path: '/calendrier',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCarnetRoute = AuthenticatedCarnetRouteImport.update({
+  id: '/carnet',
+  path: '/carnet',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFoyerRoute = AuthenticatedFoyerRouteImport.update({
   id: '/foyer',
   path: '/foyer',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/app': typeof AuthenticatedAppRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
+  '/carnet': typeof AuthenticatedCarnetRoute
   '/foyer': typeof AuthenticatedFoyerRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/membre/$id': typeof AuthenticatedMembreIdRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/app': typeof AuthenticatedAppRoute
   '/calendrier': typeof AuthenticatedCalendrierRoute
+  '/carnet': typeof AuthenticatedCarnetRoute
   '/foyer': typeof AuthenticatedFoyerRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/membre/$id': typeof AuthenticatedMembreIdRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/calendrier': typeof AuthenticatedCalendrierRoute
+  '/_authenticated/carnet': typeof AuthenticatedCarnetRoute
   '/_authenticated/foyer': typeof AuthenticatedFoyerRoute
   '/invitation/$token': typeof InvitationTokenRoute
   '/_authenticated/membre/$id': typeof AuthenticatedMembreIdRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/affaires-classees'
     | '/app'
     | '/calendrier'
+    | '/carnet'
     | '/foyer'
     | '/invitation/$token'
     | '/membre/$id'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/affaires-classees'
     | '/app'
     | '/calendrier'
+    | '/carnet'
     | '/foyer'
     | '/invitation/$token'
     | '/membre/$id'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/_authenticated/affaires-classees'
     | '/_authenticated/app'
     | '/_authenticated/calendrier'
+    | '/_authenticated/carnet'
     | '/_authenticated/foyer'
     | '/invitation/$token'
     | '/_authenticated/membre/$id'
@@ -335,6 +347,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCalendrierRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/carnet': {
+      id: '/_authenticated/carnet'
+      path: '/carnet'
+      fullPath: '/carnet'
+      preLoaderRoute: typeof AuthenticatedCarnetRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/foyer': {
       id: '/_authenticated/foyer'
       path: '/foyer'
@@ -391,6 +410,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAffairesClasseesRoute: typeof AuthenticatedAffairesClasseesRoute
   AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedCalendrierRoute: typeof AuthenticatedCalendrierRoute
+  AuthenticatedCarnetRoute: typeof AuthenticatedCarnetRoute
   AuthenticatedFoyerRoute: typeof AuthenticatedFoyerRoute
   AuthenticatedMembreIdRoute: typeof AuthenticatedMembreIdRoute
   AuthenticatedObjetIdRoute: typeof AuthenticatedObjetIdRoute
@@ -400,6 +420,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAffairesClasseesRoute: AuthenticatedAffairesClasseesRoute,
   AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedCalendrierRoute: AuthenticatedCalendrierRoute,
+  AuthenticatedCarnetRoute: AuthenticatedCarnetRoute,
   AuthenticatedFoyerRoute: AuthenticatedFoyerRoute,
   AuthenticatedMembreIdRoute: AuthenticatedMembreIdRoute,
   AuthenticatedObjetIdRoute: AuthenticatedObjetIdRoute,

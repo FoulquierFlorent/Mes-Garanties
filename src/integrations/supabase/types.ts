@@ -233,6 +233,71 @@ export type Database = {
           },
         ]
       }
+      maintenance_entries: {
+        Row: {
+          amount: number | null
+          by_professional: boolean
+          covered_amount: number | null
+          created_at: string
+          created_by: string
+          description: string | null
+          done_date: string | null
+          frequency_months: number | null
+          id: string
+          item_id: string
+          kind: string
+          next_date: string | null
+          notes: string | null
+          parts: string | null
+          provider: string | null
+          title: string
+        }
+        Insert: {
+          amount?: number | null
+          by_professional?: boolean
+          covered_amount?: number | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          done_date?: string | null
+          frequency_months?: number | null
+          id?: string
+          item_id: string
+          kind?: string
+          next_date?: string | null
+          notes?: string | null
+          parts?: string | null
+          provider?: string | null
+          title: string
+        }
+        Update: {
+          amount?: number | null
+          by_professional?: boolean
+          covered_amount?: number | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          done_date?: string | null
+          frequency_months?: number | null
+          id?: string
+          item_id?: string
+          kind?: string
+          next_date?: string | null
+          notes?: string | null
+          parts?: string | null
+          provider?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_entries_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_profiles: {
         Row: {
           address: string | null

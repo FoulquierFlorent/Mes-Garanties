@@ -363,6 +363,7 @@ function ItemPage() {
         </Rubrique>
         <Rubrique title="Réparations et SAV" open={openSections.includes("repairs")} onOpenChange={(o) => setSection("repairs", o)}>
           <RepairsSection item={item} />
+          <Button asChild variant="outline" size="sm" className="mt-4"><Link to="/carnet" search={{ objet: item.id }}>Ouvrir le carnet d’entretien</Link></Button>
         </Rubrique>
         <div ref={stepsRef}>
           <Rubrique
