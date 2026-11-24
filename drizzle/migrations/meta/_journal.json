@@ -169,6 +169,13 @@
       "when": 1795468774538,
       "tag": "0023_create_maintenance_entries",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795516885498,
+      "tag": "0024_lock_household_plan_updates",
+      "breakpoints": true
     }
   ]
 }

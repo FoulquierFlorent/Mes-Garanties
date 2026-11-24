@@ -68,13 +68,6 @@ function FoyerPage() {
     if (error) { toast.error("Code invalide"); return; }
     toast.success("Vous avez rejoint le foyer"); refresh();
   }
-  async function savePlan(plan: PlanId) {
-    if (!h) return;
-    const { error } = await supabase.from("households").update({ plan }).eq("id", h.id);
-    if (error) { toast.error("Enregistrement impossible"); return; }
-    toast.success("Offre enregistrée");
-    refresh();
-  }
 
   async function leave() {
     const { data } = await supabase.auth.getUser();
@@ -182,10 +175,8 @@ function FoyerPage() {
             </SettingRow>
           )}
           <SettingRow icon={<CreditCard />} title="Offre et abonnement" hint={PLAN_LABELS[h.plan as PlanId]} open={open === "plan"} onToggle={() => toggle("plan")}>
-            <Label htmlFor="household-plan">Offre du foyer</Label>
-            <select id="household-plan" value={h.plan} onChange={(e) => savePlan(e.target.value as PlanId)} className="mt-1.5 h-11 w-full rounded-md border border-input bg-background px-3 text-sm">
-              {(Object.keys(PLAN_LABELS) as PlanId[]).map((p) => <option key={p} value={p}>{PLAN_LABELS[p]}</option>)}
-            </select>
+            <p className="text-sm">Offre actuelle du foyer : <strong className="font-medium">{PLAN_LABELS[h.plan as PlanId] ?? h.plan}</strong></p>
+            <p className="mt-1 text-xs text-muted-foreground">Les droits d'abonnement sont gérés de manière sécurisée côté serveur.</p>
             <p className="mt-2 text-xs text-muted-foreground">Le dossier d'assurance est réservé aux offres Solo, Famille et Titane. <Link to="/tarifs" className="underline">Voir les tarifs</Link></p>
           </SettingRow>
           <SettingRow icon={<LifeBuoy />} title="Aide et assistance" hint="Contacter le support" open={open === "help"} onToggle={() => toggle("help")}>
