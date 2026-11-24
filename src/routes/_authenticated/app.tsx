@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, Bell, CalendarDays, Search, ShieldCheck, MoreHorizontal } from "lucide-react";
 import { isArchived, matchesSearch } from "@/lib/deadlines";
 import { supabase } from "@/integrations/supabase/client";
+import { deleteItemWithFiles } from "@/lib/item-deletion";
 import { canAddItem, FREE_ITEM_LIMIT } from "@/lib/plans";
 import { itemsQuery, householdQuery, CATEGORIES, CATEGORY_TYPES, RETURN_LABELS, todayISO, fmt, formatPrice } from "@/lib/items";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -304,7 +305,16 @@ function AppPage() {
   const today = todayISO();
   const firstYearItems = items.filter((i) => firstYearReminder(i.purchase_date) === today);
   const del = async (id: string) => {
-    await supabase.from("items").delete().eq("id", id);
+    const res = await deleteItemWithFiles(id);
+    if (!res.deleted) {
+      toast.error("Impossible de supprimer cet objet.");
+      return;
+    }
+    if (res.fileCleanupWarning) {
+      toast.message("Objet supprimé. Certains fichiers n’ont pas pu être nettoyés immédiatement.");
+    } else {
+      toast.success("Objet et fichiers associés supprimés");
+    }
     qc.invalidateQueries({ queryKey: ["items"] });
   };
   const upcoming = items.flatMap((i) => {

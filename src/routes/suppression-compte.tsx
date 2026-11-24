@@ -10,8 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SUPPORT_EMAIL } from "@/lib/support";
 import { sendSupportRequest } from "@/lib/support.functions";
 
-const TITLE = "Suppression de compte — Mes garanties";
-const DESC = "Comment supprimer définitivement votre compte Mes garanties et vos données personnelles, avec ou sans connexion.";
+const TITLE = "Suppression de compte et des données — Mes garanties";
+const DESC = "Supprimez définitivement votre compte Mes garanties ou demandez la suppression de certaines données tout en conservant votre compte.";
 
 export const Route = createFileRoute("/suppression-compte")({
   head: () => ({
@@ -27,8 +27,11 @@ export const Route = createFileRoute("/suppression-compte")({
   component: SuppressionComptePage,
 });
 
+type DeletionScope = "account" | "partial";
+
 function SuppressionComptePage() {
   const [signedInEmail, setSignedInEmail] = useState<string | null>(null);
+  const [scope, setScope] = useState<DeletionScope>("account");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
@@ -46,16 +49,21 @@ function SuppressionComptePage() {
   async function submitRequest(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (scope === "partial" && note.trim().length < 5) {
+      setError("Précisez quelles données vous souhaitez supprimer (objets, factures, photos, profil, carnet d’entretien…).");
+      return;
+    }
     setBusy(true);
     try {
+      const isPartial = scope === "partial";
       const detail = note.trim() || "Je demande la suppression définitive de mon compte Mes garanties et de mes données personnelles.";
       const res = await sendSupportRequest({
         data: {
           name: name.trim(),
           email: email.trim(),
           category: "Autre demande",
-          subject: "Demande de suppression de compte",
-          message: `Demande de suppression de compte pour l'adresse ${email.trim()}.\n\n${detail}`,
+          subject: isPartial ? "Demande de suppression partielle de données" : "Demande de suppression de compte",
+          message: `${isPartial ? "Demande de suppression partielle (compte conservé)" : "Demande de suppression définitive du compte"} pour l'adresse ${email.trim()}.\n\nDonnées concernées / précisions :\n${detail}`,
           website,
         },
       });
@@ -74,18 +82,47 @@ function SuppressionComptePage() {
   return (
     <LegalPage title="Suppression de compte et des données">
       <p>
-        Vous pouvez supprimer définitivement votre compte <strong>Mes garanties</strong> à tout moment, directement depuis l’application si vous êtes connecté, ou en envoyant une demande vérifiée depuis cette page publique.
+        Vous pouvez à tout moment choisir entre <strong>supprimer définitivement votre compte Mes garanties</strong> ou <strong>supprimer uniquement certaines de vos données tout en conservant votre compte</strong>, directement depuis l’application ou via cette page publique accessible sans connexion.
       </p>
 
-      <h2>1. Ce qui est supprimé et ce qui est conservé</h2>
+      <h2>1. Choisir le type de suppression</h2>
+      <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Type de demande de suppression">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={scope === "account"}
+          onClick={() => { setScope("account"); setError(null); }}
+          className={`rounded-xl border p-4 text-left transition-colors ${scope === "account" ? "border-primary bg-primary/5" : "bg-card hover:bg-muted/40"}`}
+        >
+          <p className="font-medium">Supprimer définitivement mon compte et les données associées</p>
+          <p className="mt-1 text-sm text-muted-foreground">Clôture définitive du compte, du profil privé et des objets personnels.</p>
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={scope === "partial"}
+          onClick={() => { setScope("partial"); setError(null); }}
+          className={`rounded-xl border p-4 text-left transition-colors ${scope === "partial" ? "border-primary bg-primary/5" : "bg-card hover:bg-muted/40"}`}
+        >
+          <p className="font-medium">Supprimer uniquement certaines de mes données en conservant mon compte</p>
+          <p className="mt-1 text-sm text-muted-foreground">Effacement ciblé (factures, photos, objets, carnet d’entretien, profil) sans fermer le compte.</p>
+        </button>
+      </div>
+
+      <h2>2. Données supprimées, données conservées et délais</h2>
       <ul>
-        <li><strong>Supprimé immédiatement :</strong> votre compte, votre adresse e-mail, votre mot de passe, votre espace privé de profil, vos préférences d’alertes et vos objets personnels avec leurs photos, tickets et factures.</li>
-        <li><strong>Objets partagés en foyer :</strong> si vous appartenez à un foyer comptant d’autres membres, les objets partagés et leurs justificatifs restent accessibles aux autres membres afin qu’ils conservent leurs garanties. Si vous êtes seul dans votre foyer, le foyer et tous ses objets sont supprimés.</li>
-        <li><strong>Sauvegardes techniques :</strong> les copies de sauvegarde de l’infrastructure sont purgées sous 30 jours maximum.</li>
+        <li><strong>Suppression de compte :</strong> suppression immédiate du compte, de l’adresse e-mail, du mot de passe, du profil privé, des préférences d’alertes et de vos objets personnels avec leurs photos, tickets, factures, textes OCR et interventions du carnet d’entretien.</li>
+        <li><strong>Suppression partielle :</strong> vous pouvez supprimer individuellement une photo ou un justificatif depuis la fiche d’un objet, un objet entier avec ses fichiers associés depuis la liste des objets, une intervention depuis le carnet d’entretien, ou demander un effacement ciblé via le formulaire ci-dessous tout en gardant votre compte actif.</li>
+        <li><strong>Particularité du foyer partagé :</strong> si vous appartenez à un foyer comptant d’autres membres, les objets partagés du foyer et leurs justificatifs restent accessibles aux autres membres afin qu’ils ne perdent pas le suivi de leurs garanties. Si vous êtes seul dans votre foyer, le foyer et l’ensemble de ses objets et fichiers sont supprimés.</li>
+        <li><strong>Délais de conservation réels :</strong> les données supprimées sont retirées immédiatement de l’application et du stockage actif. Les copies de sauvegarde techniques de l’infrastructure sont purgées sous 30 jours maximum. Les échanges liés au traitement de votre demande de support sont conservés jusqu’à 12 mois à des fins de suivi et de preuve de traitement.</li>
       </ul>
 
-      <h2>2. Suppression immédiate (si vous êtes connecté)</h2>
-      {signedInEmail ? (
+      <h2>3. Action directe dans l’application</h2>
+      {scope === "partial" ? (
+        <p>
+          Si vous êtes connecté, vous pouvez supprimer immédiatement une photo ou une facture depuis la fiche de l’objet (bouton corbeille avec confirmation), supprimer un objet complet et ses fichiers depuis <Link to="/app" className="underline">Mes objets</Link>, ou supprimer une intervention depuis le <Link to="/carnet" className="underline">Carnet d’entretien</Link>.
+        </p>
+      ) : signedInEmail ? (
         <div className="rounded-xl border bg-card p-5">
           <p className="text-sm text-muted-foreground">
             Vous êtes actuellement connecté avec <strong>{signedInEmail}</strong>. Vous pouvez supprimer votre compte immédiatement ci-dessous ou depuis la page{" "}
@@ -102,18 +139,18 @@ function SuppressionComptePage() {
         </p>
       )}
 
-      <h2>3. Demander la suppression sans connexion</h2>
+      <h2>4. Envoyer une demande sans connexion (vérification d’identité)</h2>
       <p>
-        Si vous n’avez plus accès à votre compte, utilisez le formulaire ci-dessous ou écrivez directement à{" "}
-        <a href={`mailto:${SUPPORT_EMAIL}?subject=Demande%20de%20suppression%20de%20compte`} className="underline">{SUPPORT_EMAIL}</a>.
-        Pour votre sécurité, nous vérifions votre identité par e-mail avant toute suppression manuelle ; aucun tiers ne peut supprimer un compte à votre place.
+        Utilisez le formulaire ci-dessous (sans avoir besoin d’être connecté) ou écrivez directement à{" "}
+        <a href={`mailto:${SUPPORT_EMAIL}?subject=Demande%20de%20suppression%20de%20donn%C3%A9es`} className="break-all underline">{SUPPORT_EMAIL}</a>.
+        <strong> Vérification d’identité :</strong> avant toute exécution manuelle, nous vous envoyons un message de confirmation à l’adresse e-mail associée au compte afin de vérifier que vous êtes bien le titulaire. Aucun tiers ne peut demander la suppression de vos données à votre place.
       </p>
 
       {sent ? (
         <div className="rounded-xl border bg-card p-5">
           <p className="font-medium">Demande bien enregistrée</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Nous avons reçu votre demande de suppression pour <strong>{email}</strong>. Nous vous répondrons par e-mail pour confirmer votre identité puis finaliser la suppression sous 30 jours maximum (délai légal RGPD).
+            Nous avons reçu votre demande ({scope === "partial" ? "suppression partielle, compte conservé" : "suppression définitive du compte"}) pour <strong>{email}</strong>. Nous vous répondrons par e-mail pour vérifier votre identité puis exécuter votre demande dans le délai légal RGPD de 30 jours maximum.
           </p>
         </div>
       ) : (
@@ -123,17 +160,34 @@ function SuppressionComptePage() {
             <Input id="del-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Votre nom" className="h-11" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="del-email">Adresse e-mail du compte à supprimer</Label>
+            <Label htmlFor="del-email">Adresse e-mail du compte concerné</Label>
             <Input id="del-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="vous@exemple.fr" className="h-11" />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="del-note">Précisions (facultatif)</Label>
-            <Textarea id="del-note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex. : je n'ai plus accès à l'application sur mon téléphone." />
+            <Label htmlFor="del-note">
+              {scope === "partial" ? "Données à supprimer (obligatoire)" : "Précisions (facultatif)"}
+            </Label>
+            <Textarea
+              id="del-note"
+              rows={3}
+              required={scope === "partial"}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder={
+                scope === "partial"
+                  ? "Ex. : supprimer les factures et photos de mon lave-linge, ou effacer mon historique du carnet d’entretien tout en gardant mon compte."
+                  : "Ex. : je n'ai plus accès à l'application sur mon téléphone."
+              }
+            />
           </div>
           <input type="text" name="website" value={website} onChange={(e) => setWebsite(e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={busy} className="h-11">
-            {busy ? "Envoi en cours…" : "Envoyer ma demande de suppression"}
+          <Button type="submit" disabled={busy} className="h-auto min-h-11 w-full whitespace-normal py-2.5 text-center sm:w-auto">
+            {busy
+              ? "Envoi en cours…"
+              : scope === "partial"
+                ? "Envoyer ma demande de suppression partielle"
+                : "Envoyer ma demande de suppression de compte"}
           </Button>
         </form>
       )}

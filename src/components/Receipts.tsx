@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { FileText, Trash2, Camera, Image as ImageIcon, ScanText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export function Receipts({ itemId }: { itemId: string }) {
   const qc = useQueryClient();
@@ -70,6 +71,7 @@ export function Receipts({ itemId }: { itemId: string }) {
     const { error } = await supabase.storage.from("receipts").remove([`${itemId}/${name}`, `${itemId}/${name}.ocr.txt`]);
     if (error) { toast.error("Suppression impossible"); return; }
     if (preview?.name === name) setPreview(null);
+    toast.success("Justificatif supprimé");
     qc.invalidateQueries({ queryKey: key });
   }
 
@@ -93,7 +95,19 @@ export function Receipts({ itemId }: { itemId: string }) {
               <FileText className="h-4 w-4 text-accent" />
               <Button variant="link" className="min-w-0 flex-1 justify-start p-0" onClick={() => open(f.name)}><span className="truncate">{f.name.replace(/^\d+-/, "")}</span></Button>
               {/\.(jpe?g|png|webp|bmp)$/i.test(f.name) && <Button variant="ghost" size="icon" title="Lire le ticket" aria-label={`Lire le ticket ${f.name.replace(/^\d+-/, "")}`} disabled={busy || reading !== null} onClick={() => readPhoto(f.name)}><ScanText /></Button>}
-              <Button variant="ghost" size="icon" aria-label="Supprimer" disabled={busy || reading !== null} onClick={() => remove(f.name)}><Trash2 className="h-4 w-4" /></Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild><Button variant="ghost" size="icon" aria-label="Supprimer" disabled={busy || reading !== null}><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer ce justificatif ?</AlertDialogTitle>
+                    <AlertDialogDescription>Le fichier « {f.name.replace(/^\d+-/, "")} » et son texte extrait seront définitivement supprimés du stockage. La fiche de l’objet sera conservée.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => remove(f.name)}>Supprimer</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </li>
           ))}
         </ul>
