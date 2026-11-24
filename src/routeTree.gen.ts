@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CguRouteImport } from './routes/cgu'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
+import { Route as SuppressionCompteRouteImport } from './routes/suppression-compte'
 import { Route as TarifsRouteImport } from './routes/tarifs'
 import { Route as AuthenticatedAffairesClasseesRouteImport } from './routes/_authenticated/affaires-classees'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
@@ -61,6 +62,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
   id: '/mentions-legales',
   path: '/mentions-legales',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuppressionCompteRoute = SuppressionCompteRouteImport.update({
+  id: '/suppression-compte',
+  path: '/suppression-compte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TarifsRoute = TarifsRouteImport.update({
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/suppression-compte': typeof SuppressionCompteRoute
   '/tarifs': typeof TarifsRoute
   '/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/app': typeof AuthenticatedAppRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/suppression-compte': typeof SuppressionCompteRoute
   '/tarifs': typeof TarifsRoute
   '/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/app': typeof AuthenticatedAppRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/cgu': typeof CguRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/suppression-compte': typeof SuppressionCompteRoute
   '/tarifs': typeof TarifsRoute
   '/_authenticated/affaires-classees': typeof AuthenticatedAffairesClasseesRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/mentions-legales'
+    | '/suppression-compte'
     | '/tarifs'
     | '/affaires-classees'
     | '/app'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/mentions-legales'
+    | '/suppression-compte'
     | '/tarifs'
     | '/affaires-classees'
     | '/app'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/cgu'
     | '/confidentialite'
     | '/mentions-legales'
+    | '/suppression-compte'
     | '/tarifs'
     | '/_authenticated/affaires-classees'
     | '/_authenticated/app'
@@ -261,6 +273,7 @@ export interface RootRouteChildren {
   CguRoute: typeof CguRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
+  SuppressionCompteRoute: typeof SuppressionCompteRoute
   TarifsRoute: typeof TarifsRoute
   InvitationTokenRoute: typeof InvitationTokenRoute
   ApiExportsTypeRoute: typeof ApiExportsTypeRoute
@@ -317,6 +330,13 @@ declare module '@tanstack/react-router' {
       path: '/mentions-legales'
       fullPath: '/mentions-legales'
       preLoaderRoute: typeof MentionsLegalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppression-compte': {
+      id: '/suppression-compte'
+      path: '/suppression-compte'
+      fullPath: '/suppression-compte'
+      preLoaderRoute: typeof SuppressionCompteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tarifs': {
@@ -437,6 +457,7 @@ const rootRouteChildren: RootRouteChildren = {
   CguRoute: CguRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
+  SuppressionCompteRoute: SuppressionCompteRoute,
   TarifsRoute: TarifsRoute,
   InvitationTokenRoute: InvitationTokenRoute,
   ApiExportsTypeRoute: ApiExportsTypeRoute,
