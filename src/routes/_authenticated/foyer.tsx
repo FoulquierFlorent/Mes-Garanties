@@ -191,6 +191,12 @@ function FoyerPage() {
           <SettingRow icon={<LifeBuoy />} title="Aide et assistance" hint="Contacter le support" open={open === "help"} onToggle={() => toggle("help")}>
             <p className="text-sm text-muted-foreground">Une question, un problème ou une demande de résiliation ? Écrivez-nous.</p>
             <Button asChild variant="outline" className="mt-3 h-11"><Link to="/aide">Ouvrir le centre d'aide</Link></Button>
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t pt-3 text-xs text-muted-foreground">
+              <Link to="/mentions-legales" className="hover:underline">Mentions légales</Link>
+              <Link to="/confidentialite" className="hover:underline">Confidentialité</Link>
+              <Link to="/cgu" className="hover:underline">CGU</Link>
+              <Link to="/suppression-compte" className="hover:underline">Suppression de compte</Link>
+            </div>
           </SettingRow>
         </div>
 
