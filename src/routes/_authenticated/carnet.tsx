@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { BookOpen, Wrench, Plus } from "lucide-react";
+import { BookOpen, Wrench, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { itemsQuery, todayISO, fmt, formatPrice } from "@/lib/items";
-import { MAINTENANCE_KINDS, FREQUENCIES, suggestionsFor, entryStatus, addMonths, totals, type MaintenanceKind } from "@/lib/maintenance";
+import { MAINTENANCE_KINDS, FREQUENCIES, suggestionsFor, entryStatus, addMonths, parseCustomMonths, totals, type MaintenanceKind } from "@/lib/maintenance";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,6 +51,13 @@ function CarnetPage() {
     }
     qc.invalidateQueries({ queryKey: ["maintenance"] });
   };
+  const removeEntry = async (id: string) => {
+    if (!window.confirm("Supprimer cette intervention du carnet ?")) return;
+    const { error } = await supabase.from("maintenance_entries").delete().eq("id", id);
+    if (error) { toast.error("Suppression impossible."); return; }
+    toast.success("Intervention supprimée");
+    qc.invalidateQueries({ queryKey: ["maintenance"] });
+  };
 
   const Row = ({ e }: { e: (typeof entries)[number] }) => {
     const [label, color] = STATUS[entryStatus(e, today)];
@@ -66,7 +73,10 @@ function CarnetPage() {
           {e.done_date && ` · fait le ${fmt(e.done_date)}`}{e.next_date && ` · prévu le ${fmt(e.next_date)}`}
           {e.amount != null && ` · ${formatPrice(Number(e.amount))}`}{e.provider && ` · ${e.provider}`}
         </p>
-        {e.next_date && <Button size="sm" variant="outline" className="mt-2" onClick={() => markDone(e.id, e.frequency_months)}>Marquer comme effectué</Button>}
+        <div className="mt-2 flex flex-wrap gap-2">
+          {e.next_date && <Button size="sm" variant="outline" onClick={() => markDone(e.id, e.frequency_months)}>Marquer comme effectué</Button>}
+          <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-destructive" onClick={() => removeEntry(e.id)}><Trash2 className="h-3.5 w-3.5" />Supprimer</Button>
+        </div>
       </li>
     );
   };
@@ -95,15 +105,16 @@ function CarnetPage() {
 }
 
 function AddForm({ items, defaultItem, onDone }: { items: { id: string; name: string; category: string }[]; defaultItem?: string | undefined; onDone: () => void }) {
-  const [f, setF] = useState({ item_id: defaultItem ?? items[0]?.id ?? "", kind: "courant", title: "", done_date: todayISO(), next_date: "", freq: "", description: "", provider: "", pro: true, amount: "", covered: "", parts: "", notes: "" });
+  const [f, setF] = useState({ item_id: defaultItem ?? items[0]?.id ?? "", kind: "courant", title: "", done_date: todayISO(), next_date: "", freq: "", customFreq: "", description: "", provider: "", pro: true, amount: "", covered: "", parts: "", notes: "" });
   const [saving, setSaving] = useState(false);
   const set = (k: keyof typeof f, v: string | boolean) => setF((p) => ({ ...p, [k]: v }));
   const item = items.find((i) => i.id === f.item_id);
   const num = (s: string) => (s.trim() ? Number(s.replace(",", ".")) : null);
   const submit = async (): Promise<void> => {
     if (!f.item_id || !f.title.trim()) { toast.error("Choisissez un objet et indiquez l’intervention."); return; }
+    if (f.freq === "custom" && !parseCustomMonths(f.customFreq)) { toast.error("Indiquez un nombre de mois entre 1 et 120."); return; }
     setSaving(true);
-    const freq = f.freq ? Number(f.freq) : null;
+    const freq = f.freq === "custom" ? parseCustomMonths(f.customFreq) : f.freq ? Number(f.freq) : null;
     const next = f.next_date || (freq && f.done_date ? addMonths(f.done_date, freq) : null);
     const { error } = await supabase.from("maintenance_entries").insert({
       item_id: f.item_id, kind: f.kind, title: f.title.trim(), done_date: f.done_date || null, next_date: next, frequency_months: freq,
@@ -124,7 +135,8 @@ function AddForm({ items, defaultItem, onDone }: { items: { id: string; name: st
       <div className="grid gap-3 sm:grid-cols-2">
         <div><Label>Date de l’intervention</Label><Input type="date" value={f.done_date} onChange={(e) => set("done_date", e.target.value)} /></div>
         <div><Label>Prochain entretien</Label><Input type="date" value={f.next_date} onChange={(e) => set("next_date", e.target.value)} /></div>
-        <div><Label>Répéter</Label><select className={sel} value={f.freq} onChange={(e) => set("freq", e.target.value)}><option value="">Pas de répétition</option>{FREQUENCIES.map((q) => <option key={q.v} value={q.v}>{q.l}</option>)}</select></div>
+        <div><Label>Répéter</Label><select className={sel} value={f.freq} onChange={(e) => set("freq", e.target.value)}><option value="">Pas de répétition</option>{FREQUENCIES.map((q) => <option key={q.v} value={q.v}>{q.l}</option>)}<option value="custom">Personnalisée (en mois)</option></select></div>
+        {f.freq === "custom" && <div><Label>Tous les combien de mois ?</Label><Input inputMode="numeric" placeholder="Ex. 4" value={f.customFreq} onChange={(e) => set("customFreq", e.target.value)} /></div>}
         <div><Label>Réalisé par</Label><select className={sel} value={f.pro ? "1" : "0"} onChange={(e) => set("pro", e.target.value === "1")}><option value="1">Un professionnel</option><option value="0">Moi-même</option></select></div>
         <div><Label>Professionnel / réparateur</Label><Input value={f.provider} onChange={(e) => set("provider", e.target.value)} /></div>
         <div><Label>Montant payé (€)</Label><Input inputMode="decimal" value={f.amount} onChange={(e) => set("amount", e.target.value)} /></div>

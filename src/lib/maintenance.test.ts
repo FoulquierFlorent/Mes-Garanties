@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { totals, entryStatus, addMonths } from "./maintenance";
+import { totals, entryStatus, addMonths, parseCustomMonths } from "./maintenance";
 const e = (o: object) => ({ kind: "courant", done_date: null, next_date: null, amount: null, covered_amount: null, ...o });
 describe("carnet d'entretien", () => {
   it("lave-linge : 35 € entretien, 89 € réparation, 120 € pris en charge", () => {
@@ -14,4 +14,11 @@ describe("carnet d'entretien", () => {
     expect(entryStatus(e({}), "2026-02-01")).toBe("fait");
   });
   it("prochain entretien", () => expect(addMonths("2026-01-31", 12)).toBe("2027-01-31"));
+  it("fréquence personnalisée en mois", () => {
+    expect(parseCustomMonths("4")).toBe(4);
+    expect(parseCustomMonths("0")).toBeNull();
+    expect(parseCustomMonths("-2")).toBeNull();
+    expect(parseCustomMonths("1.5")).toBeNull();
+    expect(parseCustomMonths("abc")).toBeNull();
+  });
 });

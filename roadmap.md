@@ -52,7 +52,8 @@
 - [x] Rétablir le repère rouge de la garantie légale de conformité dans l’ajout d’un objet
 - [x] Réafficher les cinq garanties supplémentaires les unes sous les autres avec leurs couleurs et vérifier leur saisie sur téléphone
 - [x] Carnet d’entretien étape 1 (page, ajout, suggestions, totaux)
-- [ ] Carnet étapes 2 à 4 (récurrence au calendrier et rappels, garanties de réparation et frise, export PDF et lien SAV)
+- [x] Carnet d’entretien étape 2 (entretiens au calendrier, fréquence personnalisée en mois, suppression)
+- [ ] Carnet étapes 3 à 4 (garanties de réparation, coût réel et frise sur la fiche, export PDF et lien SAV)
 - [x] Tester la saisie et l’enregistrement des cinq garanties supplémentaires : ajout, modification et conservation après rechargement vérifiés, aucun défaut trouvé
 - [x] Vérifier les garanties et leurs couleurs lors de la modification d’un objet existant : valeurs et six codes couleur corrects après rechargement
 

@@ -4,6 +4,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ArrowUpRight, Bell } from "lucide-react";
 import { itemsQuery, todayISO, fmt } from "@/lib/items";
+import { maintenanceQuery } from "@/routes/_authenticated/carnet";
+import { entryStatus } from "@/lib/maintenance";
 import { ALERT_LEAD_LABELS, alertDate, firstYearReminder, itemWarranties, toISO, type AlertKey } from "@/lib/warranty";
 import { Button } from "@/components/ui/button";
 import { ReminderMarker, WarrantyMarker, WARRANTY_LEGEND } from "@/components/WarrantyMarker";
@@ -11,11 +13,14 @@ import { groupByItem, type Deadline, type ItemDeadlines } from "@/lib/deadlines"
 
 export const Route = createFileRoute("/_authenticated/calendrier")({
   head: () => ({ meta: [{ title: "Calendrier des garanties — Mes garanties" }, { name: "description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:title", content: "Calendrier des garanties — Mes garanties" }, { property: "og:description", content: "Retrouvez les fins de garantie et les alertes des objets de votre foyer." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(itemsQuery),
+  loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(itemsQuery), context.queryClient.ensureQueryData(maintenanceQuery)]),
   component: CalendarPage,
 });
 
 type Ev = { id: string; name: string; warranty: string; warrantyKey: string; kind: "end" | "first-year" | AlertKey };
+type MaintEv = { id: string; itemId: string; itemName: string; title: string; date: string; status: "retard" | "bientot" | "programme" | "fait" };
+const MAINT_DOT = { retard: "bg-destructive", bientot: "bg-warranty-extension", programme: "bg-warranty-brand", fait: "bg-warranty-repair" } as const;
+const MAINT_LABEL = { retard: "Entretien en retard", bientot: "Entretien bientôt", programme: "Entretien prévu", fait: "Entretien effectué" } as const;
 
 const kindLabel = (k: Ev["kind"]) => k === "end" ? "Fin de garantie" : k === "first-year" ? "Fin de la première année" : `Alerte ${ALERT_LEAD_LABELS[k]}`;
 const short = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
@@ -37,10 +42,12 @@ function ItemLine({ g, showDates }: { g: ItemDeadlines; showDates: boolean }) {
 
 function CalendarPage() {
   const { data: items } = useSuspenseQuery(itemsQuery);
+  const { data: maintenance } = useSuspenseQuery(maintenanceQuery);
   const now = new Date();
   const [ym, setYm] = useState({ y: now.getFullYear(), m: now.getMonth() });
   const [selected, setSelected] = useState<string | null>(null);
   const [showAlerts, setShowAlerts] = useState(true);
+  const [showMaint, setShowMaint] = useState(true);
   const events = new Map<string, Ev[]>();
   const push = (d: string, e: Ev) => events.set(d, [...(events.get(d) ?? []), e]);
   items.forEach((i) => {
@@ -58,9 +65,20 @@ function CalendarPage() {
   const cells = Array.from({ length: offset + days }, (_, k) => (k < offset ? null : toISO(new Date(Date.UTC(ym.y, ym.m, k - offset + 1)))));
   const shift = (d: number) => { setSelected(null); setYm(({ y, m }) => ({ y: m + d < 0 ? y - 1 : m + d > 11 ? y + 1 : y, m: (m + d + 12) % 12 })); };
   const today = todayISO();
+  const maintMap = new Map<string, MaintEv[]>();
+  if (showMaint) {
+    const itemNames = new Map(items.map((i) => [i.id, i.name]));
+    maintenance.forEach((m) => {
+      if (!m.next_date) return;
+      const ev: MaintEv = { id: m.id, itemId: m.item_id, itemName: itemNames.get(m.item_id) ?? "Objet", title: m.title, date: m.next_date, status: entryStatus(m, today) };
+      maintMap.set(m.next_date, [...(maintMap.get(m.next_date) ?? []), ev]);
+    });
+  }
   const monthEvents = [...events.entries()].filter(([d]) => d.startsWith(`${ym.y}-${String(ym.m + 1).padStart(2, "0")}`)).sort();
   const visibleEvents = selected ? monthEvents.filter(([d]) => d === selected) : monthEvents;
   const visibleGroups = groupByItem(visibleEvents.flatMap(([date, evs]) => evs.map((e): Deadline => ({ ...e, date, label: kindLabel(e.kind) }))));
+  const monthPrefix = `${ym.y}-${String(ym.m + 1).padStart(2, "0")}`;
+  const visibleMaint = [...maintMap.entries()].filter(([d]) => (selected ? d === selected : d.startsWith(monthPrefix))).sort().flatMap(([, list]) => list);
 
   return (
     <main className="mx-auto max-w-4xl px-5 py-12">
@@ -78,6 +96,7 @@ function CalendarPage() {
         {WARRANTY_LEGEND.map((w) => <span key={w.key} className="flex items-center gap-1.5"><WarrantyMarker warrantyKey={w.key} />{w.label}</span>)}
         <span className="flex items-center gap-1.5"><ReminderMarker />Rappel</span>
         <label className="flex items-center gap-1.5"><input type="checkbox" checked={showAlerts} onChange={(e) => setShowAlerts(e.target.checked)} className="accent-accent" /><Bell className="h-3 w-3 text-muted-foreground" />Alertes</label>
+        <label className="flex items-center gap-1.5"><input type="checkbox" checked={showMaint} onChange={(e) => setShowMaint(e.target.checked)} className="accent-accent" /><span className="inline-block h-2 w-2 rounded-full bg-warranty-brand" />Entretiens</label>
       </div>
       <div className="mt-8 grid grid-cols-7 gap-px overflow-hidden rounded-lg border bg-border text-sm">
         {["L", "M", "M", "J", "V", "S", "D"].map((d, k) => (
@@ -85,14 +104,20 @@ function CalendarPage() {
         ))}
         {cells.map((d, k) => {
           const ev = d ? events.get(d) ?? [] : [];
+          const mv = d ? maintMap.get(d) ?? [] : [];
           return (
-            d ? <Button key={k} variant="ghost" aria-label={`${fmt(d)}, ${ev.length} événement(s)`} aria-pressed={selected === d} onClick={() => setSelected(selected === d ? null : d)} className={`relative h-16 min-w-0 flex-col items-start justify-start gap-0 rounded-none bg-calendar-day p-1.5 sm:h-20 ${selected === d ? `bg-calendar-day ring-2 ring-inset ${d === today ? "ring-destructive" : "ring-primary"}` : d === today ? "ring-2 ring-inset ring-destructive" : ""}`}>
+            d ? <Button key={k} variant="ghost" aria-label={`${fmt(d)}, ${ev.length + mv.length} événement(s)`} aria-pressed={selected === d} onClick={() => setSelected(selected === d ? null : d)} className={`relative h-16 min-w-0 flex-col items-start justify-start gap-0 rounded-none bg-calendar-day p-1.5 sm:h-20 ${selected === d ? `bg-calendar-day ring-2 ring-inset ${d === today ? "ring-destructive" : "ring-primary"}` : d === today ? "ring-2 ring-inset ring-destructive" : ""}`}>
               <span className="text-xs text-muted-foreground">{Number(d.slice(8))}</span>
               <div className="mt-1 flex w-full flex-col gap-1">
                 {WARRANTY_LEGEND.map((w) => {
                   const ends = ev.filter((e) => e.warrantyKey === w.key && e.kind === "end");
                   return ends.length > 0 ? <WarrantyMarker key={w.key} warrantyKey={w.key} className="w-full" title={ends.map((e) => `${e.name} · ${e.warranty}`).join("\n")} /> : null;
                 })}
+                {mv.length > 0 && (
+                  <span className="flex items-center gap-1" title={mv.map((m) => `${m.itemName} · ${m.title}`).join("\n")}>
+                    {mv.slice(0, 3).map((m) => <span key={m.id} className={`inline-block h-2 w-2 rounded-full ${MAINT_DOT[m.status]}`} />)}
+                  </span>
+                )}
               </div>
               {ev.some((e) => e.kind !== "end") && (
                 <span className="absolute right-1 top-1.5 flex items-center gap-1">
@@ -106,8 +131,24 @@ function CalendarPage() {
       </div>
       <div className="mt-8 space-y-2">
         <div className="flex items-center justify-between gap-3"><h2 className="text-2xl">{selected ? fmt(selected) : "Échéances du mois"}</h2>{selected && <Button variant="ghost" size="sm" onClick={() => setSelected(null)}>Tout le mois</Button>}</div>
-        {visibleEvents.length === 0 && <p className="text-sm text-muted-foreground">{selected ? "Aucune échéance ce jour." : "Aucune échéance ce mois-ci."}</p>}
-        <ul className="divide-y border-y">{visibleGroups.map((g) => <li key={g.id}><ItemLine g={g} showDates={!selected} /></li>)}</ul>
+        {visibleEvents.length === 0 && visibleMaint.length === 0 && <p className="text-sm text-muted-foreground">{selected ? "Aucune échéance ce jour." : "Aucune échéance ce mois-ci."}</p>}
+        {(visibleGroups.length > 0 || visibleMaint.length > 0) && (
+          <ul className="divide-y border-y">
+            {visibleGroups.map((g) => <li key={g.id}><ItemLine g={g} showDates={!selected} /></li>)}
+            {visibleMaint.map((m) => (
+              <li key={`m-${m.id}`}>
+                <Link to="/carnet" search={{ objet: m.itemId }} className="flex items-start gap-3 py-2.5 text-sm hover:text-accent">
+                  <span className="w-14 shrink-0 pt-0.5 text-xs text-muted-foreground tabular-nums">{short(m.date)}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2"><span className="truncate font-medium">{m.itemName} — {m.title}</span><span className={`inline-block h-2 w-2 shrink-0 rounded-full ${MAINT_DOT[m.status]}`} /></span>
+                    <span className="block text-xs text-muted-foreground">{MAINT_LABEL[m.status]}</span>
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </main>
   );

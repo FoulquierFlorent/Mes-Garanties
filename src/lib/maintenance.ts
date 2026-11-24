@@ -27,6 +27,10 @@ export function entryStatus(e: Entry, today: string): Status {
 export function addMonths(iso: string, m: number): string {
   const d = new Date(iso + "T00:00:00Z"); d.setUTCMonth(d.getUTCMonth() + m); return d.toISOString().slice(0, 10);
 }
+export function parseCustomMonths(raw: string): number | null {
+  const n = Number(raw.trim());
+  return Number.isInteger(n) && n >= 1 && n <= 120 ? n : null;
+}
 /** Montants payés : la part prise en charge par une garantie n'est jamais comptée comme payée. */
 export function totals(entries: Entry[]) {
   let maintenance = 0, repair = 0, covered = 0;
