@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Récupération du code source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Installation de Bun
         uses: oven-sh/setup-bun@v2
@@ -31,18 +31,29 @@ jobs:
           bun-version: latest
 
       - name: Installation de Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "21"
 
-      - name: Configuration du SDK Android
-        uses: android-actions/setup-android@v3
-
-      - name: Installation de Android SDK API 36
+      - name: Vérification du SDK Android préinstallé et installation de l'API 36
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ ! -d "$SDK_ROOT" ]; then
+            echo "SDK Android introuvable dans $SDK_ROOT" >&2
+            exit 1
+          fi
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+
+          SDKMANAGER="$(command -v sdkmanager || find "$SDK_ROOT/cmdline-tools" -name sdkmanager -type f 2>/dev/null | sort -V | tail -n 1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "sdkmanager introuvable dans $SDK_ROOT/cmdline-tools" >&2
+            exit 1
+          fi
+
+          yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses > /dev/null || true
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Installation des dépendances
         run: bun install --frozen-lockfile
@@ -63,7 +74,7 @@ jobs:
 
       - name: Publication de l'APK de test
         if: ${{ inputs.build_type == 'debug-apk' || inputs.build_type == 'both' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mes-garanties-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
@@ -103,7 +114,7 @@ jobs:
 
       - name: Publication de l'AAB de distribution
         if: ${{ inputs.build_type == 'release-aab' || inputs.build_type == 'both' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mes-garanties-release-aab
           path: android/app/build/outputs/bundle/release/*.aab
