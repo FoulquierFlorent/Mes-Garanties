@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Mes Garanties</string>
+    <string name="title_activity_main">Mes Garanties</string>
+    <string name="package_name">com.mesgaranties.app</string>
+    <string name="custom_url_scheme">com.mesgaranties.app</string>
+</resources>
