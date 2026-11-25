@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Archive, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { downloadBlob, fetchAuthenticatedExport } from "@/lib/authenticated-download";
+import { fetchAuthenticatedExport, saveOrShareBlob } from "@/lib/authenticated-download";
 import { todayISO } from "@/lib/items";
 
 export function TitaneExports({ plan }: { plan: string }) {
@@ -15,7 +15,9 @@ export function TitaneExports({ plan }: { plan: string }) {
       const type = kind === "zip" ? "justificatifs-zip" : "comptable-csv";
       const blob = await fetchAuthenticatedExport(`/api/exports/${type}`);
       const filename = kind === "zip" ? `justificatifs-titane-${todayISO()}.zip` : `export-comptable-titane-${todayISO()}.csv`;
-      downloadBlob(blob, filename);
+      await saveOrShareBlob(blob, filename, {
+        title: kind === "zip" ? "Justificatifs (ZIP)" : "Export comptable (CSV)",
+      });
       toast.success(kind === "zip" ? "ZIP des justificatifs téléchargé" : "CSV comptable téléchargé");
     } catch {
       toast.error("L’export n’a pas pu être préparé. Réessayez.");

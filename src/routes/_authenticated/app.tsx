@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { buildInventoryCsv } from "@/lib/inventory-csv";
+import { saveOrShareBlob } from "@/lib/authenticated-download";
 import { QUICK_FILTERS, applyQuickFilter, protectedValue, sortByDeadline, type QuickFilter } from "@/lib/deadlines";
 import { toast } from "sonner";
 import { Plus, Trash2, Bell, CalendarDays, Search, ShieldCheck, MoreHorizontal } from "lucide-react";
@@ -371,7 +372,7 @@ function AppPage() {
           {household && <p className="mt-2 font-serif text-base italic text-foreground/75">Vos biens comptent. Gardez-en la preuve.</p>}
           {household && <p className="mt-1 text-sm text-muted-foreground">Partagé avec {household.members.length} personne(s)</p>}
         </div>
-        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button>{allItems.length > 0 && <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="icon" aria-label="Plus d’options" title="Plus d’options"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { const url = URL.createObjectURL(new Blob([buildInventoryCsv(allItems, today0)], { type: "text/csv;charset=utf-8" })); const a = document.createElement("a"); a.href = url; a.download = `inventaire-garanties-${today0}.csv`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 30000); }}>Exporter l’inventaire (CSV)</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}<AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
+        <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><Button asChild variant="outline" size="icon" aria-label="Calendrier des garanties" title="Calendrier des garanties"><Link to="/calendrier"><CalendarDays /></Link></Button>{allItems.length > 0 && <DropdownMenu><DropdownMenuTrigger asChild><Button variant="outline" size="icon" aria-label="Plus d’options" title="Plus d’options"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => { void saveOrShareBlob(new Blob([buildInventoryCsv(allItems, today0)], { type: "text/csv;charset=utf-8" }), `inventaire-garanties-${today0}.csv`, { title: "Inventaire des garanties (CSV)" }); }}>Exporter l’inventaire (CSV)</DropdownMenuItem></DropdownMenuContent></DropdownMenu>}<AddItem householdId={household?.id ?? null} blocked={!canAddItem(household?.plan ?? "gratuit", allItems.length)} /></div>
       </div>
       {allItems.length > 0 && <div className="mt-4 space-y-3"><InsuranceExport items={allItems} plan={household?.plan ?? "gratuit"} /><TitaneExports plan={household?.plan ?? "gratuit"} /></div>}
       {allItems.length > 0 && (

@@ -1,4 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
+import { isNativeApp, supportsWebShareFiles } from "@/lib/platform";
+
+export type NativeFileDownloader = (blob: Blob, filename: string, title?: string) => Promise<void>;
+
+let nativeFileDownloader: NativeFileDownloader | null = null;
+
+/**
+ * Allows the Capacitor mobile layer (Step 2: Filesystem + Share plugins)
+ * to handle PDF, CSV and ZIP exports natively.
+ */
+export function registerNativeFileDownloader(handler: NativeFileDownloader | null): void {
+  nativeFileDownloader = handler;
+}
 
 export async function fetchAuthenticatedExport(path: string): Promise<Blob> {
   const { data: { session } } = await supabase.auth.getSession();
@@ -20,4 +33,32 @@ export function downloadBlob(blob: Blob, filename: string): void {
   anchor.click();
   anchor.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
+}
+
+export async function saveOrShareBlob(
+  blob: Blob,
+  filename: string,
+  options?: { title?: string },
+): Promise<"native" | "share" | "download"> {
+  if (isNativeApp() && nativeFileDownloader) {
+    await nativeFileDownloader(blob, filename, options?.title);
+    return "native";
+  }
+
+  if (isNativeApp() && typeof File !== "undefined") {
+    const file = new File([blob], filename, { type: blob.type || "application/octet-stream" });
+    if (supportsWebShareFiles(file)) {
+      try {
+        await navigator.share({ files: [file], title: options?.title ?? filename });
+        return "share";
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return "share";
+        }
+      }
+    }
+  }
+
+  downloadBlob(blob, filename);
+  return "download";
 }

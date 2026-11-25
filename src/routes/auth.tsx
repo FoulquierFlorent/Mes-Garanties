@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithOAuthProvider } from "@/lib/mobile-auth";
 import "@lovable.dev/cloud-auth-js/styles.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,7 +52,7 @@ function AuthPage() {
   }
 
   async function oauth(p: "google" | "lovable") {
-    const r = await lovable.auth.signInWithOAuth(p, { redirect_uri: window.location.origin });
+    const r = await signInWithOAuthProvider(p);
     if (r.error) { toast.error("Connexion impossible"); return; }
     if (r.redirected) { return; }
     navigate({ to: "/calendrier" });

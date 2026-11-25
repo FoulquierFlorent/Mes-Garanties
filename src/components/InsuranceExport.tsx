@@ -10,7 +10,7 @@ import { Lock, FileCheck } from "lucide-react";
 import { todayISO, type Item } from "@/lib/items";
 import { filterItemsByPeriod, insuranceFileName } from "@/lib/insurance-pdf";
 import { canExportInsurance } from "@/lib/plans";
-import { downloadBlob, fetchAuthenticatedExport } from "@/lib/authenticated-download";
+import { fetchAuthenticatedExport, saveOrShareBlob } from "@/lib/authenticated-download";
 
 type Mode = "all" | "year" | "range";
 
@@ -53,9 +53,11 @@ export function InsuranceExport({ items, plan = "gratuit" }: { items: Item[]; pl
     }
   };
 
-  const download = () => {
+  const download = async () => {
     if (!ready) return;
-    downloadBlob(ready.blob, insuranceFileName(plan, ready.label, todayISO()));
+    await saveOrShareBlob(ready.blob, insuranceFileName(plan, ready.label, todayISO()), {
+      title: `Dossier assurance (${ready.label})`,
+    });
     setReady(null);
     setOpen(false);
   };
