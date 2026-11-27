@@ -19,21 +19,65 @@ jobs:
   build-ios:
     name: Compilation iOS sans signature
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Récupération du code source
         uses: actions/checkout@v4
 
-      - name: Sélection de la dernière version stable de Xcode (Xcode 26+ si disponible)
+      - name: Sélection obligatoire de la dernière version stable de Xcode 26 ou supérieur
+        shell: bash
         run: |
-          BEST_XCODE=$(ls -d /Applications/Xcode_26*.app /Applications/Xcode_*.app /Applications/Xcode.app 2>/dev/null | grep -v -i beta | head -n 1 || true)
-          if [ -n "$BEST_XCODE" ]; then
-            echo "Sélection de : $BEST_XCODE"
-            sudo xcode-select -s "$BEST_XCODE/Contents/Developer"
-          fi
+          set -euo pipefail
+          echo "::group::Environnement macOS et installations Xcode"
+          sw_vers
+          uname -m
+          ls -ld /Applications/Xcode*.app
+          echo "::endgroup::"
+          BEST_XCODE=$(python3 - <<'PY'
+          import glob
+          import os
+          import re
+          import subprocess
+          import sys
+
+          candidates = []
+          for path in glob.glob('/Applications/Xcode*.app'):
+              path = os.path.realpath(path)
+              if re.search(r'beta|preview|rc', os.path.basename(path), re.I):
+                  continue
+              env = dict(os.environ, DEVELOPER_DIR=path + '/Contents/Developer')
+              result = subprocess.run(['xcodebuild', '-version'], env=env,
+                                      capture_output=True, text=True)
+              print(f'{path}: {result.stdout.strip() or result.stderr.strip()}', file=sys.stderr)
+              match = re.search(r'^Xcode (\d+(?:\.\d+)*)\s*$', result.stdout, re.M)
+              if result.returncode == 0 and match:
+                  version = tuple(int(part) for part in match.group(1).split('.'))
+                  if version[0] >= 26:
+                      candidates.append((version, path))
+          if not candidates:
+              sys.exit('Aucune version stable de Xcode >= 26 disponible sur ce runner.')
+          print(max(candidates)[1])
+          PY
+          )
+          export DEVELOPER_DIR="$BEST_XCODE/Contents/Developer"
+          echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
+          sudo xcode-select --switch "$DEVELOPER_DIR"
+          echo "Sélection de : $DEVELOPER_DIR"
+          sudo env DEVELOPER_DIR="$DEVELOPER_DIR" xcodebuild -runFirstLaunch
+          echo "::group::SDK et outils actifs"
+          xcode-select -p
           xcodebuild -version
-          xcodebuild -showsdks | grep iphoneos || true
+          xcodebuild -showsdks
+          xcrun --find ibtool
+          xcrun --sdk iphoneos --show-sdk-path
+          SDK_VERSION=$(xcrun --sdk iphoneos --show-sdk-version)
+          if [ "${SDK_VERSION%%.*}" -lt 26 ]; then
+            echo "::error::SDK iPhoneOS $SDK_VERSION incompatible : iOS 26 ou supérieur requis."
+            exit 1
+          fi
+          xcrun simctl list runtimes
+          echo "::endgroup::"
 
       - name: Installation de Bun
         uses: oven-sh/setup-bun@v2
@@ -50,8 +94,39 @@ jobs:
           cd ios/App
           pod install --repo-update
 
-      - name: Compilation de l'archive iOS (sans signature)
+      - name: Vérification effective de la plateforme iOS et d'Interface Builder
+        shell: bash
         run: |
+          set -euo pipefail
+          CHECK_DIR=$(mktemp -d "$RUNNER_TEMP/ios-platform-check.XXXXXX")
+          trap 'rm -rf "$CHECK_DIR"' EXIT
+          check_storyboard() {
+            xcrun --sdk iphoneos ibtool \
+              --compile "$CHECK_DIR/LaunchScreen.storyboardc" \
+              ios/App/App/Base.lproj/LaunchScreen.storyboard \
+              --target-device iphone --target-device ipad \
+              --errors --warnings --notices
+          }
+          if ! check_storyboard > "$CHECK_DIR/ibtool.log" 2>&1; then
+            cat "$CHECK_DIR/ibtool.log"
+            if ! grep -Ei 'Platform Not Installed|runtime.*(not found|not installed|unavailable)|No available simulator runtimes|Failed to find.*runtime' "$CHECK_DIR/ibtool.log"; then
+              echo "::error::Échec Interface Builder non lié à une plateforme manquante."
+              exit 1
+            fi
+            echo "::notice::Installation des composants iOS manquants pour le Xcode sélectionné."
+            xcodebuild -downloadPlatform iOS
+            sudo env DEVELOPER_DIR="$DEVELOPER_DIR" xcodebuild -runFirstLaunch
+            xcrun simctl list runtimes
+            check_storyboard
+          else
+            cat "$CHECK_DIR/ibtool.log"
+          fi
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -showdestinations
+
+      - name: Compilation de l'archive iOS (sans signature)
+        shell: bash
+        run: |
+          set -euo pipefail
           mkdir -p build
           xcodebuild \
             -workspace ios/App/App.xcworkspace \
@@ -59,10 +134,22 @@ jobs:
             -configuration "${{ inputs.configuration }}" \
             -destination "generic/platform=iOS" \
             -archivePath "$PWD/build/MesGaranties.xcarchive" \
+            -resultBundlePath "$PWD/build/MesGaranties.xcresult" \
             archive \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="" 2>&1 | tee build/xcodebuild.log
+
+      - name: Conservation des diagnostics de compilation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mes-garanties-ios-diagnostics-${{ inputs.configuration }}
+          path: |
+            build/xcodebuild.log
+            build/MesGaranties.xcresult
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Vérification de l'archive générée
         run: |
