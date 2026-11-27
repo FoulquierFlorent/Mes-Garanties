@@ -18,7 +18,7 @@ permissions:
 jobs:
   build-ios:
     name: Compilation iOS sans signature
-    runs-on: macos-15
+    runs-on: macos-26-intel
     timeout-minutes: 60
 
     steps:
